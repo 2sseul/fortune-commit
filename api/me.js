@@ -1,5 +1,6 @@
 // /api/me: 로그인한 사람의 도감 정보와 스킨 장착 (v2.1)
 //   GET  → { loggedIn, login, equipped, skins: [{ id, unlocked, current, goal, unit }] }
+//   GET ?brief=1 → { loggedIn, login, equipped } (헤더용, GitHub 활동은 확인하지 않아 빠르다)
 //   POST → { skin: '이름' } 을 보내면 장착한다. 해금한 스킨만 장착할 수 있다.
 // 다른 사람의 설정은 바꿀 수 없다: 장착은 항상 서명된 로그인 쿠키의 아이디에만 저장한다.
 
@@ -44,6 +45,12 @@ export default async function handler(req, res) {
   const login = sessionLogin(req);
   if (!login) {
     sendJson(res, req.method === 'GET' ? 200 : 401, { loggedIn: false });
+    return;
+  }
+
+  // 헤더처럼 로그인 여부만 필요할 때는 GitHub 활동을 확인하지 않고 바로 돌려준다.
+  if (req.method === 'GET' && new URL(req.url, 'http://localhost').searchParams.get('brief')) {
+    sendJson(res, 200, { loggedIn: true, login, equipped: (await getEquippedSkin(login)) ?? null });
     return;
   }
 

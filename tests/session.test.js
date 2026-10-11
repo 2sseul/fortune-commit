@@ -83,3 +83,12 @@ test('로그인하면 내 아이디와 스킨 목록을 돌려준다', async () 
   assert.equal(res.body.login, '2sseul');
   assert.equal(res.body.skins.length, 11);
 });
+
+test('로그인 후 돌아갈 주소는 우리 사이트 안의 경로만 허용한다', async () => {
+  const { safeNextPath } = await import('../src/session.js');
+  assert.equal(safeNextPath('/collection.html'), '/collection.html');
+  assert.equal(safeNextPath('/'), '/');
+  assert.equal(safeNextPath('https://evil.example'), '/');
+  assert.equal(safeNextPath('//evil.example'), '/');
+  assert.equal(safeNextPath(undefined), '/');
+});

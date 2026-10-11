@@ -21,84 +21,50 @@
 
 import { getTheme } from '../src/themes.js';
 import { renderWidget, renderClosedCard } from '../src/render.js';
-import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../src/pick.js';
 import { parseStyleOptions } from '../src/options.js';
-import { fetchActivity, fetchYearActivity } from '../src/github.js';
-import { getSkin } from '../src/skins.js';
-import { getEquippedSkin } from '../src/store.js';
-import { skinStatus, progressText } from '../src/unlocks.js';
-
-const LOCKED_CACHE_SECONDS = 5 * 60; // 잠긴 화면은 5분만 캐시 (커밋하면 곧 열리도록)
+import { resolveWidget } from '../src/widget-data.js';
 
 export default async function handler(req, res) {
   // 주소 뒤의 옵션을 읽는다.
   const { searchParams } = new URL(req.url, 'http://localhost');
   const theme = getTheme(searchParams.get('theme'));
-  const user = normalizeUser(searchParams.get('user'));
-  const lang = searchParams.get('lang') === 'en' ? 'en' : 'ko';
-  const tz = searchParams.get('tz');
-  const date = todayIn(tz);
   const style = parseStyleOptions(searchParams);
-  const preview = searchParams.get('preview');
-  const isPreview = preview === 'locked' || preview === 'open';
-  // 스킨: 주인이 도감에서 장착한 스킨 → 없으면 README의 skin= → 없으면 기본 쿠키
-  //       (미리보기에서는 장착 설정을 보지 않고 주소의 skin=을 그대로 쓴다)
-  const equipped = user && !isPreview ? await getEquippedSkin(user) : null;
-  const requestedSkin = getSkin(equipped ?? searchParams.get('skin'));
 
-  // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
-  const command = user ? `fortune --user ${user}` : 'fortune --today';
+  // 오늘의 운세·잠금·스킨 정하기 (사이트 첫 화면의 큰 쿠키와 같은 규칙, src/widget-data.js)
+  const widget = await resolveWidget({
+    user: searchParams.get('user'),
+    lang: searchParams.get('lang'),
+    tz: searchParams.get('tz'),
+    skin: searchParams.get('skin'),
+    preview: searchParams.get('preview'),
+  });
+  const en = widget.lang === 'en';
 
-  // GitHub 활동 확인 (확인할 수 없으면 null → 잠그지 않고, 고른 스킨을 그대로 보여준다)
-  //   activity : 오늘 기여 수, 지난 7일 기여 수, 주 언어 → 잠금과 운세
-  //   year     : 올해 활동 → 스킨 해금 (기본 쿠키이거나 미리보기면 확인하지 않는다)
-  const needYear = requestedSkin.id !== 'plain' && !isPreview;
-  const [activity, year] = await Promise.all([
-    fetchActivity({ login: user, timeZone: tz, date }),
-    needYear ? fetchYearActivity({ login: user, timeZone: tz, date }) : null,
-  ]);
-
-  // 스킨 해금: 조건을 못 채웠으면 기본 쿠키를 쓰고, 진행 상황을 한 줄 보여준다.
-  const status = isPreview ? { unlocked: true } : skinStatus(requestedSkin.id, year);
-  const skin = status.unlocked ? requestedSkin : getSkin('plain');
-  const progressLine = status.unlocked ? [] : [{ key: 'skin', value: progressText(requestedSkin.id, status) }];
-
-  // 테스트용 미리보기: preview=locked / preview=open 이면 기여 수와 상관없이 그 화면을 보여준다.
-  const locked = isPreview ? preview === 'locked' : activity?.today === 0;
-
-  let svg;
-  let cacheSeconds;
-  if (locked) {
-    svg = renderClosedCard({
+  const svg = widget.locked
+    ? renderClosedCard({
       theme,
-      command,
-      hint: lang === 'en' ? 'Commit today to open it' : '오늘 커밋하면 열려요',
-      label: lang === 'en'
+      command: widget.command,
+      hint: en ? 'Commit today to open it' : '오늘 커밋하면 열려요',
+      label: en
         ? "Today's fortune cookie is locked. Make a contribution today to open it."
         : '오늘의 포춘쿠키가 잠겨 있어요. 오늘 기여를 하면 열려요.',
       detail: { key: 'today_contributions', value: '0' },
       style,
-      skin,
-    });
-    cacheSeconds = LOCKED_CACHE_SECONDS;
-  } else {
-    const { fortune, lucky } = pickFortune({ user, date, lang, activity });
-    svg = renderWidget({
+      skin: widget.skin,
+    })
+    : renderWidget({
       theme,
-      command,
-      fortune,
-      lucky: [...lucky, ...progressLine],
-      label: lang === 'en' ? "Today's fortune" : '오늘의 운세',
+      command: widget.command,
+      fortune: widget.fortune,
+      lucky: [...widget.lucky, ...widget.progressLine],
+      label: en ? "Today's fortune" : '오늘의 운세',
       style,
-      skin,
+      skin: widget.skin,
     });
-    // 운세는 자정에 바뀌므로 다음 자정까지만 캐시한다. 단, 너무 오래 묵지 않게 최대 1시간.
-    cacheSeconds = Math.max(60, Math.min(3600, secondsUntilMidnight(tz)));
-  }
 
   res.statusCode = 200;
   res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
   // GitHub는 README 이미지를 자체 서버(camo)에 캐시하는데, 이 시간이 지나면 새로 받아 간다.
-  res.setHeader('Cache-Control', `public, max-age=${cacheSeconds}, s-maxage=${cacheSeconds}`);
+  res.setHeader('Cache-Control', `public, max-age=${widget.cacheSeconds}, s-maxage=${widget.cacheSeconds}`);
   res.end(svg);
 }

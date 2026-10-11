@@ -1,7 +1,9 @@
 // /api/auth/login: GitHub 로그인 화면으로 보낸다. (v2.1)
 // 돌아왔을 때 우리 사이트에서 시작한 로그인이 맞는지 확인하려고, 일회용 state 값을 쿠키에도 적어 둔다.
 
-import { STATE_COOKIE, cookieHeader, randomState, isSecureRequest } from '../../src/session.js';
+import {
+  STATE_COOKIE, NEXT_COOKIE, cookieHeader, randomState, isSecureRequest, safeNextPath,
+} from '../../src/session.js';
 
 export default function handler(req, res) {
   const clientId = process.env.GITHUB_CLIENT_ID;
@@ -20,7 +22,13 @@ export default function handler(req, res) {
     allow_signup: 'true',
   });
   res.statusCode = 302;
-  res.setHeader('Set-Cookie', cookieHeader(STATE_COOKIE, state, { maxAgeSeconds: 600, secure: isSecureRequest(req) }));
+  // 로그인 후 돌아갈 페이지 (?next=/collection.html 처럼 받는다. 없으면 메인)
+  const next = safeNextPath(new URL(req.url, 'http://localhost').searchParams.get('next') ?? '/');
+  const secure = isSecureRequest(req);
+  res.setHeader('Set-Cookie', [
+    cookieHeader(STATE_COOKIE, state, { maxAgeSeconds: 600, secure }),
+    cookieHeader(NEXT_COOKIE, next, { maxAgeSeconds: 600, secure }),
+  ]);
   res.setHeader('Location', `https://github.com/login/oauth/authorize?${params}`);
   res.end();
 }

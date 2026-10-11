@@ -251,3 +251,56 @@ export function renderClosedCard({
   ${detail ? renderCodeLine(t, { x: textX, y: hintY + LINE + 4, ...detail }) : ''}
 </svg>`;
 }
+
+// 사이트 첫 화면의 큰 쿠키 그림 (터미널 창 없이 쿠키만, 배경 투명)
+//   mode: 'closed' → 안 열린 쿠키가 '눌러 보세요' 하듯 가끔 흔들린다
+//         'crack'  → 흔들리다가 갈라지고 쪽지가 빠져나온다 (누른 뒤 보여준다)
+export function renderCookieArt({ theme: t, skin = null, mode = 'closed', pixel = 8 }) {
+  const box = cookieBox(pixel, skin);
+  const pad = pixel * 4; // 반짝이·흔들림이 잘리지 않게 둘레에 여백을 둔다.
+  const width = box.width + pad * 2;
+  const height = box.height + pad * 2;
+  const x = pad;
+  const y = pad + box.top;
+  const style = mode === 'crack'
+    ? `
+    .cookie, .cookie-front, .cookie-back, .cookie-paper { transform-box: fill-box; transform-origin: center; }
+    .cookie-closed { animation: shake 0.5s ease-in-out, vanish 0.01s linear 0.5s forwards; }
+    @keyframes shake {
+      0%, 100% { transform: rotate(0); }
+      20% { transform: rotate(-9deg); } 40% { transform: rotate(9deg); }
+      60% { transform: rotate(-6deg); } 80% { transform: rotate(6deg); }
+    }
+    @keyframes vanish { to { opacity: 0; } }
+    .cookie-open { opacity: 0; animation: appear 0.01s linear 0.5s forwards; }
+    @keyframes appear { to { opacity: 1; } }
+    .cookie-open .cookie-front { animation: crack-front 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.3) 0.5s backwards; }
+    .cookie-open .cookie-back { animation: crack-back 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.3) 0.5s backwards; }
+    @keyframes crack-front { from { transform: translate(5px, 3px) rotate(8deg); } }
+    @keyframes crack-back { from { transform: translate(-8px, 4px) rotate(-12deg); } }
+    .cookie-open .cookie-paper { animation: slide-paper 0.5s ease-out 0.8s backwards; }
+    @keyframes slide-paper { from { transform: translate(-20px, 3px); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+      .cookie-closed { display: none; }
+      .cookie-open { opacity: 1; }
+    }`
+    : `
+    .cookie { transform-box: fill-box; transform-origin: center; }
+    .cookie-closed { animation: nudge 3s ease-in-out 0.8s infinite; }
+    @keyframes nudge {
+      0%, 20%, 100% { transform: rotate(0); }
+      4% { transform: rotate(-8deg); } 8% { transform: rotate(8deg); }
+      12% { transform: rotate(-5deg); } 16% { transform: rotate(5deg); }
+    }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }`;
+  const cookies = mode === 'crack'
+    ? `${renderPixelCookie({ colors: t.cookie, pixel, x, y, state: 'closed', skin })}
+  ${renderPixelCookie({ colors: t.cookie, pixel, x, y, state: 'open', skin })}`
+    : renderPixelCookie({ colors: t.cookie, pixel, x, y, state: 'closed', skin });
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${mode === 'crack' ? '갈라지는 포춘쿠키' : '포춘쿠키'}">
+  <style>${style}
+  </style>
+  ${cookies}
+</svg>`;
+}

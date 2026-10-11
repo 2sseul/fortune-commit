@@ -148,7 +148,7 @@
     function renderAccount(me) {
       const box = document.getElementById('account');
       box.replaceChildren();
-      const error = new URLSearchParams(location.search).get('error');
+      const error = new URLSearchParams(location.search).get('login_error');
       if (error && ERRORS[error]) {
         const p = document.createElement('p');
         p.className = 'error';
@@ -158,7 +158,7 @@
       if (!me.loggedIn) {
         const login = document.createElement('a');
         login.className = 'button';
-        login.href = '/api/auth/login';
+        login.href = '/api/auth/login?next=/collection.html';
         login.textContent = 'GitHub로 로그인';
         const note = document.createElement('p');
         note.className = 'progress';

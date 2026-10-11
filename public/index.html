@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>fortune-commit</title>
-  <meta name="description" content="GitHub README에 붙이는 오늘의 개발자 운세 포춘쿠키 위젯">
+  <meta name="description" content="커밋하면 열리는 오늘의 개발자 운세. GitHub README에 붙이는 픽셀 포춘쿠키 위젯">
   <style>
-    /* 예시 갤러리 페이지 스타일: 위젯과 같은 터미널 느낌 */
+    /* 서비스 메인 페이지: 어두운 터미널 감성 */
     :root {
       --bg: #0d1117;
       --panel: #161b22;
@@ -16,8 +16,10 @@
       --green: #3fb950;
       --yellow: #f2cc60;
       --orange: #ffa657;
+      --blue: #79c0ff;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       background: var(--bg);
@@ -25,129 +27,392 @@
       font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace;
       line-height: 1.6;
     }
-    main { max-width: 1080px; margin: 0 auto; padding: 48px 16px 64px; }
-    h1 { margin: 0; font-size: 28px; }
-    h1 .prompt { color: var(--green); }
-    .lead { color: var(--muted); margin: 8px 0 0; }
-    .intro { margin-top: 28px; }
-    .intro p { margin: 0 0 16px; }
-    .intro ul { margin: 16px 0 0; padding-left: 20px; color: var(--muted); }
-    .skins-link { color: var(--yellow); font-weight: 700; }
-    .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
-    .flow figure { margin: 0; }
-    .flow img { display: block; max-width: 100%; height: auto; }
-    .flow figcaption { margin-top: 6px; font-size: 13px; color: var(--muted); }
-    .steps {
-      margin: 28px 0 36px;
-      padding: 16px 20px;
+    a { color: inherit; }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+    /* 헤더 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(13, 17, 23, 0.9);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--border);
+    }
+    header .wrap { display: flex; align-items: center; gap: 16px; height: 60px; }
+    .logo { font-weight: 700; text-decoration: none; font-size: 17px; white-space: nowrap; }
+    .logo .prompt { color: var(--green); }
+    nav { display: flex; gap: 14px; margin-left: auto; align-items: center; font-size: 14px; }
+    nav > a { color: var(--muted); text-decoration: none; }
+    nav > a:hover { color: var(--text); }
+    .login {
+      padding: 6px 14px;
+      background: var(--green);
+      color: #0d1117;
+      border-radius: 6px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .github-icon { display: inline-flex; color: var(--muted); }
+    .github-icon svg { width: 22px; height: 22px; fill: currentColor; }
+
+    /* 로그인한 사람 메뉴 */
+    .account { position: relative; }
+    .account > button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px 4px 4px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .account img { width: 28px; height: 28px; border-radius: 50%; }
+    .account ul {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      min-width: 170px;
+      margin: 0;
+      padding: 6px;
+      list-style: none;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .account li a { display: block; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+    .account li a:hover { background: var(--bg); }
+
+    /* 첫 화면 */
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px; align-items: center; min-height: calc(100vh - 60px); padding: 40px 16px; }
+    .cookie-button { display: block; margin: 0 auto; padding: 0; background: none; border: 0; cursor: pointer; }
+    .cookie-button img { display: block; width: min(100%, 380px); height: auto; image-rendering: pixelated; }
+    .cookie-hint { text-align: center; color: var(--muted); font-size: 13px; }
+    .hero h1 { margin: 0; font-size: clamp(32px, 6vw, 56px); line-height: 1.15; }
+    .hero h1 .prompt { color: var(--green); }
+    .hero .tagline { margin: 12px 0 24px; font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); }
+    .hero .tagline strong { color: var(--yellow); }
+    .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cta a {
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid var(--green);
+    }
+    .cta .primary { background: var(--green); color: #0d1117; }
+    .cta .secondary { color: var(--green); }
+
+    /* 쿠키를 누르면 나오는 터미널 출력 */
+    .output {
+      margin-top: 24px;
+      padding: 14px 16px;
+      min-height: 110px;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 10px;
+      font-size: 14px;
     }
-    .steps ol { margin: 0; padding-left: 20px; }
-    .steps code { color: var(--orange); }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(100%, 495px), 1fr));
-      gap: 24px;
+    .output p { margin: 0 0 6px; }
+    .output .prompt { color: var(--green); font-weight: 700; }
+    .output .fortune { color: var(--yellow); font-weight: 700; }
+    .output .key { color: var(--blue); }
+    .output .value { color: var(--orange); }
+    .output .note { color: var(--muted); font-size: 13px; }
+    .cursor { display: inline-block; width: 8px; height: 1em; vertical-align: text-bottom; background: var(--text); animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .shake { animation: shake 0.5s; }
+    @keyframes shake {
+      0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); }
     }
-    .example {
-      min-width: 0; /* 긴 코드 줄 때문에 카드가 화면 밖으로 넓어지지 않게 */
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-    }
-    .example h2 { margin: 0 0 12px; font-size: 15px; color: var(--yellow); }
 
-    /* 위젯 미리보기: 밝은 테마 예시는 밝은 바탕 위에 보여준다 */
+    /* 아래쪽 섹션 */
+    section.block { padding: 64px 0; border-top: 1px solid var(--border); }
+    section.block h2 { margin: 0 0 8px; font-size: 24px; }
+    section.block h2 .prompt { color: var(--green); }
+    section.block .sub { margin: 0 0 28px; color: var(--muted); }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+    .step { min-width: 0; padding: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+    .step h3 { margin: 0 0 10px; font-size: 15px; color: var(--yellow); }
+    .step img { display: block; width: 100%; height: auto; }
+    .step p { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+    .commit-box { padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+    .commit-box .prompt { color: var(--green); }
+    .skins { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
+    .skins a { padding: 10px 6px; text-align: center; text-decoration: none; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; color: var(--muted); }
+    .skins a:hover { border-color: var(--green); color: var(--text); }
+    .skins img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+    .more { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 20px; }
+    .more a { color: var(--yellow); }
+
+    /* 갤러리 */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 495px), 1fr)); gap: 24px; }
+    .example { min-width: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .example.featured { grid-column: 1 / -1; border-color: var(--green); }
+    .example h3 { margin: 0 0 12px; font-size: 15px; color: var(--yellow); }
+    .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
     .preview { border-radius: 8px; padding: 12px; }
     .preview.dark { background: #0d1117; }
     .preview.light { background: #ffffff; }
     .preview img { display: block; max-width: 100%; height: auto; margin: 0 auto; cursor: pointer; }
-    .preview figcaption { margin-top: 6px; font-size: 12px; text-align: center; color: #8b949e; }
+    .code pre { margin: 12px 0 0; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--muted); overflow-x: auto; }
+    .code button { margin-top: 8px; width: 100%; padding: 8px 14px; background: var(--green); color: #0d1117; border: 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
-    /* 추천 카드(자동 전환)는 한 줄을 다 쓰고, 다크·라이트 미리보기를 나란히 보여준다 */
-    .example.featured { grid-column: 1 / -1; border-color: var(--green); }
-    .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
+    footer { padding: 32px 0 48px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
 
-    .code { margin-top: 12px; }
-    .code pre {
-      margin: 0;
-      padding: 10px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      overflow-x: auto;
+    /* 좁은 화면에서는 쿠키 위, 글자 아래 */
+    @media (max-width: 760px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; gap: 16px; }
+      nav > a.wide { display: none; }
     }
-    .code button {
-      margin-top: 8px;
-      width: 100%;
-      padding: 8px 14px;
-      background: var(--green);
-      color: #0d1117;
-      border: 0;
-      border-radius: 6px;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
+    @media (prefers-reduced-motion: reduce) {
+      .cursor, .shake { animation: none; }
+      html { scroll-behavior: auto; }
     }
-    .code button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
-    footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
-    footer a { color: var(--muted); }
   </style>
 </head>
 <body>
+  <header>
+    <div class="wrap">
+      <a class="logo" href="/"><span class="prompt">$</span> fortune-commit</a>
+      <nav aria-label="메뉴">
+        <a class="wide" href="#how">이렇게 동작해요</a>
+        <a class="wide" href="/skins.html">스킨</a>
+        <a class="wide" href="#gallery">위젯 달기</a>
+        <span id="account-slot"><a class="login" href="/api/auth/login?next=/">로그인</a></span>
+        <a class="github-icon" href="https://github.com/2sseul/fortune-commit" aria-label="GitHub 저장소">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        </a>
+      </nav>
+    </div>
+  </header>
+
   <main>
-    <h1><span class="prompt">$</span> fortune-commit</h1>
-    <p class="lead">GitHub README에 붙이는 오늘의 개발자 운세 포춘쿠키 위젯</p>
-
-    <section class="intro" aria-label="서비스 소개">
-      <p>
-        README에 붙여 두면 <strong>매일 나만의 개발자 운세</strong>가 담긴 픽셀 포춘쿠키가 나타나요.
-        단, 쿠키는 <strong>오늘 커밋(기여)을 해야</strong> 열립니다. 🥠
-      </p>
-      <div class="flow">
-        <figure>
-          <img id="flow-locked" alt="오늘 기여 전: 잠긴 쿠키" width="495">
-          <figcaption>① 오늘 기여 전: 쿠키가 잠겨 있어요</figcaption>
-        </figure>
-        <figure>
-          <img id="flow-open" alt="오늘 기여 후: 쿠키가 열리고 운세가 나옴" width="495">
-          <figcaption>② 커밋하면: 쿠키가 갈라지며 오늘의 운세!</figcaption>
-        </figure>
+    <!-- 첫 화면: 큰 쿠키를 누르면 오늘의 운세 -->
+    <div class="wrap hero">
+      <div>
+        <button type="button" class="cookie-button" id="cookie" aria-label="포춘쿠키 열기">
+          <img id="cookie-img" src="/api/cookie?mode=closed" alt="포춘쿠키" width="328" height="296">
+        </button>
+        <p class="cookie-hint" id="cookie-hint">👆 쿠키를 눌러 오늘의 운세를 열어 보세요</p>
       </div>
-      <ul>
-        <li>같은 사람은 하루 종일 같은 운세, 사람마다 다른 운세</li>
-        <li>지난 7일의 활동(열일·꾸준·새싹·복귀)과 주 사용 언어에 맞춘 문구</li>
-        <li>매일 한국 시간 자정에 새 운세 · 한국어 / English · 다크 / 라이트</li>
-        <li>🍪 활동으로 모으는 쿠키 스킨 11종 → <a class="skins-link" href="/collection.html">도감에서 로그인하고 장착하기</a> · <a class="skins-link" href="/skins.html">스킨 둘러보기</a></li>
-      </ul>
+      <div>
+        <h1><span class="prompt">$</span> fortune-commit</h1>
+        <p class="tagline">커밋하면 열리는 <strong>오늘의 개발자 운세</strong>.<br>GitHub 프로필에 픽셀 포춘쿠키를 달아 보세요.</p>
+        <div class="cta">
+          <a class="primary" href="#gallery">내 프로필에 달기</a>
+          <a class="secondary" id="cta-second" href="/api/auth/login?next=/">로그인하고 스킨 모으기</a>
+        </div>
+        <div class="output" id="output" aria-live="polite">
+          <p><span class="prompt">$</span> <span id="output-command">fortune --today</span></p>
+          <p class="note">쿠키를 누르면 여기에 오늘의 운세가 나와요. <span class="cursor"></span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 이렇게 동작해요 -->
+    <section class="block" id="how">
+      <div class="wrap">
+        <h2><span class="prompt">$</span> 이렇게 동작해요</h2>
+        <p class="sub">README에 위젯을 달아 두면, 매일 한국 시간 0시에 쿠키가 잠기고 커밋하면 열려요.</p>
+        <div class="steps">
+          <div class="step">
+            <h3>① 0시가 되면 쿠키가 잠겨요</h3>
+            <img src="/api?user=octocat&preview=locked" alt="잠긴 쿠키 위젯" loading="lazy">
+            <p>오늘 커밋(push, PR, 이슈, 리뷰)을 하기 전까지는 운세를 볼 수 없어요.</p>
+          </div>
+          <div class="step">
+            <h3>② 오늘의 커밋을 해요</h3>
+            <div class="commit-box">
+              <p style="margin:0"><span class="prompt">$</span> git commit -m "feat: 오늘도 한 칸"</p>
+              <p style="margin:0"><span class="prompt">$</span> git push</p>
+            </div>
+            <p>공개 저장소에 push하면 몇 분 안에 위젯이 바뀌어요.</p>
+          </div>
+          <div class="step">
+            <h3>③ 쿠키가 갈라지며 운세가 나와요</h3>
+            <img src="/api?user=octocat&preview=open" alt="열린 쿠키 위젯" loading="lazy">
+            <p>같은 날에는 어디서 봐도 같은 운세. 지난 7일 활동과 주 사용 언어에 맞춘 문구도 나와요.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="steps" aria-label="사용 방법">
-      <ol>
-        <li>마음에 드는 예시의 <strong>코드 복사</strong>를 누릅니다. 맨 위 자동 전환 버전을 추천해요.</li>
-        <li>README에 붙여 넣고, <code>YOUR_GITHUB_ID</code>를 본인 GitHub 아이디로 바꿉니다. (모두 바꿔 주세요)</li>
-        <li>끝! 오늘 커밋(기여)을 하기 전에는 쿠키가 잠겨 있고, 커밋하면 쿠키가 열리며 오늘의 운세가 나옵니다.</li>
-        <li>참고: 위젯을 다는 커밋도 오늘의 기여로 세져서, <strong>첫날은 바로 열려 있어요.</strong> 다음 날부터는 커밋해야 열립니다.</li>
-      </ol>
+    <!-- 스킨 미리보기 -->
+    <section class="block" id="skins">
+      <div class="wrap">
+        <h2><span class="prompt">$</span> 활동으로 모으는 쿠키 스킨</h2>
+        <p class="sub">커밋, PR, 코드 리뷰, 연속 기여… 업적을 달성하면 새 쿠키가 해금돼요. 로그인해서 도감에서 장착하면 위젯에 바로 적용돼요.</p>
+        <div class="skins" id="skin-strip"></div>
+        <div class="more">
+          <a href="/collection.html">→ 내 도감 보기</a>
+          <a href="/skins.html">→ 스킨 11종과 해금 조건</a>
+        </div>
+      </div>
     </section>
 
-    <!-- 예시 카드는 아래 스크립트가 EXAMPLES 목록으로 만든다 -->
-    <div class="grid" id="examples"></div>
-
-    <footer>
-      옵션(너비, 모서리, 시간대 등)은
-      <a href="https://github.com/2sseul/fortune-commit#readme">README</a>에서 볼 수 있어요.
-    </footer>
+    <!-- 갤러리: 예시와 README 코드 -->
+    <section class="block" id="gallery">
+      <div class="wrap">
+        <h2><span class="prompt">$</span> 내 프로필에 달기</h2>
+        <p class="sub">코드를 복사해 GitHub 프로필 README에 붙이고, <code>YOUR_GITHUB_ID</code>를 내 아이디로 바꾸면 끝! 위젯을 다는 커밋도 오늘의 기여라서 첫날은 바로 열려 있어요.</p>
+        <div class="grid" id="examples"></div>
+      </div>
+    </section>
   </main>
 
+  <footer>
+    <div class="wrap">
+      fortune-commit · 모든 쿠키 그림은 오리지널이에요 ·
+      <a href="https://github.com/2sseul/fortune-commit#readme">README와 옵션</a>
+    </div>
+  </footer>
+
   <script>
-    // 갤러리에 보여줄 예시 목록 (다크/라이트 × 한국어/영어)
+    const origin = window.location.origin;
+    const SITE = `${origin}/`;
+
+    // 스킨 이름 (src/skins.js와 같은 순서)
+    const SKINS = [
+      ['plain', '기본'], ['choco', '초코'], ['matcha', '말차'], ['gold', '황금'],
+      ['cat', '고양이'], ['dog', '강아지'], ['rabbit', '토끼'], ['pumpkin', '호박'],
+      ['snowman', '눈사람'], ['deer', '사슴'], ['santa', '산타'],
+    ];
+
+    // ---------- 헤더: 로그인 상태 ----------
+    async function loadAccount() {
+      let me = { loggedIn: false };
+      try {
+        me = await (await fetch('/api/me?brief=1', { cache: 'no-store' })).json();
+      } catch {
+        // 확인하지 못하면 로그인 버튼을 그대로 둔다.
+      }
+      if (!me.loggedIn) return me;
+
+      const slot = document.getElementById('account-slot');
+      const box = document.createElement('div');
+      box.className = 'account';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-haspopup', 'true');
+      const avatar = document.createElement('img');
+      avatar.src = `https://github.com/${encodeURIComponent(me.login)}.png?size=56`;
+      avatar.alt = '';
+      const name = document.createElement('span');
+      name.textContent = me.login;
+      button.append(avatar, name);
+
+      const menu = document.createElement('ul');
+      menu.hidden = true;
+      for (const [label, href] of [['🍪 내 도감', '/collection.html'], ['🎨 스킨 둘러보기', '/skins.html'], ['🚪 로그아웃', '/api/auth/logout']]) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = href;
+        a.textContent = label;
+        li.append(a);
+        menu.append(li);
+      }
+      button.addEventListener('click', () => {
+        menu.hidden = !menu.hidden;
+        button.setAttribute('aria-expanded', String(!menu.hidden));
+      });
+      document.addEventListener('click', (event) => {
+        if (!box.contains(event.target)) { menu.hidden = true; button.setAttribute('aria-expanded', 'false'); }
+      });
+      box.append(button, menu);
+      slot.replaceChildren(box);
+
+      const second = document.getElementById('cta-second');
+      second.textContent = '내 도감 보기';
+      second.href = '/collection.html';
+      return me;
+    }
+
+    // ---------- 첫 화면: 큰 쿠키 ----------
+    let fortuneData = null;
+    let opened = false;
+
+    async function loadFortune() {
+      try {
+        fortuneData = await (await fetch('/api/fortune', { cache: 'no-store' })).json();
+      } catch {
+        fortuneData = null;
+      }
+      const skin = fortuneData?.skin ?? 'plain';
+      document.getElementById('cookie-img').src = `/api/cookie?skin=${skin}&mode=closed`;
+      document.getElementById('output-command').textContent = fortuneData?.user ? `fortune --user ${fortuneData.user}` : 'fortune --today';
+    }
+
+    // 터미널 출력 줄 만들기
+    function line(className, ...parts) {
+      const p = document.createElement('p');
+      if (className) p.className = className;
+      p.append(...parts);
+      return p;
+    }
+    function span(className, text) {
+      const s = document.createElement('span');
+      s.className = className;
+      s.textContent = text;
+      return s;
+    }
+
+    function openCookie() {
+      const img = document.getElementById('cookie-img');
+      const output = document.getElementById('output');
+      const command = document.getElementById('output-command').textContent;
+      const hint = document.getElementById('cookie-hint');
+
+      // 잠겨 있으면 흔들기만 하고 안내를 보여준다.
+      if (!fortuneData || fortuneData.locked) {
+        img.classList.remove('shake');
+        void img.offsetWidth; // 애니메이션을 처음부터 다시 재생하기 위한 트릭
+        img.classList.add('shake');
+        output.replaceChildren(
+          line('', span('prompt', '$'), ` ${command}`),
+          line('fortune', fortuneData ? '> 🔒 오늘의 쿠키가 아직 잠겨 있어요.' : '> 운세를 불러오지 못했어요. 잠시 후 다시 눌러 주세요.'),
+          line('note', fortuneData ? '오늘 0시 이후에 공개 저장소에 커밋을 push하면 몇 분 안에 열려요.' : ''),
+        );
+        return;
+      }
+
+      // 열기: 갈라지는 쿠키로 바꾸고, 갈라진 뒤 운세를 출력한다.
+      img.src = `/api/cookie?skin=${fortuneData.skin}&mode=crack&t=${Date.now()}`;
+      hint.textContent = opened ? '👆 다시 눌러도 오늘의 운세는 같아요' : '🥠 쿠키가 열렸어요!';
+      opened = true;
+      output.replaceChildren(line('', span('prompt', '$'), ` ${command}`));
+      setTimeout(() => {
+        output.append(line('fortune', `> ${fortuneData.fortune}`));
+        for (const { key, value } of fortuneData.lucky) {
+          output.append(line('', span('key', key), ' = ', span('value', `"${value}"`)));
+        }
+        if (!fortuneData.user) {
+          output.append(line('note', '로그인하면 나만의 운세와 내 쿠키 스킨으로 볼 수 있어요.'));
+        }
+      }, 1200);
+    }
+    document.getElementById('cookie').addEventListener('click', openCookie);
+
+    // ---------- 스킨 줄 ----------
+    const strip = document.getElementById('skin-strip');
+    for (const [id, name] of SKINS) {
+      const a = document.createElement('a');
+      a.href = `/skins.html#${id}`;
+      const img = document.createElement('img');
+      img.src = `/api/cookie?skin=${id}&mode=closed`;
+      img.alt = '';
+      img.loading = 'lazy';
+      a.append(img, name);
+      strip.append(a);
+    }
+
+    // ---------- 갤러리 ----------
     const EXAMPLES = [
       { title: '다크 · 한국어', theme: 'dark', lang: 'ko' },
       { title: '라이트 · 한국어', theme: 'light', lang: 'ko' },
@@ -155,25 +420,16 @@
       { title: 'Light · English', theme: 'light', lang: 'en' },
     ];
 
-    // 지금 열린 주소를 기준으로 위젯 주소를 만든다. (로컬에서도, 배포 후에도 그대로 동작)
-    const origin = window.location.origin;
-    // README에서 위젯을 누르면 열리는 소개 페이지 (지금 보고 있는 이 페이지)
-    const SITE = `${origin}/`;
-
     // user를 빼면 잠금 없이 '그날의 공통 운세'가 나온다. 미리보기는 이걸로 보여준다.
     function widgetUrl({ theme, lang }, user, extra = {}) {
       const params = new URLSearchParams({ ...(user ? { user } : {}), theme, ...extra });
-      if (lang !== 'ko') params.set('lang', lang); // 한국어는 기본값이라 생략한다.
+      if (lang !== 'ko') params.set('lang', lang);
       return `${origin}/api?${params}`;
     }
-
-    // README에 붙일 코드: 이미지 한 줄
     function readmeCode(example) {
       const alt = example.lang === 'en' ? "Today's fortune" : '오늘의 운세';
       return `[![${alt}](${widgetUrl(example, 'YOUR_GITHUB_ID')})](${SITE})`;
     }
-
-    // 다크/라이트 자동 전환 코드: GitHub 화면 모드에 맞춰 위젯 테마가 바뀐다 (추천)
     function autoThemeCode() {
       const user = 'YOUR_GITHUB_ID';
       return [
@@ -185,8 +441,6 @@
         '</a>',
       ].join('\n');
     }
-
-    // 버튼을 누르면 코드를 클립보드에 복사하고 잠깐 "복사됨!"을 보여준다.
     async function copy(button, text) {
       try {
         await navigator.clipboard.writeText(text);
@@ -196,27 +450,22 @@
       }
       setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
     }
-
-    // 미리보기 이미지. 누르면 위젯을 다시 불러와 쿠키가 갈라지는 애니메이션을 처음부터 보여준다.
-    function renderPreview(example) {
-      const figure = document.createElement('figure');
-      figure.style.margin = '0';
+    function preview(example) {
+      const box = document.createElement('div');
+      box.className = `preview ${example.theme}`;
       const img = document.createElement('img');
       img.src = widgetUrl(example);
       img.alt = `${example.title} 예시 위젯`;
       img.width = 495;
+      img.loading = 'lazy';
       img.title = '눌러서 애니메이션 다시 보기';
       img.addEventListener('click', () => { img.src = widgetUrl(example, null, { t: Date.now() }); });
-      const caption = document.createElement('figcaption');
-      caption.textContent = '커밋한 날의 모습 · 눌러서 다시 보기';
-      figure.append(img, caption);
-      return figure;
+      box.append(img);
+      return box;
     }
-
-    // 코드 상자 + 복사 버튼
-    function renderCodeBox(text, label) {
-      const codeBox = document.createElement('div');
-      codeBox.className = 'code';
+    function codeBox(text, label) {
+      const box = document.createElement('div');
+      box.className = 'code';
       const pre = document.createElement('pre');
       pre.textContent = text;
       const button = document.createElement('button');
@@ -224,48 +473,33 @@
       button.textContent = '코드 복사';
       button.setAttribute('aria-label', `${label} 코드 복사`);
       button.addEventListener('click', () => copy(button, text));
-      codeBox.append(pre, button);
-      return codeBox;
+      box.append(pre, button);
+      return box;
     }
-
-    // 소개: 잠긴 쿠키 → 열린 쿠키 흐름 (테스트용 preview 옵션으로 두 화면을 보여준다)
-    document.getElementById('flow-locked').src = `${origin}/api?user=octocat&preview=locked`;
-    document.getElementById('flow-open').src = `${origin}/api?user=octocat&preview=open`;
-
     const grid = document.getElementById('examples');
-
-    // 맨 위: 다크/라이트 자동 전환 추천 카드
     {
       const card = document.createElement('article');
       card.className = 'example featured';
-      const title = document.createElement('h2');
+      const title = document.createElement('h3');
       title.textContent = '추천 · 다크/라이트 자동 전환 (보는 사람의 GitHub 화면 모드에 맞춤)';
       const pair = document.createElement('div');
       pair.className = 'pair';
-      for (const theme of ['dark', 'light']) {
-        const preview = document.createElement('div');
-        preview.className = `preview ${theme}`;
-        preview.append(renderPreview({ title: theme === 'dark' ? '다크 모드에서' : '라이트 모드에서', theme, lang: 'ko' }));
-        pair.append(preview);
-      }
-      card.append(title, pair, renderCodeBox(autoThemeCode(), '자동 전환'));
+      pair.append(preview({ title: '다크 모드에서', theme: 'dark', lang: 'ko' }), preview({ title: '라이트 모드에서', theme: 'light', lang: 'ko' }));
+      card.append(title, pair, codeBox(autoThemeCode(), '자동 전환'));
       grid.append(card);
     }
-
     for (const example of EXAMPLES) {
       const card = document.createElement('article');
       card.className = 'example';
-
-      const title = document.createElement('h2');
+      const title = document.createElement('h3');
       title.textContent = example.title;
-
-      const preview = document.createElement('div');
-      preview.className = `preview ${example.theme}`;
-      preview.append(renderPreview(example));
-
-      card.append(title, preview, renderCodeBox(readmeCode(example), example.title));
+      card.append(title, preview(example), codeBox(readmeCode(example), example.title));
       grid.append(card);
     }
+
+    // 시작: 로그인 상태와 오늘의 운세를 불러온다.
+    loadAccount();
+    loadFortune();
   </script>
 </body>
 </html>

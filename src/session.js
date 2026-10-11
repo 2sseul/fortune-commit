@@ -6,6 +6,7 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 export const SESSION_COOKIE = 'fc_session';
 export const STATE_COOKIE = 'fc_oauth_state';
+export const NEXT_COOKIE = 'fc_next'; // 로그인 후 돌아갈 페이지
 const SESSION_DAYS = 30;
 
 // base64url 인코딩 (쿠키에 넣어도 안전한 글자만 쓴다)
@@ -55,6 +56,11 @@ export function cookieHeader(name, value, { maxAgeSeconds, secure = true } = {})
   if (secure) parts.push('Secure');
   if (maxAgeSeconds !== undefined) parts.push(`Max-Age=${maxAgeSeconds}`);
   return parts.join('; ');
+}
+
+// 로그인 후 돌아갈 주소는 우리 사이트 안의 경로(/로 시작, //는 안 됨)만 허용한다. (다른 사이트로 보내기 방지)
+export function safeNextPath(path) {
+  return typeof path === 'string' && /^\/(?!\/)[\w\-./?=&%#]*$/.test(path) ? path : '/';
 }
 
 // GitHub 로그인 중간에 쓰는 일회용 무작위 값 (다른 사이트가 로그인 과정을 끼워 넣지 못하게)
