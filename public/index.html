@@ -59,6 +59,10 @@
     .preview img { display: block; max-width: 100%; height: auto; margin: 0 auto; cursor: pointer; }
     .preview figcaption { margin-top: 6px; font-size: 12px; text-align: center; color: #8b949e; }
 
+    /* 추천 카드(자동 전환)는 한 줄을 다 쓰고, 다크·라이트 미리보기를 나란히 보여준다 */
+    .example.featured { grid-column: 1 / -1; border-color: var(--green); }
+    .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
+
     .code { margin-top: 12px; }
     .code pre {
       margin: 0;
@@ -95,8 +99,8 @@
 
     <section class="steps" aria-label="사용 방법">
       <ol>
-        <li>마음에 드는 예시의 <strong>코드 복사</strong>를 누릅니다.</li>
-        <li>README에 붙여 넣고, <code>YOUR_GITHUB_ID</code>를 본인 GitHub 아이디로 바꿉니다.</li>
+        <li>마음에 드는 예시의 <strong>코드 복사</strong>를 누릅니다. 맨 위 자동 전환 버전을 추천해요.</li>
+        <li>README에 붙여 넣고, <code>YOUR_GITHUB_ID</code>를 본인 GitHub 아이디로 바꿉니다. (모두 바꿔 주세요)</li>
         <li>끝! 오늘 커밋(기여)을 하기 전에는 쿠키가 잠겨 있고, 커밋하면 쿠키가 열리며 오늘의 운세가 나옵니다.</li>
       </ol>
     </section>
@@ -135,6 +139,17 @@
       return `![${alt}](${widgetUrl(example, 'YOUR_GITHUB_ID')})`;
     }
 
+    // 다크/라이트 자동 전환 코드: GitHub 화면 모드에 맞춰 위젯 테마가 바뀐다 (추천)
+    function autoThemeCode() {
+      const user = 'YOUR_GITHUB_ID';
+      return [
+        '<picture>',
+        `  <source media="(prefers-color-scheme: dark)" srcset="${widgetUrl({ theme: 'dark', lang: 'ko' }, user)}">`,
+        `  <img src="${widgetUrl({ theme: 'light', lang: 'ko' }, user)}" alt="오늘의 운세">`,
+        '</picture>',
+      ].join('\n');
+    }
+
     // 버튼을 누르면 코드를 클립보드에 복사하고 잠깐 "복사됨!"을 보여준다.
     async function copy(button, text) {
       try {
@@ -162,7 +177,41 @@
       return figure;
     }
 
+    // 코드 상자 + 복사 버튼
+    function renderCodeBox(text, label) {
+      const codeBox = document.createElement('div');
+      codeBox.className = 'code';
+      const pre = document.createElement('pre');
+      pre.textContent = text;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = '코드 복사';
+      button.setAttribute('aria-label', `${label} 코드 복사`);
+      button.addEventListener('click', () => copy(button, text));
+      codeBox.append(pre, button);
+      return codeBox;
+    }
+
     const grid = document.getElementById('examples');
+
+    // 맨 위: 다크/라이트 자동 전환 추천 카드
+    {
+      const card = document.createElement('article');
+      card.className = 'example featured';
+      const title = document.createElement('h2');
+      title.textContent = '추천 · 다크/라이트 자동 전환 (보는 사람의 GitHub 화면 모드에 맞춤)';
+      const pair = document.createElement('div');
+      pair.className = 'pair';
+      for (const theme of ['dark', 'light']) {
+        const preview = document.createElement('div');
+        preview.className = `preview ${theme}`;
+        preview.append(renderPreview({ title: theme === 'dark' ? '다크 모드에서' : '라이트 모드에서', theme, lang: 'ko' }));
+        pair.append(preview);
+      }
+      card.append(title, pair, renderCodeBox(autoThemeCode(), '자동 전환'));
+      grid.append(card);
+    }
+
     for (const example of EXAMPLES) {
       const card = document.createElement('article');
       card.className = 'example';
@@ -174,18 +223,7 @@
       preview.className = `preview ${example.theme}`;
       preview.append(renderPreview(example));
 
-      const codeBox = document.createElement('div');
-      codeBox.className = 'code';
-      const pre = document.createElement('pre');
-      pre.textContent = readmeCode(example);
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = '코드 복사';
-      button.setAttribute('aria-label', `${example.title} 코드 복사`);
-      button.addEventListener('click', () => copy(button, readmeCode(example)));
-      codeBox.append(pre, button);
-
-      card.append(title, preview, codeBox);
+      card.append(title, preview, renderCodeBox(readmeCode(example), example.title));
       grid.append(card);
     }
   </script>
