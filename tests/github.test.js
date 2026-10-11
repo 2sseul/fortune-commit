@@ -8,7 +8,8 @@ import { fetchActivity, startOfToday, clearActivityMemory, mostUsedLanguage } fr
 // GitHub를 흉내 내는 가짜 fetch
 //   events   : 공개 이벤트 목록 (오늘 활동 세기), null이면 이벤트 요청 실패
 //   lastWeek : 지난 7일 기여 항목, languages: 최근 저장소들의 주 언어, user가 false면 없는 아이디
-function fakeFetch({ events = [], lastWeek = { totalCommitContributions: 0 }, languages = [], user = true, ok = true } = {}) {
+// pushedAt: 저장소들의 마지막 push 시각 목록
+function fakeFetch({ events = [], lastWeek = { totalCommitContributions: 0 }, languages = [], pushedAt = [], user = true, ok = true } = {}) {
   const calls = { graphql: [], events: 0 };
   const impl = async (url, options) => {
     if (url.includes('/events/public')) {
@@ -17,7 +18,15 @@ function fakeFetch({ events = [], lastWeek = { totalCommitContributions: 0 }, la
     }
     calls.graphql.push(JSON.parse(options.body));
     const data = user
-      ? { lastWeek, repositories: { nodes: languages.map((name) => ({ primaryLanguage: name ? { name } : null })) } }
+      ? {
+        lastWeek,
+        repositories: {
+          nodes: [
+            ...languages.map((name) => ({ primaryLanguage: name ? { name } : null, pushedAt: '2026-01-01T00:00:00Z' })),
+            ...pushedAt.map((time) => ({ primaryLanguage: null, pushedAt: time })),
+          ],
+        },
+      }
       : null;
     return { ok, json: async () => ({ data: { user: data } }) };
   };
@@ -123,4 +132,22 @@ test('주 언어: 가장 많이 나온 언어, 같으면 최근 저장소의 언
   assert.equal(mostUsedLanguage(repos(['Go', 'Rust'])), 'Go');
   assert.equal(mostUsedLanguage(repos([null])), null);
   assert.equal(mostUsedLanguage(undefined), null);
+});
+
+test('이벤트가 아직 안 올라와도, 내 저장소에 오늘 push했으면 열린다', async () => {
+  clearActivityMemory();
+  const { impl } = fakeFetch({ events: [], pushedAt: ['2026-10-11T05:00:00Z'] }); // 한국 오늘 14시 push
+  assert.equal((await fetchActivity({ ...base, fetchImpl: impl })).today, 1);
+});
+
+test('마지막 push가 어제(한국 시간)면 오늘 활동으로 치지 않는다', async () => {
+  clearActivityMemory();
+  const { impl } = fakeFetch({ events: [], pushedAt: ['2026-10-10T14:59:00Z'] }); // 한국 어제 23:59
+  assert.equal((await fetchActivity({ ...base, fetchImpl: impl })).today, 0);
+});
+
+test('이벤트 확인이 실패해도 오늘 push가 있으면 열린다', async () => {
+  clearActivityMemory();
+  const { impl } = fakeFetch({ events: null, pushedAt: ['2026-10-11T05:00:00Z'] });
+  assert.equal((await fetchActivity({ ...base, fetchImpl: impl })).today, 1);
 });

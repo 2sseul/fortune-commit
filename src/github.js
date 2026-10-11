@@ -7,7 +7,9 @@
 //   GitHub 기여(잔디)는 한국 시간이 아니라 UTC 날짜로 기록된다. 그래서 기여로 세면 한국 0시~9시에는
 //   어제 저녁 기여가 '오늘'로 잡혀 쿠키가 잠기지 않는다. 그래서 오늘 활동은 초 단위 시각이 기록되는
 //   GitHub 공개 이벤트(push, PR, 이슈, 리뷰, 새 저장소)로 한국 0시부터 정확히 센다.
-//   (공개 이벤트만 보이므로 비공개 저장소 활동으로는 열리지 않는다)
+//   단, 이벤트 목록은 늦게는 몇 시간 뒤에 반영되기도 해서, 내 공개 저장소의 '마지막 push 시각'(즉시 반영)도
+//   함께 본다. 둘 중 하나라도 오늘이면 쿠키가 열린다.
+//   (공개 활동만 보이므로 비공개 저장소 활동으로는 열리지 않는다)
 //
 // GitHub GraphQL API는 토큰이 있어야 쓸 수 있다. 토큰은 Vercel 환경변수 GITHUB_TOKEN에 넣는다.
 // 확인에 실패하면 null을 돌려주고, 위젯은 이 경우 잠그지 않고 기본 운세를 보여준다. (위젯이 깨지지 않게)
@@ -33,7 +35,7 @@ const QUERY = `
       }
       repositories(first: 30, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC,
                    orderBy: { field: PUSHED_AT, direction: DESC }) {
-        nodes { primaryLanguage { name } }
+        nodes { primaryLanguage { name } pushedAt }
       }
     }
   }`;
@@ -146,8 +148,15 @@ export async function fetchActivity({
     const user = body?.data?.user;
     if (!user?.lastWeek) return null; // 없는 아이디 등
 
+    // 오늘 활동 = 이벤트 수, 그리고 내 공개 저장소에 오늘 push했다면 최소 1
+    const events = await todayRequest; // 이벤트를 확인할 수 없으면 null
+    const pushedToday = (user.repositories?.nodes ?? [])
+      .some((repo) => repo?.pushedAt && Date.parse(repo.pushedAt) >= todayFrom.getTime());
+    let today = events;
+    if (pushedToday) today = Math.max(events ?? 0, 1);
+
     const activity = {
-      today: await todayRequest, // 이벤트를 확인할 수 없으면 null → 잠그지 않는다
+      today, // 둘 다 확인할 수 없으면 null → 잠그지 않는다
       lastWeek: sumContributions(user.lastWeek),
       language: mostUsedLanguage(user.repositories?.nodes),
     };
