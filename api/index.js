@@ -13,16 +13,18 @@
 //   width : 위젯 너비 400 ~ 800 (기본 495)
 //   radius : 모서리 둥글기 0 ~ 30 (기본 10)
 //   hide_border : true면 테두리 선을 숨긴다
-//   skin  : 쿠키 스킨 이름 (plain, choco, matcha, gold, cat, dog, rabbit, pumpkin, snow). 모르는 이름이면 기본 쿠키
-//   preview : (테스트용) locked면 잠긴 화면, open이면 열린 화면을 기여 수와 상관없이 보여준다
+//   skin  : 쿠키 스킨 이름 (plain, choco, matcha, gold, cat, dog, rabbit, pumpkin, snowman, deer, santa).
+//           해금 조건(src/unlocks.js)을 채워야 적용되고, 아니면 기본 쿠키 + 진행 상황을 보여준다.
+//   preview : (테스트용) locked면 잠긴 화면, open이면 열린 화면을 기여 수·스킨 해금과 상관없이 보여준다
 //   잘못된 값은 기본값으로, 범위를 벗어난 값은 가장 가까운 허용값으로 바꾼다. (src/options.js)
 
 import { getTheme } from '../src/themes.js';
 import { renderWidget, renderClosedCard } from '../src/render.js';
 import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../src/pick.js';
 import { parseStyleOptions } from '../src/options.js';
-import { fetchActivity } from '../src/github.js';
+import { fetchActivity, fetchYearActivity } from '../src/github.js';
 import { getSkin } from '../src/skins.js';
+import { skinStatus, progressText } from '../src/unlocks.js';
 
 const LOCKED_CACHE_SECONDS = 5 * 60; // 잠긴 화면은 5분만 캐시 (커밋하면 곧 열리도록)
 
@@ -35,19 +37,29 @@ export default async function handler(req, res) {
   const tz = searchParams.get('tz');
   const date = todayIn(tz);
   const style = parseStyleOptions(searchParams);
-  const skin = getSkin(searchParams.get('skin'));
+  const requestedSkin = getSkin(searchParams.get('skin'));
+  const preview = searchParams.get('preview');
+  const isPreview = preview === 'locked' || preview === 'open';
 
   // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
   const command = user ? `fortune --user ${user}` : 'fortune --today';
 
-  // GitHub 활동 확인: { today, lastWeek, language } (확인할 수 없으면 null → 잠그지 않고 기본 운세)
-  const activity = await fetchActivity({ login: user, timeZone: tz, date });
+  // GitHub 활동 확인 (확인할 수 없으면 null → 잠그지 않고, 고른 스킨을 그대로 보여준다)
+  //   activity : 오늘 기여 수, 지난 7일 기여 수, 주 언어 → 잠금과 운세
+  //   year     : 올해 활동 → 스킨 해금 (기본 쿠키이거나 미리보기면 확인하지 않는다)
+  const needYear = requestedSkin.id !== 'plain' && !isPreview;
+  const [activity, year] = await Promise.all([
+    fetchActivity({ login: user, timeZone: tz, date }),
+    needYear ? fetchYearActivity({ login: user, timeZone: tz, date }) : null,
+  ]);
+
+  // 스킨 해금: 조건을 못 채웠으면 기본 쿠키를 쓰고, 진행 상황을 한 줄 보여준다.
+  const status = isPreview ? { unlocked: true } : skinStatus(requestedSkin.id, year);
+  const skin = status.unlocked ? requestedSkin : getSkin('plain');
+  const progressLine = status.unlocked ? [] : [{ key: 'skin', value: progressText(requestedSkin.id, status) }];
 
   // 테스트용 미리보기: preview=locked / preview=open 이면 기여 수와 상관없이 그 화면을 보여준다.
-  const preview = searchParams.get('preview');
-  const locked = preview === 'locked' || preview === 'open'
-    ? preview === 'locked'
-    : activity?.today === 0;
+  const locked = isPreview ? preview === 'locked' : activity?.today === 0;
 
   let svg;
   let cacheSeconds;
@@ -70,7 +82,7 @@ export default async function handler(req, res) {
       theme,
       command,
       fortune,
-      lucky,
+      lucky: [...lucky, ...progressLine],
       label: lang === 'en' ? "Today's fortune" : '오늘의 운세',
       style,
       skin,
