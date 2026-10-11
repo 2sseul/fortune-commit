@@ -12,9 +12,19 @@ const PUBLIC = new URL('./public/', import.meta.url);
 const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, 'http://localhost');
 
-  // /api 와 /api/ 는 위젯 함수로 보낸다.
+  // /api 와 /api/ 는 위젯 함수로, /api/me, /api/auth/login 같은 주소는 api/ 폴더의 같은 이름 파일로 보낸다.
   if (pathname === '/api' || pathname === '/api/') {
     handler(req, res);
+    return;
+  }
+  if (/^\/api(\/[a-z]+)+$/.test(pathname)) {
+    try {
+      const module = await import(new URL(`.${pathname}.js`, import.meta.url));
+      await module.default(req, res);
+    } catch {
+      res.statusCode = 404;
+      res.end('없는 주소예요.');
+    }
     return;
   }
 

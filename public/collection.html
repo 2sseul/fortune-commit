@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fortune-commit 도감</title>
+  <meta name="description" content="GitHub로 로그인해서 내가 모은 포춘쿠키 스킨을 보고 장착하세요">
+  <style>
+    /* 도감 페이지: 갤러리·스킨 페이지와 같은 터미널 느낌 */
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --yellow: #f2cc60;
+      --red: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace;
+      line-height: 1.6;
+    }
+    main { max-width: 1200px; margin: 0 auto; padding: 48px 16px 64px; }
+    a { color: var(--yellow); }
+    .back { color: var(--muted); font-size: 13px; }
+    h1 { margin: 0; font-size: 26px; }
+    h1 .prompt { color: var(--green); }
+    .lead { color: var(--muted); margin: 8px 0 20px; }
+    .panel {
+      margin-bottom: 24px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 15px; color: var(--yellow); }
+    .button {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--green);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-weight: 400; }
+    .error { color: var(--red); }
+    pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      overflow-x: auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+      gap: 20px;
+    }
+    .skin {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .skin.equipped { border-color: var(--green); }
+    .skin.locked img { filter: grayscale(1) brightness(0.6); }
+    .skin h3 { margin: 0; font-size: 15px; color: var(--yellow); }
+    .skin .rule { margin: 4px 0 8px; font-size: 13px; color: var(--muted); }
+    .skin img { display: block; width: 100%; height: auto; border-radius: 8px; background: #0d1117; }
+    .bar { height: 8px; margin: 10px 0 4px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--green); }
+    .progress { font-size: 12px; color: var(--muted); }
+    .skin .button { margin-top: 10px; width: 100%; }
+    .skin .button[disabled] { background: transparent; color: var(--green); border: 1px solid var(--green); cursor: default; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="/">← fortune-commit 갤러리</a>
+    <h1><span class="prompt">$</span> fortune-commit 도감</h1>
+    <p class="lead">GitHub로 로그인하면 내가 해금한 쿠키 스킨을 보고 장착할 수 있어요. 장착한 스킨은 README를 고치지 않아도 위젯에 바로 적용돼요.</p>
+
+    <!-- 로그인 상태 -->
+    <section class="panel" id="account" aria-live="polite">불러오는 중…</section>
+
+    <!-- 로그인한 사람의 README 코드 -->
+    <section class="panel" id="readme" hidden>
+      <h2>내 README 코드</h2>
+      <p class="progress">이 코드를 한 번만 붙여 두면, 이후에는 여기서 스킨을 바꾸는 것만으로 위젯이 바뀌어요. (반영까지 몇 분 걸릴 수 있어요)</p>
+      <pre id="code"></pre>
+      <button type="button" class="button" id="copy" style="margin-top:8px">코드 복사</button>
+    </section>
+
+    <div class="grid" id="skins"></div>
+  </main>
+
+  <script>
+    // 스킨 이름과 해금 조건 (src/skins.js, src/unlocks.js와 같은 내용)
+    const SKIN_INFO = {
+      plain: { name: '기본 쿠키', rule: '처음부터' },
+      choco: { name: '초코 쿠키', rule: '올해 기여 50개' },
+      matcha: { name: '말차 쿠키', rule: '올해 기여 150개' },
+      gold: { name: '황금 쿠키', rule: '올해 7일 연속 기여' },
+      cat: { name: '고양이 쿠키', rule: '올해 커밋 100개' },
+      dog: { name: '강아지 쿠키', rule: '올해 PR 10개' },
+      rabbit: { name: '토끼 쿠키', rule: '올해 코드 리뷰 10개' },
+      pumpkin: { name: '호박 쿠키', rule: '10월에 기여 10개' },
+      snowman: { name: '눈사람 쿠키', rule: '12월에 기여 10개' },
+      deer: { name: '사슴 쿠키', rule: '12월에 기여 30개' },
+      santa: { name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
+    };
+
+    const origin = window.location.origin;
+    const ERRORS = {
+      state: '로그인 확인에 실패했어요. 다시 로그인해 주세요.',
+      login: 'GitHub 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.',
+    };
+
+    // README 코드: 다크/라이트 자동 전환, 스킨은 도감 설정을 따르므로 skin을 넣지 않는다.
+    function readmeCode(login) {
+      const url = (theme) => `${origin}/api?${new URLSearchParams({ user: login, theme })}`;
+      return [
+        `<a href="${origin}/">`,
+        '  <picture>',
+        `    <source media="(prefers-color-scheme: dark)" srcset="${url('dark')}">`,
+        `    <img src="${url('light')}" alt="오늘의 운세">`,
+        '  </picture>',
+        '</a>',
+      ].join('\n');
+    }
+
+    // 로그인 상태 영역을 그린다.
+    function renderAccount(me) {
+      const box = document.getElementById('account');
+      box.replaceChildren();
+      const error = new URLSearchParams(location.search).get('error');
+      if (error && ERRORS[error]) {
+        const p = document.createElement('p');
+        p.className = 'error';
+        p.textContent = ERRORS[error];
+        box.append(p);
+      }
+      if (!me.loggedIn) {
+        const login = document.createElement('a');
+        login.className = 'button';
+        login.href = '/api/auth/login';
+        login.textContent = 'GitHub로 로그인';
+        const note = document.createElement('p');
+        note.className = 'progress';
+        note.textContent = 'GitHub 아이디만 확인하고, 저장소나 비공개 정보에는 접근하지 않아요. 저장하는 건 아이디와 장착한 스킨뿐이에요.';
+        box.append(login, note);
+        return;
+      }
+      const who = document.createElement('p');
+      who.style.margin = '0 0 10px';
+      who.textContent = `👋 ${me.login} 으로 로그인됨 · 장착한 스킨: ${SKIN_INFO[me.equipped]?.name ?? '없음 (README 설정을 따름)'}`;
+      const logout = document.createElement('a');
+      logout.className = 'button ghost';
+      logout.href = '/api/auth/logout';
+      logout.textContent = '로그아웃';
+      box.append(who, logout);
+      if (!me.activityChecked) {
+        const warn = document.createElement('p');
+        warn.className = 'error';
+        warn.textContent = 'GitHub 활동을 확인하지 못해서 해금 상황이 정확하지 않을 수 있어요. 잠시 후 새로고침해 주세요.';
+        box.append(warn);
+      }
+    }
+
+    // 스킨 카드들을 그린다.
+    function renderSkins(me) {
+      const grid = document.getElementById('skins');
+      grid.replaceChildren();
+      const skins = me.loggedIn ? me.skins : Object.keys(SKIN_INFO).map((id) => ({ id, unlocked: id === 'plain' }));
+      for (const skin of skins) {
+        const info = SKIN_INFO[skin.id];
+        const card = document.createElement('article');
+        card.className = 'skin';
+        if (!skin.unlocked) card.classList.add('locked');
+        if (me.equipped === skin.id) card.classList.add('equipped');
+
+        const title = document.createElement('h3');
+        title.textContent = `${skin.unlocked ? '' : '🔒 '}${info.name}`;
+        const rule = document.createElement('p');
+        rule.className = 'rule';
+        rule.textContent = info.rule;
+
+        const img = document.createElement('img');
+        img.src = `${origin}/api?${new URLSearchParams({ user: me.login ?? 'octocat', skin: skin.id, preview: 'open' })}`;
+        img.alt = `${info.name} 미리보기`;
+        img.loading = 'lazy';
+
+        card.append(title, rule, img);
+
+        // 진행 상황 막대 (해금 전, 활동을 확인한 경우)
+        if (me.loggedIn && !skin.unlocked && skin.goal) {
+          const bar = document.createElement('div');
+          bar.className = 'bar';
+          const fill = document.createElement('span');
+          fill.style.width = `${Math.round((skin.current / skin.goal) * 100)}%`;
+          bar.append(fill);
+          const text = document.createElement('p');
+          text.className = 'progress';
+          text.textContent = `${skin.current} / ${skin.goal} ${skin.unit}`;
+          card.append(bar, text);
+        }
+
+        // 장착 버튼 (로그인했고 해금한 스킨만)
+        if (me.loggedIn && skin.unlocked) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button';
+          const isEquipped = me.equipped === skin.id;
+          button.textContent = isEquipped ? '✓ 장착 중' : '장착하기';
+          button.disabled = isEquipped;
+          button.addEventListener('click', () => equip(skin.id, button));
+          card.append(button);
+        }
+        grid.append(card);
+      }
+    }
+
+    // 스킨 장착 요청
+    async function equip(id, button) {
+      button.disabled = true;
+      button.textContent = '저장 중…';
+      try {
+        const response = await fetch('/api/me', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skin: id }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? '저장하지 못했어요.');
+        await load();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = error.message;
+      }
+    }
+
+    async function load() {
+      let me = { loggedIn: false };
+      try {
+        me = await (await fetch('/api/me', { cache: 'no-store' })).json();
+      } catch {
+        // 서버에 닿지 못하면 로그인하지 않은 화면을 보여준다.
+      }
+      renderAccount(me);
+      renderSkins(me);
+      const readme = document.getElementById('readme');
+      readme.hidden = !me.loggedIn;
+      if (me.loggedIn) document.getElementById('code').textContent = readmeCode(me.login);
+      window.currentLogin = me.login;
+    }
+
+    document.getElementById('copy').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      try {
+        await navigator.clipboard.writeText(readmeCode(window.currentLogin));
+        button.textContent = '복사됨!';
+      } catch {
+        button.textContent = '복사 실패 :( 코드를 직접 선택해 주세요';
+      }
+      setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
+    });
+
+    load();
+  </script>
+</body>
+</html>

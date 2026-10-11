@@ -48,7 +48,10 @@ GitHub를 다크 모드로 보는 사람에게는 다크 터미널, 라이트 �
 
 ## 🍪 쿠키 스킨 모으기
 
-GitHub 활동으로 업적을 달성하면 새로운 쿠키 스킨이 해금돼요. **[스킨 고르기 페이지](https://fortune-commit.vercel.app/skins.html)** 에서 모양을 보고, 고른 스킨이 들어간 코드를 복사해 README에 붙이면 됩니다.
+GitHub 활동으로 업적을 달성하면 새로운 쿠키 스킨이 해금돼요.
+
+- **추천: [도감](https://fortune-commit.vercel.app/collection.html)에서 GitHub로 로그인**하고 해금한 스킨을 장착하세요. README를 고치지 않아도 위젯에 바로 적용되고, 장착 설정은 README의 `skin=`보다 항상 우선해요. 저장하는 건 GitHub 아이디와 장착한 스킨뿐이에요.
+- 로그인 없이 쓰려면 [스킨 고르기 페이지](https://fortune-commit.vercel.app/skins.html)에서 고른 스킨이 들어간 코드를 복사해 README에 붙여도 돼요.
 
 | 스킨 | `skin=` | 해금 조건 (올해, 기준 시간대) |
 |---|---|---|
@@ -117,5 +120,8 @@ npm test      # 자동 테스트
 | `src/github.js` | GitHub API로 오늘 기여 수 확인 |
 | `public/index.html` | 예시 갤러리 페이지 |
 | `public/skins.html` | 스킨 고르기 페이지 |
+| `public/collection.html` | 도감 (로그인, 해금 현황, 장착) |
+| `api/me.js`, `api/auth/*.js` | 도감 정보·장착, GitHub 로그인 |
+| `src/session.js`, `src/store.js` | 로그인 쿠키, DB(Redis) 읽기/쓰기 |
 
 기획 문서는 [`PRD.md`](PRD.md), 작업 계획과 변경 기록은 [`TODO.md`](TODO.md)에 있어요.

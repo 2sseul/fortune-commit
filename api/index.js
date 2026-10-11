@@ -15,6 +15,7 @@
 //   hide_border : true면 테두리 선을 숨긴다
 //   skin  : 쿠키 스킨 이름 (plain, choco, matcha, gold, cat, dog, rabbit, pumpkin, snowman, deer, santa).
 //           해금 조건(src/unlocks.js)을 채워야 적용되고, 아니면 기본 쿠키 + 진행 상황을 보여준다.
+//           위젯 주인이 사이트(도감)에서 장착한 스킨이 있으면 그 설정이 항상 우선한다. (v2.1)
 //   preview : (테스트용) locked면 잠긴 화면, open이면 열린 화면을 기여 수·스킨 해금과 상관없이 보여준다
 //   잘못된 값은 기본값으로, 범위를 벗어난 값은 가장 가까운 허용값으로 바꾼다. (src/options.js)
 
@@ -24,6 +25,7 @@ import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../sr
 import { parseStyleOptions } from '../src/options.js';
 import { fetchActivity, fetchYearActivity } from '../src/github.js';
 import { getSkin } from '../src/skins.js';
+import { getEquippedSkin } from '../src/store.js';
 import { skinStatus, progressText } from '../src/unlocks.js';
 
 const LOCKED_CACHE_SECONDS = 5 * 60; // 잠긴 화면은 5분만 캐시 (커밋하면 곧 열리도록)
@@ -37,9 +39,12 @@ export default async function handler(req, res) {
   const tz = searchParams.get('tz');
   const date = todayIn(tz);
   const style = parseStyleOptions(searchParams);
-  const requestedSkin = getSkin(searchParams.get('skin'));
   const preview = searchParams.get('preview');
   const isPreview = preview === 'locked' || preview === 'open';
+  // 스킨: 주인이 도감에서 장착한 스킨 → 없으면 README의 skin= → 없으면 기본 쿠키
+  //       (미리보기에서는 장착 설정을 보지 않고 주소의 skin=을 그대로 쓴다)
+  const equipped = user && !isPreview ? await getEquippedSkin(user) : null;
+  const requestedSkin = getSkin(equipped ?? searchParams.get('skin'));
 
   // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
   const command = user ? `fortune --user ${user}` : 'fortune --today';
