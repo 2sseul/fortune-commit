@@ -149,3 +149,4 @@
 - 2026-10-11 [수정] '눌러서 열기'는 README에서 JS가 안 되므로 GitHub 접기 기능(`<details>`)으로 하기로 결정 → PRD #4-11 추가, 4-8·4-9 추가. 매 클릭마다 동작할 필요 없이 방문할 때 한 번 열면 됨. 커밋해야 열리는 조건은 넣지 않음
 - 2026-10-11 [수정] README와 갤러리의 주소는 `fortune-commit.vercel.app`으로 적어 둠. 배포 후 실제 주소가 다르면 바꿔야 함 (4-3)
 - 2026-10-11 [수정] 사용자 요청으로 기존 Vercel 프로젝트 `final-spa-project`를 삭제하고, `fortune-commit`으로 배포함 → https://fortune-commit.vercel.app (README·갤러리 주소와 일치). GitHub 저장소 이름도 `fortune-commit`으로 바뀌어 원격 주소 변경
+- 2026-10-11 [수정] GitHub가 README 이미지를 링크로 자동으로 감싸서, 쿠키를 누르면 접기 대신 이미지가 열리는 문제 발견 → 테스트 브랜치로 확인해 보니 `<picture>` 안의 이미지는 링크로 감싸지지 않음. README와 갤러리 복사 코드를 `<picture>` 방식으로 변경 (테스트 브랜치는 삭제)

@@ -4,8 +4,8 @@ GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입
 터미널 창 안의 픽셀 포춘쿠키를 누르면 쿠키가 갈라지면서 오늘의 운세가 나와요.
 
 <details>
-  <summary><img src="https://fortune-commit.vercel.app/api?user=2sseul&state=closed" alt="눌러서 오늘의 포춘쿠키 열기"></summary>
-  <img src="https://fortune-commit.vercel.app/api?user=2sseul" alt="오늘의 운세">
+  <summary><picture><img src="https://fortune-commit.vercel.app/api?user=2sseul&state=closed" alt="눌러서 오늘의 포춘쿠키 열기"></picture></summary>
+  <picture><img src="https://fortune-commit.vercel.app/api?user=2sseul" alt="오늘의 운세"></picture>
 </details>
 
 - 같은 사람은 하루 종일 같은 운세, 사람마다 다른 운세 (GitHub 아이디 + 날짜로 결정)
@@ -19,12 +19,14 @@ GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입
 
 ```html
 <details>
-  <summary><img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&state=closed" alt="눌러서 오늘의 포춘쿠키 열기"></summary>
-  <img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID" alt="오늘의 운세">
+  <summary><picture><img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&state=closed" alt="눌러서 오늘의 포춘쿠키 열기"></picture></summary>
+  <picture><img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID" alt="오늘의 운세"></picture>
 </details>
 ```
 
 처음에는 안 열린 쿠키만 보이고, 방문자가 누르면 쿠키가 열리며 운세가 나옵니다.
+
+> `<picture>`로 감싸는 이유: GitHub는 README의 이미지를 "이미지 원본 열기" 링크로 자동으로 감싸는데, 그러면 쿠키를 눌렀을 때 접기가 펼쳐지지 않고 이미지가 새 탭에서 열려요. `<picture>` 안의 이미지는 링크로 감싸지 않아서 접기가 정상적으로 동작합니다.
 
 다른 테마와 언어 예시는 **[예시 갤러리](https://fortune-commit.vercel.app)** 에서 보고 바로 복사할 수 있어요.
 

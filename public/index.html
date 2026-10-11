@@ -141,13 +141,14 @@
     }
 
     // README에 붙일 코드: 안 열린 쿠키 카드를 누르면 열린 위젯이 펼쳐지는 접기(<details>) 방식
+    // 이미지를 <picture>로 감싸야 GitHub가 이미지를 링크로 바꾸지 않아서, 눌렀을 때 접기가 펼쳐진다.
     function readmeCode(example) {
       const user = 'YOUR_GITHUB_ID';
       const alt = altTexts(example.lang);
       return [
         '<details>',
-        `  <summary><img src="${widgetUrl(user, example, { state: 'closed' })}" alt="${alt.closed}"></summary>`,
-        `  <img src="${widgetUrl(user, example)}" alt="${alt.open}">`,
+        `  <summary><picture><img src="${widgetUrl(user, example, { state: 'closed' })}" alt="${alt.closed}"></picture></summary>`,
+        `  <picture><img src="${widgetUrl(user, example)}" alt="${alt.open}"></picture>`,
         '</details>',
       ].join('\n');
     }
