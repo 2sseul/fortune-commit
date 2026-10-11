@@ -12,16 +12,18 @@
   margin: 0 auto;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: 28px;
+  border: 4px solid var(--ink, #2b1d14);
+  border-radius: 32px;
   background:
     radial-gradient(circle at 30% 18%, rgba(255, 214, 140, 0.55), transparent 32%),
     radial-gradient(circle at 72% 18%, rgba(255, 214, 140, 0.45), transparent 30%),
     linear-gradient(#f1d3a1 0 58%, #e7bf85 58% 100%);
-  box-shadow: 0 24px 60px rgba(92, 51, 16, 0.25), inset 0 0 0 6px #fff4e2;
+  box-shadow: 0 10px 0 #2b1d14;
   user-select: none;
 }
 .scene * { box-sizing: border-box; }
 .chalk, .bubble { font-family: 'Gaegu', 'Jua', sans-serif; }
+.bubble { font-family: 'Jua', sans-serif; }
 
 /* 벽의 나무 띠와 바닥 경계 */
 .scene .wainscot { position: absolute; left: 0; right: 0; top: 56%; height: 3cqw; background: #c98d4c; box-shadow: 0 0.4cqw 0 #a96f35; }
@@ -31,7 +33,7 @@
 .lamp.one { left: 24%; }
 .lamp.two { left: 56%; animation-delay: -3s; }
 .lamp .cord { width: 0.3cqw; height: 7cqw; margin: 0 auto; background: #5c3310; }
-.lamp .shade { width: 12cqw; height: 5cqw; background: linear-gradient(#a65f26, #7c4318); border-radius: 6cqw 6cqw 1cqw 1cqw; box-shadow: inset 0 -0.6cqw 0 #5c3310; }
+.lamp .shade { width: 12cqw; height: 5cqw; background: #e0703a; border: 0.4cqw solid #2b1d14; border-radius: 6cqw 6cqw 1cqw 1cqw; box-shadow: inset 0 -0.8cqw 0 #b9532a; }
 .lamp .bulb { width: 3.4cqw; height: 1.8cqw; margin: -0.5cqw auto 0; background: #fff2b8; border-radius: 0 0 2cqw 2cqw; box-shadow: 0 0 3cqw 1.6cqw rgba(255, 220, 130, 0.75); }
 .lamp:hover, .lamp.swing { animation: lamp-swing 1.2s ease-in-out; }
 @keyframes lamp-idle { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
@@ -61,6 +63,7 @@
   padding: 1.6cqw 2cqw;
   background: #2f3a2f;
   border: 0.9cqw solid #a96f35;
+  outline: 0.35cqw solid #2b1d14;
   border-radius: 1cqw;
   color: #f6f1e4;
   box-shadow: 0 1cqw 2cqw rgba(60, 30, 10, 0.3);
@@ -91,22 +94,22 @@
   max-width: 30%;
   padding: 1.2cqw 1.8cqw;
   background: #fffdf8;
-  border: 0.3cqw solid #5c3310;
+  border: 0.35cqw solid #2b1d14;
   border-radius: 2cqw;
   color: #3b2a1f;
   font-size: max(12px, 2.1cqw); /* 휴대폰에서도 읽을 수 있게 최소 12px */
   line-height: 1.3;
-  box-shadow: 0 0.6cqw 0 rgba(92, 51, 16, 0.2);
+  box-shadow: 0 0.6cqw 0 #2b1d14;
   opacity: 0;
   transform: translateY(1cqw) scale(0.9);
   transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: none;
 }
-.bubble::after { content: ''; position: absolute; right: 1.6cqw; bottom: -1.5cqw; border: 0.75cqw solid transparent; border-top-color: #5c3310; }
+.bubble::after { content: ''; position: absolute; right: 1.6cqw; bottom: -1.6cqw; border: 0.8cqw solid transparent; border-top-color: #2b1d14; }
 .bubble.show { opacity: 1; transform: translateY(0) scale(1); }
 
 /* ---------- 카운터 ---------- */
-.counter-top { z-index: 2; position: absolute; left: 0; right: 0; bottom: 26%; height: 4cqw; background: linear-gradient(#c98d4c, #b0753a); box-shadow: 0 0.6cqw 0 #8b5a2f; border-radius: 0.6cqw 0.6cqw 0 0; }
+.counter-top { z-index: 2; position: absolute; left: -1%; right: -1%; bottom: 26%; height: 4cqw; background: #d99a55; border: 0.4cqw solid #2b1d14; box-shadow: 0 0.6cqw 0 #8b5a2f; border-radius: 1cqw 1cqw 0 0; }
 .counter-front {
   position: absolute;
   left: 0;
@@ -120,7 +123,7 @@
 .counter-front .sign {
   position: absolute;
   left: 50%;
-  top: 22%;
+  top: 12%;
   transform: translateX(-50%);
   padding: 0.6cqw 2.4cqw;
   background: #fff4e2;
@@ -141,7 +144,7 @@
   width: 34%;
   padding: 1cqw 1.2cqw 0.6cqw;
   background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.25));
-  border: 0.35cqw solid rgba(255, 255, 255, 0.9);
+  border: 0.4cqw solid #2b1d14;
   border-bottom: 0;
   border-radius: 1.6cqw 1.6cqw 0 0;
   box-shadow: inset 0 0 2cqw rgba(255, 255, 255, 0.6);
@@ -163,8 +166,8 @@
 @keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
 
 /* ---------- 커피잔과 김 ---------- */
-.coffee { z-index: 3; position: absolute; right: 7%; bottom: 29.5%; width: 7cqw; }
-.coffee .cup { height: 5cqw; background: #fffaf2; border-radius: 0 0 2cqw 2cqw; box-shadow: inset 0 0.8cqw 0 #6b3f22; position: relative; }
+.coffee { z-index: 3; position: absolute; right: 3%; bottom: 29.5%; width: 7cqw; }
+.coffee .cup { height: 5cqw; background: #fffaf2; border: 0.35cqw solid #2b1d14; border-radius: 0 0 2cqw 2cqw; box-shadow: inset 0 0.8cqw 0 #6b3f22; position: relative; }
 .coffee .cup::after { content: ''; position: absolute; right: -1.8cqw; top: 1cqw; width: 2.2cqw; height: 2.2cqw; border: 0.6cqw solid #fffaf2; border-left: 0; border-radius: 0 50% 50% 0; }
 .coffee .steam { position: absolute; bottom: 100%; width: 1cqw; height: 4cqw; border-radius: 1cqw; background: rgba(255, 255, 255, 0.7); filter: blur(0.3cqw); animation: steam 3s ease-in-out infinite; opacity: 0; }
 .coffee .steam:nth-child(1) { left: 20%; }
@@ -193,9 +196,50 @@
 .crumb { position: absolute; width: 1cqw; height: 1cqw; border-radius: 30%; background: #e8a23c; pointer-events: none; animation: crumb 0.9s ease-out forwards; z-index: 4; }
 @keyframes crumb { to { transform: translate(var(--dx), var(--dy)) rotate(260deg); opacity: 0; } }
 
+/* ---------- 손님 쿠키 캐릭터 ----------
+   쿠키 그림(얼굴 있는 버전) 아래에 다리, 옆에 팔을 달아 움직인다. 누르면 폴짝 뛴다. */
+.char { position: absolute; z-index: 3; width: 9cqw; padding: 0; background: none; border: 0; cursor: pointer; }
+.char img { position: relative; z-index: 1; display: block; width: 100%; image-rendering: pixelated; }
+.char .leg, .char .arm { position: absolute; z-index: 0; width: 0.8cqw; background: #2b1d14; border-radius: 1cqw; transform-origin: 50% 0; }
+.char .leg { top: 72%; height: 3.2cqw; }
+.char .leg.l { left: 38%; }
+.char .leg.r { left: 56%; }
+.char .leg::after { content: ''; position: absolute; left: -0.4cqw; bottom: -0.2cqw; width: 1.6cqw; height: 0.8cqw; background: #2b1d14; border-radius: 1cqw; } /* 발 */
+.char .arm { top: 50%; height: 2.4cqw; }
+.char .arm.l { left: 22%; transform: rotate(35deg); }
+.char .arm.r { left: 70%; transform: rotate(-35deg); }
+.char.jump { animation: char-jump 0.5s ease; }
+@keyframes char-jump { 0%, 100% { translate: 0 0; } 40% { translate: 0 -3cqw; } }
+
+/* 고양이 쿠키: 카운터 끝에 앉아 다리를 흔들흔들 */
+.char.sit { left: 79%; bottom: 29%; }
+.char.sit .leg { top: 70%; height: 4.6cqw; }
+.char.sit .leg.l { animation: swing 1.2s ease-in-out infinite; }
+.char.sit .leg.r { animation: swing 1.2s ease-in-out -0.6s infinite; }
+@keyframes swing { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(-18deg); } }
+
+/* 초코 쿠키: 쟁반을 들고 카운터 앞을 왔다 갔다 */
+.char.walk { left: 6%; bottom: 3%; animation: walk-x 9s ease-in-out infinite; }
+.char.walk .leg.l { animation: step 0.5s ease-in-out infinite; }
+.char.walk .leg.r { animation: step 0.5s ease-in-out -0.25s infinite; }
+.char.walk .arm.r { transform: rotate(-150deg); }
+.char.walk .tray { position: absolute; z-index: 2; left: 60%; top: -4%; width: 5cqw; height: 0.9cqw; background: #fff; border: 0.3cqw solid #2b1d14; border-radius: 1cqw; }
+.char.walk .tray::before { content: ''; position: absolute; left: 30%; bottom: 100%; width: 2cqw; height: 1.4cqw; background: #f28c28; border: 0.3cqw solid #2b1d14; border-radius: 1cqw 1cqw 0.3cqw 0.3cqw; } /* 쟁반 위 빵 */
+@keyframes walk-x { 0%, 100% { left: 6%; } 45% { left: 30%; scale: 1 1; } 50% { left: 30%; scale: -1 1; } 95% { left: 6%; scale: -1 1; } }
+@keyframes step { 0%, 100% { transform: rotate(20deg); } 50% { transform: rotate(-20deg); } }
+
+/* 눈사람 쿠키: 오른쪽 아래에서 손을 흔들어 인사 */
+.char.wave { right: 9%; bottom: 3%; }
+.char.wave .arm.r { animation: wave 1s ease-in-out infinite; }
+@keyframes wave { 0%, 100% { transform: rotate(-150deg); } 50% { transform: rotate(-110deg); } }
+
+/* 호박 쿠키: 통통 뛰어다님 */
+.char.hop { left: 63%; bottom: 3%; animation: hop 1.4s ease-in-out infinite; }
+@keyframes hop { 0%, 100% { translate: 0 0; } 30% { translate: 0 -2.4cqw; } 55% { translate: 0 0; } }
+
 /* 장면 아래 안내와 버튼 */
 .scene-caption { max-width: 1100px; margin: 22px auto 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
-.scene-caption h1 { margin: 0; font-family: var(--title); font-weight: 400; font-size: clamp(26px, 4vw, 40px); line-height: 1.2; }
+.scene-caption h1 { margin: 0; font-family: var(--title); font-weight: 400; font-size: clamp(28px, 4.4vw, 46px); line-height: 1.15; }
 .scene-caption h1 em { font-style: normal; color: var(--caramel); }
 .scene-caption p { margin: 6px 0 0; color: var(--brown-soft); }
 .scene-caption .actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -207,5 +251,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lamp, .lamp:hover, .mascot .eyelid, .coffee .steam, .plate-spot .call { animation: none; }
+  .lamp, .lamp:hover, .mascot .eyelid, .coffee .steam, .plate-spot .call,
+  .char, .char .leg, .char .arm { animation: none !important; }
 }

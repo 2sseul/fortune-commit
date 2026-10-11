@@ -24,11 +24,12 @@
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: var(--dough);
-      border: 2px solid var(--caramel);
+      background: var(--caramel);
+      border: 3px solid var(--ink);
+      box-shadow: 0 3px 0 var(--ink);
       font-family: var(--title);
       font-size: 20px;
-      color: var(--caramel-dark);
+      color: #fff;
     }
     .steps li:not(:last-child)::after { /* 단계 사이 점선 */
       content: '';
@@ -42,9 +43,10 @@
     .steps p { margin: 0; color: var(--brown-soft); }
     .steps code { padding: 1px 6px; background: var(--dough); border-radius: 4px; font-size: 13px; }
     .widget-frames { display: grid; gap: 18px; }
-    .frame { position: relative; padding: 18px; background: #0d1117; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .frame { position: relative; padding: 18px; background: #0d1117; border: 3px solid var(--ink); border-radius: var(--radius); box-shadow: var(--sticker); transform: rotate(-1deg); }
+    .frame:nth-child(2) { transform: rotate(1.2deg); }
     .frame img { display: block; width: 100%; height: auto; }
-    .frame-label { position: absolute; top: -12px; left: 18px; padding: 2px 12px; background: var(--caramel); color: var(--paper); border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .frame-label { position: absolute; top: -14px; left: 18px; padding: 2px 14px; background: var(--caramel); color: #fff; border: 3px solid var(--ink); border-radius: 999px; font-family: var(--title); font-size: 15px; }
     .frame:nth-child(2) { margin-left: 40px; }
 
     /* 진열대 */
@@ -55,17 +57,20 @@
     .wrap-box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
     .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
     .tabs button {
-      padding: 8px 16px;
-      background: var(--paper);
-      border: 1px solid var(--line);
+      padding: 7px 16px;
+      background: #fff;
+      border: 3px solid var(--ink);
       border-radius: 999px;
+      box-shadow: 0 4px 0 var(--ink);
       cursor: pointer;
-      font-weight: 600;
+      font-family: var(--title);
+      font-size: 15px;
     }
-    .tabs button[aria-selected="true"] { background: var(--chocolate); border-color: var(--chocolate); color: var(--paper); }
-    .package-preview { padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .tabs button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+    .tabs button[aria-selected="true"] { background: var(--caramel); color: #fff; }
+    .package-preview { padding: 22px; border: 3px solid var(--ink); border-radius: var(--radius); box-shadow: var(--sticker); transform: rotate(1deg); }
     .package-preview.dark { background: #0d1117; }
-    .package-preview.light { background: #ffffff; border: 1px solid var(--line); }
+    .package-preview.light { background: #ffffff; }
     .package-preview img { display: block; width: 100%; height: auto; cursor: pointer; }
     .package-note { margin: 16px 0 0; font-size: 14px; color: var(--brown-soft); }
     .package-note code { padding: 1px 6px; background: var(--dough); border-radius: 4px; }
@@ -160,6 +165,12 @@
             <img id="cookie-img" src="/api/cookie?mode=still" alt="접시 위의 포춘쿠키">
           </button>
         </div>
+
+        <!-- 손님 쿠키 캐릭터들 (누르면 자기 소개) -->
+        <button type="button" class="char sit" data-skin="cat" aria-label="고양이 쿠키"><span class="leg l"></span><span class="leg r"></span><img src="/api/cookie?skin=cat&mode=still&face=1" alt=""></button>
+        <button type="button" class="char walk" data-skin="choco" aria-label="초코 쿠키"><span class="leg l"></span><span class="leg r"></span><span class="arm l"></span><span class="arm r"></span><span class="tray"></span><img src="/api/cookie?skin=choco&mode=still&face=1" alt=""></button>
+        <button type="button" class="char hop" data-skin="pumpkin" aria-label="호박 쿠키"><span class="leg l"></span><span class="leg r"></span><span class="arm l"></span><span class="arm r"></span><img src="/api/cookie?skin=pumpkin&mode=still&face=1" alt=""></button>
+        <button type="button" class="char wave" data-skin="snowman" aria-label="눈사람 쿠키"><span class="leg l"></span><span class="leg r"></span><span class="arm l"></span><span class="arm r"></span><img src="/api/cookie?skin=snowman&mode=still&face=1" alt=""></button>
 
         <!-- 커피잔 -->
         <div class="coffee" aria-hidden="true"><span class="steam"></span><span class="steam"></span><span class="steam"></span><div class="cup"></div></div>

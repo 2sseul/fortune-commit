@@ -92,6 +92,24 @@ export function setupScene({ skins, getFortune }) {
     trays[index < 6 ? 0 : 1].append(button);
   });
 
+  // ---------- 손님 쿠키 캐릭터: 누르면 폴짝 뛰며 자기 소개 ----------
+  const INTRO = {
+    cat: '야옹! 나는 고양이 쿠키. 올해 커밋 100개면 데려갈 수 있어!',
+    choco: '갓 구운 빵 배달 중~ 나는 초코 쿠키, 올해 기여 50개면 만나!',
+    pumpkin: '통통! 호박 쿠키는 10월에 기여 10개면 해금돼!',
+    snowman: '안녕~ 눈사람 쿠키는 12월에 기여 10개면 와요!',
+  };
+  for (const char of document.querySelectorAll('.char')) {
+    char.addEventListener('click', () => {
+      if (!reduceMotion) {
+        char.classList.remove('jump');
+        void char.offsetWidth;
+        char.classList.add('jump');
+      }
+      say(INTRO[char.dataset.skin] ?? '안녕!');
+    });
+  }
+
   // ---------- 빵 부스러기 ----------
   function crumbs(fromElement) {
     if (reduceMotion) return;

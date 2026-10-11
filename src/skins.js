@@ -98,6 +98,7 @@ export const SKINS = {
   // 시즌
   pumpkin: {
     label: { ko: '호박 쿠키', en: 'Pumpkin cookie' },
+    hasFace: true, // 호박 얼굴이 이미 있어서 캐릭터 얼굴을 덧그리지 않는다.
     palette: { O: '#5A2A04', B: '#F28C28', H: '#FFC070', S: '#C25E0E' },
     parts: [
       // 초록 꼭지
@@ -164,6 +165,21 @@ export const SKINS = {
     ],
   },
 };
+
+// 사이트에서 쿠키를 캐릭터로 쓸 때 앞쪽 조각에 그리는 얼굴 (눈, 볼터치, 웃는 입)
+export const CHARACTER_FACE = [
+  { at: [9, 4], shape: ['KK', 'KW'] },
+  { at: [9, 9], shape: ['KK', 'KW'] },
+  { at: [12, 2], shape: ['II'] },
+  { at: [12, 11], shape: ['II'] },
+  { at: [12, 6], shape: ['K.K', '.K.'] },
+];
+
+// 스킨에 캐릭터 얼굴을 더한 복사본을 만든다. (원래 스킨은 바꾸지 않는다)
+export function withFace(skin) {
+  if (skin.hasFace) return skin;
+  return { ...skin, parts: [...(skin.parts ?? []), ...CHARACTER_FACE] };
+}
 
 // 이름으로 스킨을 찾는다. 모르는 이름이면 기본 쿠키.
 export function getSkin(name) {
