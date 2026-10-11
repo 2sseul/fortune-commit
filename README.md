@@ -3,7 +3,7 @@
 GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입니다.
 터미널 창 안의 픽셀 포춘쿠키를 누르면 쿠키가 갈라지면서 오늘의 운세가 나와요.
 
-![오늘의 운세](https://fortune-commit.vercel.app/api?user=2sseul)
+[![오늘의 운세](https://fortune-commit.vercel.app/api?user=2sseul)](https://fortune-commit.vercel.app)
 
 - **커밋하고 열기**: 오늘 GitHub에 기여(커밋, PR, 이슈, 리뷰 등)를 하기 전에는 쿠키가 잠겨 있고, 기여하면 쿠키가 갈라지며 오늘의 운세가 나와요
 - 같은 사람은 하루 종일 같은 운세, 사람마다 다른 운세 (GitHub 아이디 + 날짜로 결정)
@@ -14,9 +14,10 @@ GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입
 ## 사용 방법
 
 아래 한 줄을 README에 붙여 넣고, `YOUR_GITHUB_ID`를 본인 GitHub 아이디로 바꾸세요. (아래 자동 전환 버전은 두 군데)
+위젯을 누르면 fortune-commit 소개 페이지가 열려요.
 
 ```md
-![오늘의 운세](https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID)
+[![오늘의 운세](https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID)](https://fortune-commit.vercel.app)
 ```
 
 ### 다크/라이트 모드 자동 전환 (추천)
@@ -24,10 +25,12 @@ GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입
 GitHub를 다크 모드로 보는 사람에게는 다크 터미널, 라이트 모드로 보는 사람에게는 라이트 터미널을 보여줍니다.
 
 ```html
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&theme=dark">
-  <img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&theme=light" alt="오늘의 운세">
-</picture>
+<a href="https://fortune-commit.vercel.app">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&theme=dark">
+    <img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&theme=light" alt="오늘의 운세">
+  </picture>
+</a>
 ```
 
 ### 이렇게 보여요
