@@ -13,11 +13,24 @@ GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입
 
 ## 사용 방법
 
-아래 한 줄을 README에 붙여 넣고, `YOUR_GITHUB_ID`를 본인 GitHub 아이디로 바꾸세요.
+아래 한 줄을 README에 붙여 넣고, `YOUR_GITHUB_ID`를 본인 GitHub 아이디로 바꾸세요. (아래 자동 전환 버전은 두 군데)
 
 ```md
 ![오늘의 운세](https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID)
 ```
+
+### 다크/라이트 모드 자동 전환 (추천)
+
+GitHub를 다크 모드로 보는 사람에게는 다크 터미널, 라이트 모드로 보는 사람에게는 라이트 터미널을 보여줍니다.
+
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&theme=dark">
+  <img src="https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID&theme=light" alt="오늘의 운세">
+</picture>
+```
+
+### 이렇게 보여요
 
 | 오늘 기여 전 | 오늘 기여 후 |
 |---|---|
@@ -42,6 +55,7 @@ GitHub README에 붙이는 **오늘의 개발자 운세 포춘쿠키** 위젯입
 | `width` | 위젯 너비(px) | `400` ~ `800` | `495` |
 | `radius` | 모서리 둥글기(px) | `0` ~ `30` | `10` |
 | `hide_border` | 테두리 숨기기 | `true`, `false` | `false` |
+| `preview` | (테스트용) 기여 수와 상관없이 잠긴/열린 화면 보기 | `locked`, `open` | 없음 (실제 기여 수로 결정) |
 
 잘못된 값을 넣어도 위젯이 깨지지 않아요. 숫자가 아니면 기본값, 범위를 벗어나면 가장 가까운 값을 씁니다.
 

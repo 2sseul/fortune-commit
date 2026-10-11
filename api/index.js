@@ -12,6 +12,7 @@
 //   width : 위젯 너비 400 ~ 800 (기본 495)
 //   radius : 모서리 둥글기 0 ~ 30 (기본 10)
 //   hide_border : true면 테두리 선을 숨긴다
+//   preview : (테스트용) locked면 잠긴 화면, open이면 열린 화면을 기여 수와 상관없이 보여준다
 //   잘못된 값은 기본값으로, 범위를 벗어난 값은 가장 가까운 허용값으로 바꾼다. (src/options.js)
 
 import { getTheme } from '../src/themes.js';
@@ -35,9 +36,16 @@ export default async function handler(req, res) {
   // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
   const command = user ? `fortune --user ${user}` : 'fortune --today';
 
-  // 오늘 기여 수 확인 (확인할 수 없으면 null → 잠그지 않는다)
-  const contributions = await countTodayContributions({ login: user, timeZone: tz, date });
-  const locked = contributions === 0;
+  // 테스트용 미리보기: preview=locked / preview=open 이면 GitHub에 묻지 않고 그 화면을 보여준다.
+  const preview = searchParams.get('preview');
+  let locked;
+  if (preview === 'locked' || preview === 'open') {
+    locked = preview === 'locked';
+  } else {
+    // 오늘 기여 수 확인 (확인할 수 없으면 null → 잠그지 않는다)
+    const contributions = await countTodayContributions({ login: user, timeZone: tz, date });
+    locked = contributions === 0;
+  }
 
   let svg;
   let cacheSeconds;

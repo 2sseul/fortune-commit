@@ -109,6 +109,7 @@
 | `width` | 위젯 너비(px) | 미정 |
 | `radius` | 모서리 둥글기(px) | 미정 |
 | `hide_border` | 테두리 숨김 | `false` |
+| `preview` | (테스트용) `locked`/`open` 화면 강제로 보기 | 없음 |
 
 ## 8. 가정한 것들
 
