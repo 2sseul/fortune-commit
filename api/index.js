@@ -2,7 +2,8 @@
 // Vercel은 api/index.js 파일을 자동으로 /api 주소에 연결한다.
 //
 // 커밋하고 열기: user의 오늘 GitHub 기여가 0개면 '잠긴 쿠키', 1개 이상이면 '열린 쿠키 + 운세'를 보여준다.
-// (토큰이 없거나 확인에 실패하면 운세를 그대로 보여준다)
+// 운세는 지난 7일 기여 수와 주 사용 언어에 맞춘 문구로 고른다.
+// (토큰이 없거나 확인에 실패하면 잠그지 않고 기본 운세를 보여준다)
 //
 // 사용 가능한 옵션 (주소 뒤에 ?이름=값 으로 붙인다)
 //   user  : GitHub 아이디. 아이디 + 날짜로 그날의 운세가 정해진다. (없으면 공통 운세, 잠금 없음)
@@ -19,7 +20,7 @@ import { getTheme } from '../src/themes.js';
 import { renderWidget, renderClosedCard } from '../src/render.js';
 import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../src/pick.js';
 import { parseStyleOptions } from '../src/options.js';
-import { countTodayContributions } from '../src/github.js';
+import { fetchActivity } from '../src/github.js';
 
 const LOCKED_CACHE_SECONDS = 5 * 60; // 잠긴 화면은 5분만 캐시 (커밋하면 곧 열리도록)
 
@@ -36,16 +37,14 @@ export default async function handler(req, res) {
   // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
   const command = user ? `fortune --user ${user}` : 'fortune --today';
 
-  // 테스트용 미리보기: preview=locked / preview=open 이면 GitHub에 묻지 않고 그 화면을 보여준다.
+  // GitHub 활동 확인: { today, lastWeek, language } (확인할 수 없으면 null → 잠그지 않고 기본 운세)
+  const activity = await fetchActivity({ login: user, timeZone: tz, date });
+
+  // 테스트용 미리보기: preview=locked / preview=open 이면 기여 수와 상관없이 그 화면을 보여준다.
   const preview = searchParams.get('preview');
-  let locked;
-  if (preview === 'locked' || preview === 'open') {
-    locked = preview === 'locked';
-  } else {
-    // 오늘 기여 수 확인 (확인할 수 없으면 null → 잠그지 않는다)
-    const contributions = await countTodayContributions({ login: user, timeZone: tz, date });
-    locked = contributions === 0;
-  }
+  const locked = preview === 'locked' || preview === 'open'
+    ? preview === 'locked'
+    : activity?.today === 0;
 
   let svg;
   let cacheSeconds;
@@ -62,7 +61,7 @@ export default async function handler(req, res) {
     });
     cacheSeconds = LOCKED_CACHE_SECONDS;
   } else {
-    const { fortune, lucky } = pickFortune({ user, date, lang });
+    const { fortune, lucky } = pickFortune({ user, date, lang, activity });
     svg = renderWidget({
       theme,
       command,

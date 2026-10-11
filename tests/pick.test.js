@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../src/pick.js';
 import { fortunes } from '../src/fortunes.js';
 import { wrapText, textWidth } from '../src/wrap.js';
+import { activityFortunes, activityTier } from '../src/activity-fortunes.js';
 
 test('같은 아이디·날짜·언어면 항상 같은 운세가 나온다', () => {
   const input = { user: '2sseul', date: '2026-10-11', lang: 'ko' };
@@ -96,4 +97,41 @@ test('다음 자정까지 남은 시간을 시간대 기준으로 계산한다',
   assert.equal(secondsUntilMidnight(undefined, new Date('2026-10-11T15:00:00Z')), 86400);
   // UTC 기준 12:00 → 12시간
   assert.equal(secondsUntilMidnight('UTC', new Date('2026-10-11T12:00:00Z')), 43200);
+});
+
+test('활동 단계: 지난 7일 기여 수로 열일/꾸준/새싹/복귀를 정한다', () => {
+  assert.equal(activityTier(30), 'fire');
+  assert.equal(activityTier(29), 'steady');
+  assert.equal(activityTier(8), 'steady');
+  assert.equal(activityTier(7), 'warm');
+  assert.equal(activityTier(1), 'warm');
+  assert.equal(activityTier(0), 'return');
+});
+
+test('활동을 알면 활동 맞춤 문구에서 고르고, 같은 날에는 항상 같다', () => {
+  const input = { user: '2sseul', date: '2026-10-11', lang: 'ko', activity: { today: 3, lastWeek: 40, language: null } };
+  const { fortune } = pickFortune(input);
+  assert.ok(activityFortunes.fire.ko.includes(fortune), fortune);
+  assert.deepEqual(pickFortune(input), pickFortune(input));
+});
+
+test('주 언어 문구는 사흘에 한 번꼴로 나오고, {lang} 자리에 언어 이름이 들어간다', () => {
+  let languageDays = 0;
+  for (let day = 1; day <= 30; day += 1) {
+    const date = `2026-11-${String(day).padStart(2, '0')}`;
+    const { fortune } = pickFortune({ user: '2sseul', date, lang: 'ko', activity: { today: 1, lastWeek: 3, language: 'TypeScript' } });
+    assert.ok(!fortune.includes('{lang}'));
+    if (fortune.includes('TypeScript')) languageDays += 1;
+  }
+  assert.ok(languageDays >= 4 && languageDays <= 18, `언어 문구가 나온 날: ${languageDays}`);
+});
+
+test('활동 맞춤 문구도 한국어·영어 개수가 같고, 3줄 안에 들어간다', () => {
+  for (const [name, group] of Object.entries(activityFortunes)) {
+    assert.equal(group.ko.length, group.en.length, name);
+    for (const text of [...group.ko, ...group.en]) {
+      const filled = text.replaceAll('{lang}', 'Jupyter Notebook'); // 긴 언어 이름으로 확인
+      assert.ok(wrapText(filled, 300).length <= 3, `너무 긴 문구: ${filled}`);
+    }
+  }
 });

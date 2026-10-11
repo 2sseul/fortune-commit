@@ -4,6 +4,7 @@
 
 import { fortunes } from './fortunes.js';
 import { luckyCategories, LUCKY_PER_DAY } from './lucky.js';
+import { activityFortunes, activityTier } from './activity-fortunes.js';
 
 export const DEFAULT_TIME_ZONE = 'Asia/Seoul';
 
@@ -68,13 +69,26 @@ export function normalizeUser(user) {
 
 // 오늘의 운세와 행운 아이템을 고른다.
 // user: GitHub 아이디(없어도 됨), date: 'YYYY-MM-DD', lang: 'ko' 또는 'en'
-export function pickFortune({ user, date, lang }) {
+// activity: GitHub 활동 { lastWeek, language } (없으면 기본 운세 105개 중에서 고른다)
+export function pickFortune({ user, date, lang, activity = null }) {
   const language = lang === 'en' ? 'en' : 'ko';
   const seed = `${normalizeUser(user)}|${date}`;
 
-  // 운세 문구: 한국어·영어는 같은 번호끼리 같은 뜻이므로, 언어와 상관없이 같은 번호를 고른다.
-  const list = fortunes[language];
-  const fortune = list[hash(`fortune|${seed}`) % list.length];
+  // 운세 문구를 고를 목록을 정한다.
+  //   활동을 알면: 활동 단계(열일/꾸준/새싹/복귀) 문구, 사흘에 한 번꼴로는 주 언어 문구
+  //   활동을 모르면: 기본 운세 105개
+  // 한국어·영어 목록은 같은 번호끼리 같은 뜻이라, 언어와 상관없이 같은 번호를 고른다.
+  let list = fortunes[language];
+  let codeLanguage = null;
+  if (activity) {
+    const useLanguage = activity.language && hash(`language|${seed}`) % 3 === 0;
+    list = useLanguage
+      ? activityFortunes.language[language]
+      : activityFortunes[activityTier(activity.lastWeek)][language];
+    if (useLanguage) codeLanguage = activity.language;
+  }
+  let fortune = list[hash(`fortune|${seed}`) % list.length];
+  if (codeLanguage) fortune = fortune.replaceAll('{lang}', codeLanguage);
 
   // 행운 아이템: 네 종류를 해시 값으로 줄 세운 뒤 앞에서 LUCKY_PER_DAY개만 보여준다.
   const lucky = luckyCategories
