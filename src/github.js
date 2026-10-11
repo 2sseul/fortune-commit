@@ -1,8 +1,13 @@
 // GitHub에서 위젯 주인의 활동을 가져오는 모듈
-//   today    : 오늘(기준 시간대 0시 ~ 지금) 기여 수 → 커밋하고 열기 (0이면 잠김)
+//   today    : 오늘(기준 시간대 0시 ~ 지금) 활동 수 → 커밋하고 열기 (0이면 잠김)
 //   lastWeek : 지난 7일(어제까지) 기여 수 → 활동 맞춤 운세 (하루 동안 바뀌지 않게 오늘은 뺀다)
 //   language : 최근 손댄 공개 저장소들에서 가장 많이 쓴 언어 → 언어 운세
-// 기여 = 커밋, PR, 이슈, 코드 리뷰, 새 저장소 만들기 + 비공개 기여(프로필에서 공개를 켠 경우)
+//
+// 왜 today만 다른 방법으로 세나요?
+//   GitHub 기여(잔디)는 한국 시간이 아니라 UTC 날짜로 기록된다. 그래서 기여로 세면 한국 0시~9시에는
+//   어제 저녁 기여가 '오늘'로 잡혀 쿠키가 잠기지 않는다. 그래서 오늘 활동은 초 단위 시각이 기록되는
+//   GitHub 공개 이벤트(push, PR, 이슈, 리뷰, 새 저장소)로 한국 0시부터 정확히 센다.
+//   (공개 이벤트만 보이므로 비공개 저장소 활동으로는 열리지 않는다)
 //
 // GitHub GraphQL API는 토큰이 있어야 쓸 수 있다. 토큰은 Vercel 환경변수 GITHUB_TOKEN에 넣는다.
 // 확인에 실패하면 null을 돌려주고, 위젯은 이 경우 잠그지 않고 기본 운세를 보여준다. (위젯이 깨지지 않게)
@@ -22,10 +27,8 @@ const CONTRIBUTION_FIELDS = `
         restrictedContributionsCount`;
 
 const QUERY = `
-  query ($login: String!, $todayFrom: DateTime!, $now: DateTime!, $weekFrom: DateTime!) {
+  query ($login: String!, $todayFrom: DateTime!, $weekFrom: DateTime!) {
     user(login: $login) {
-      today: contributionsCollection(from: $todayFrom, to: $now) {${CONTRIBUTION_FIELDS}
-      }
       lastWeek: contributionsCollection(from: $weekFrom, to: $todayFrom) {${CONTRIBUTION_FIELDS}
       }
       repositories(first: 30, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC,
@@ -45,6 +48,39 @@ const OPEN_MEMORY_MS = 60 * 60 * 1000; // 기여가 있다는 결과는 1시간 
 export function startOfToday(timeZone, now = new Date()) {
   const passedSeconds = 24 * 3600 - secondsUntilMidnight(timeZone, now);
   return new Date(now.getTime() - passedSeconds * 1000);
+}
+
+// 오늘 활동으로 셀 GitHub 이벤트인지 판단하고, 몇 개로 셀지 돌려준다.
+//   push(커밋 수만큼), PR 열기, 이슈 열기, 코드 리뷰, 새 저장소 만들기
+function eventWeight(event) {
+  const { type, payload = {} } = event;
+  if (type === 'PushEvent') return Math.max(1, Number(payload.size) || 0);
+  if (type === 'PullRequestEvent' || type === 'IssuesEvent') return payload.action === 'opened' ? 1 : 0;
+  if (type === 'PullRequestReviewEvent') return 1;
+  if (type === 'CreateEvent') return payload.ref_type === 'repository' ? 1 : 0;
+  return 0;
+}
+
+// 기준 시간대의 오늘 0시(since)부터 지금까지의 공개 활동 수를 센다. 확인할 수 없으면 null.
+export async function countTodayEvents({ login, token, since, fetchImpl = fetch }) {
+  try {
+    const response = await fetchImpl(`https://api.github.com/users/${encodeURIComponent(login)}/events/public?per_page=100`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'fortune-commit',
+      },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!response.ok) return null;
+    const events = await response.json();
+    if (!Array.isArray(events)) return null;
+    return events
+      .filter((event) => Date.parse(event.created_at) >= since.getTime())
+      .reduce((total, event) => total + eventWeight(event), 0);
+  } catch {
+    return null;
+  }
 }
 
 // GraphQL 응답에서 기여 수를 모두 더한다.
@@ -85,6 +121,8 @@ export async function fetchActivity({
 
   const todayFrom = startOfToday(timeZone, now);
   try {
+    // 오늘 활동(이벤트)과 지난 7일·주 언어(GraphQL)를 동시에 물어본다.
+    const todayRequest = countTodayEvents({ login, token, since: todayFrom, fetchImpl });
     const response = await fetchImpl(GRAPHQL_URL, {
       method: 'POST',
       headers: {
@@ -97,7 +135,6 @@ export async function fetchActivity({
         variables: {
           login,
           todayFrom: todayFrom.toISOString(),
-          now: now.toISOString(),
           weekFrom: new Date(todayFrom.getTime() - 7 * DAY_MS).toISOString(),
         },
       }),
@@ -107,10 +144,10 @@ export async function fetchActivity({
 
     const body = await response.json();
     const user = body?.data?.user;
-    if (!user?.today || !user?.lastWeek) return null; // 없는 아이디 등
+    if (!user?.lastWeek) return null; // 없는 아이디 등
 
     const activity = {
-      today: sumContributions(user.today),
+      today: await todayRequest, // 이벤트를 확인할 수 없으면 null → 잠그지 않는다
       lastWeek: sumContributions(user.lastWeek),
       language: mostUsedLanguage(user.repositories?.nodes),
     };
