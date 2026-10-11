@@ -42,6 +42,24 @@ export function todayIn(timeZone, now = new Date()) {
   }).format(now);
 }
 
+// 주어진 시간대에서 다음 자정까지 남은 시간(초)을 돌려준다.
+// 운세는 자정에 바뀌므로, 이미지를 그때까지만 캐시하도록 하는 데 쓴다.
+export function secondsUntilMidnight(timeZone, now = new Date()) {
+  const zone = timeZone && isValidTimeZone(timeZone) ? timeZone : DEFAULT_TIME_ZONE;
+  // 그 시간대의 현재 시·분·초를 읽는다.
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(now);
+  const get = (type) => Number(parts.find((p) => p.type === type).value);
+  // 자정을 '24시'로 표시하는 환경이 있어서 시(hour)만 24로 나눈 나머지를 쓴다.
+  const passed = (get('hour') % 24) * 3600 + get('minute') * 60 + get('second');
+  return 24 * 3600 - passed;
+}
+
 // GitHub 아이디는 대소문자를 구분하지 않으므로 소문자로 맞춘다. (2sseul = 2SSEUL)
 // 아이디가 없으면 빈 문자열이 되어 "그날의 공통 운세"가 나온다.
 export function normalizeUser(user) {

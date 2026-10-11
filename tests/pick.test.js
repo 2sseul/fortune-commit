@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { pickFortune, todayIn, normalizeUser } from '../src/pick.js';
+import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../src/pick.js';
 import { fortunes } from '../src/fortunes.js';
 import { wrapText, textWidth } from '../src/wrap.js';
 
@@ -87,4 +87,13 @@ test('모든 운세 문구가 3줄 안에 들어간다', () => {
     assert.ok(lines.length <= 3, `너무 긴 문구: ${text}`);
     for (const line of lines) assert.ok(textWidth(line) <= maxWidth);
   }
+});
+
+test('다음 자정까지 남은 시간을 시간대 기준으로 계산한다', () => {
+  // 한국 시간 23:59:00 → 자정까지 60초
+  assert.equal(secondsUntilMidnight(undefined, new Date('2026-10-11T14:59:00Z')), 60);
+  // 한국 시간 00:00:00 → 하루 전체(86400초)
+  assert.equal(secondsUntilMidnight(undefined, new Date('2026-10-11T15:00:00Z')), 86400);
+  // UTC 기준 12:00 → 12시간
+  assert.equal(secondsUntilMidnight('UTC', new Date('2026-10-11T12:00:00Z')), 43200);
 });

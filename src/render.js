@@ -173,3 +173,63 @@ export function renderWidget({
   <rect class="cursor" x="${PAD + 16}" y="${lastPromptY - 13}" width="8" height="16" fill="${t.cursor}" style="animation-delay: ${(TEXT_AT + lastOrder * TEXT_STEP).toFixed(2)}s, ${(TEXT_AT + lastOrder * TEXT_STEP + 0.4).toFixed(2)}s"/>
 </svg>`;
 }
+
+// 접기(<details>)의 제목 자리에 들어가는 "안 열린 쿠키 카드"를 만든다. (?state=closed)
+// README에서는 이 카드만 먼저 보이고, 누르면 아래에 열린 위젯이 펼쳐진다.
+// command: 프롬프트에 보일 명령어, hint: 안내 문구, label: 화면 읽기 프로그램용 이름
+export function renderClosedCard({
+  theme: t,
+  command,
+  hint,
+  label,
+  style = { width: 495, radius: 10, hideBorder: false },
+}) {
+  const { width } = style;
+  const cookie = cookieSize(PIXEL);
+  const cookieX = PAD + 4;
+  const textX = cookieX + cookie.width + 18;
+
+  const commandY = TITLEBAR + PAD + 12;
+  const cookieY = commandY + 14;
+  const hintY = cookieY + cookie.height / 2 + 5; // 쿠키 가운데 높이에 안내 문구를 둔다.
+  const height = cookieY + cookie.height + PAD;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(label)}">
+  <style>
+    .mono { font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace; font-size: 14px; }
+    .small { font-size: 12px; }
+    .bold { font-weight: 700; }
+    .cookie { transform-box: fill-box; transform-origin: center; }
+
+    /* 안 열린 쿠키가 "눌러 보세요" 하듯 3초마다 살짝 흔들린다 */
+    .cookie-closed { animation: nudge 3s ease-in-out 0.5s infinite; }
+    @keyframes nudge {
+      0%, 20%, 100% { transform: rotate(0); }
+      4% { transform: rotate(-8deg); }
+      8% { transform: rotate(8deg); }
+      12% { transform: rotate(-5deg); }
+      16% { transform: rotate(5deg); }
+    }
+
+    /* 안내 문구 뒤의 커서가 깜빡인다 (글자 안에 있는 커서라 fill-opacity로 깜빡인다) */
+    .cursor { animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { fill-opacity: 0; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+  ${renderWindow(t, { ...style, height, title: 'fortune-commit — zsh' })}
+
+  <!-- 명령어 줄: $ fortune ... -->
+  <text x="${PAD}" y="${commandY}" class="mono">
+    <tspan fill="${t.prompt}" class="bold">$</tspan><tspan fill="${t.text}"> ${escapeXml(command)}</tspan>
+  </text>
+
+  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed' })}
+
+  <!-- 안내 문구와 깜빡이는 커서 -->
+  <!-- 커서를 문구와 같은 <text> 안에 넣어서, 글자 폭과 상관없이 항상 문구 바로 뒤에 붙게 한다 -->
+  <text x="${textX}" y="${hintY}" class="mono bold" fill="${t.fortune}">&gt; ${escapeXml(hint)} <tspan class="cursor" fill="${t.cursor}">█</tspan></text>
+</svg>`;
+}

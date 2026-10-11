@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fortune-commit</title>
+  <meta name="description" content="GitHub README에 붙이는 오늘의 개발자 운세 포춘쿠키 위젯">
+  <style>
+    /* 예시 갤러리 페이지 스타일: 위젯과 같은 터미널 느낌 */
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --yellow: #f2cc60;
+      --orange: #ffa657;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace;
+      line-height: 1.6;
+    }
+    main { max-width: 1080px; margin: 0 auto; padding: 48px 16px 64px; }
+    h1 { margin: 0; font-size: 28px; }
+    h1 .prompt { color: var(--green); }
+    .lead { color: var(--muted); margin: 8px 0 0; }
+    .steps {
+      margin: 28px 0 36px;
+      padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .steps ol { margin: 0; padding-left: 20px; }
+    .steps code { color: var(--orange); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 495px), 1fr));
+      gap: 24px;
+    }
+    .example {
+      min-width: 0; /* 긴 코드 줄 때문에 카드가 화면 밖으로 넓어지지 않게 */
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .example h2 { margin: 0 0 12px; font-size: 15px; color: var(--yellow); }
+
+    /* 위젯 미리보기: README에서처럼 접기(<details>)로 보여준다.
+       밝은 테마 예시는 밝은 바탕 위에 보여준다. */
+    .preview { border-radius: 8px; padding: 12px; }
+    .preview.dark { background: #0d1117; color: #e6edf3; }
+    .preview.light { background: #ffffff; color: #1f2328; }
+    .preview summary { cursor: pointer; }
+    .preview summary img { vertical-align: middle; }
+    .preview img { max-width: 100%; height: auto; }
+    .preview details > img { display: block; margin-top: 8px; }
+
+    .code { margin-top: 12px; }
+    .code pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      overflow-x: auto;
+    }
+    .code button {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px 14px;
+      background: var(--green);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .code button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+    footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1><span class="prompt">$</span> fortune-commit</h1>
+    <p class="lead">GitHub README에 붙이는 오늘의 개발자 운세 포춘쿠키 위젯</p>
+
+    <section class="steps" aria-label="사용 방법">
+      <ol>
+        <li>아래 예시의 쿠키를 눌러 열어 보고, 마음에 드는 예시의 <strong>코드 복사</strong>를 누릅니다.</li>
+        <li>README에 붙여 넣고, <code>YOUR_GITHUB_ID</code>를 본인 GitHub 아이디로 바꿉니다. (두 군데)</li>
+        <li>끝! 방문자가 쿠키를 누르면 열리고, 매일 한국 시간 자정에 새 운세가 나옵니다.</li>
+      </ol>
+    </section>
+
+    <!-- 예시 카드는 아래 스크립트가 EXAMPLES 목록으로 만든다 -->
+    <div class="grid" id="examples"></div>
+
+    <footer>
+      옵션(너비, 모서리, 시간대 등)은
+      <a href="https://github.com/2sseul/fortune-cookie#readme">README</a>에서 볼 수 있어요.
+    </footer>
+  </main>
+
+  <script>
+    // 갤러리에 보여줄 예시 목록 (다크/라이트 × 한국어/영어)
+    const EXAMPLES = [
+      { title: '다크 · 한국어', theme: 'dark', lang: 'ko' },
+      { title: '라이트 · 한국어', theme: 'light', lang: 'ko' },
+      { title: 'Dark · English', theme: 'dark', lang: 'en' },
+      { title: 'Light · English', theme: 'light', lang: 'en' },
+    ];
+
+    // 미리보기에 쓸 예시 아이디 (복사되는 코드에는 YOUR_GITHUB_ID가 들어간다)
+    const PREVIEW_USER = 'octocat';
+
+    // 지금 열린 주소를 기준으로 위젯 주소를 만든다. (로컬에서도, 배포 후에도 그대로 동작)
+    const origin = window.location.origin;
+
+    function widgetUrl(user, { theme, lang }, extra = {}) {
+      const params = new URLSearchParams({ user, theme, ...extra });
+      if (lang !== 'ko') params.set('lang', lang); // 한국어는 기본값이라 생략한다.
+      return `${origin}/api?${params}`;
+    }
+
+    function altTexts(lang) {
+      return lang === 'en'
+        ? { closed: "Click to open today's fortune cookie", open: "Today's fortune" }
+        : { closed: '눌러서 오늘의 포춘쿠키 열기', open: '오늘의 운세' };
+    }
+
+    // README에 붙일 코드: 안 열린 쿠키 카드를 누르면 열린 위젯이 펼쳐지는 접기(<details>) 방식
+    function readmeCode(example) {
+      const user = 'YOUR_GITHUB_ID';
+      const alt = altTexts(example.lang);
+      return [
+        '<details>',
+        `  <summary><img src="${widgetUrl(user, example, { state: 'closed' })}" alt="${alt.closed}"></summary>`,
+        `  <img src="${widgetUrl(user, example)}" alt="${alt.open}">`,
+        '</details>',
+      ].join('\n');
+    }
+
+    // 버튼을 누르면 코드를 클립보드에 복사하고 잠깐 "복사됨!"을 보여준다.
+    async function copy(button, text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = '복사됨!';
+      } catch {
+        button.textContent = '복사 실패 :( 코드를 직접 선택해 주세요';
+      }
+      setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
+    }
+
+    // 미리보기: README와 똑같이 접기 방식으로 보여준다.
+    // (갤러리는 일반 웹페이지라 JS가 되므로, 펼칠 때마다 위젯을 새로 불러와 애니메이션을 처음부터 보여준다)
+    function renderPreview(example) {
+      const alt = altTexts(example.lang);
+      const details = document.createElement('details');
+
+      const summary = document.createElement('summary');
+      const closedImg = document.createElement('img');
+      closedImg.src = widgetUrl(PREVIEW_USER, example, { state: 'closed' });
+      closedImg.alt = alt.closed;
+      closedImg.width = 495;
+      summary.append(closedImg);
+
+      const openImg = document.createElement('img');
+      openImg.alt = alt.open;
+      openImg.width = 495;
+
+      details.addEventListener('toggle', () => {
+        if (details.open) openImg.src = widgetUrl(PREVIEW_USER, example, { t: Date.now() });
+      });
+
+      details.append(summary, openImg);
+      return details;
+    }
+
+    const grid = document.getElementById('examples');
+    for (const example of EXAMPLES) {
+      const card = document.createElement('article');
+      card.className = 'example';
+
+      const title = document.createElement('h2');
+      title.textContent = example.title;
+
+      const preview = document.createElement('div');
+      preview.className = `preview ${example.theme}`;
+      preview.append(renderPreview(example));
+
+      const codeBox = document.createElement('div');
+      codeBox.className = 'code';
+      const pre = document.createElement('pre');
+      pre.textContent = readmeCode(example);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = '코드 복사';
+      button.setAttribute('aria-label', `${example.title} 코드 복사`);
+      button.addEventListener('click', () => copy(button, readmeCode(example)));
+      codeBox.append(pre, button);
+
+      card.append(title, preview, codeBox);
+      grid.append(card);
+    }
+  </script>
+</body>
+</html>
