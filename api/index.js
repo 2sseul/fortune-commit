@@ -1,20 +1,33 @@
 // /api 주소로 요청이 오면 포춘쿠키 위젯 SVG를 돌려주는 서버리스 함수
 // Vercel은 api/index.js 파일을 자동으로 /api 주소에 연결한다.
+//
+// 사용 가능한 옵션 (주소 뒤에 ?이름=값 으로 붙인다)
+//   user  : GitHub 아이디. 아이디 + 날짜로 그날의 운세가 정해진다. (없으면 공통 운세)
+//   lang  : ko(기본) 또는 en
+//   tz    : 하루가 바뀌는 기준 시간대. 기본은 Asia/Seoul (예: UTC, America/New_York)
+//   theme : dark(기본) 또는 light
 
 import { getTheme } from '../src/themes.js';
 import { renderWidget } from '../src/render.js';
+import { pickFortune, todayIn, normalizeUser } from '../src/pick.js';
 
 export default function handler(req, res) {
-  // 주소 뒤의 옵션(?theme=dark 등)을 읽는다.
+  // 주소 뒤의 옵션을 읽는다.
   const { searchParams } = new URL(req.url, 'http://localhost');
   const theme = getTheme(searchParams.get('theme'));
+  const user = normalizeUser(searchParams.get('user'));
+  const lang = searchParams.get('lang') === 'en' ? 'en' : 'ko';
+  const date = todayIn(searchParams.get('tz'));
 
-  // 1단계에서는 고정된 예시 문구를 쓴다. (2단계에서 날짜·아이디 기반으로 바뀜)
+  const { fortune, lucky } = pickFortune({ user, date, lang });
+
   const svg = renderWidget({
     theme,
-    command: 'fortune --today',
-    fortune: '오늘 푸시한 코드는 한 번에 빌드됩니다.',
-    lucky: { key: 'lucky_status', value: '200 OK' },
+    // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
+    command: user ? `fortune --user ${user}` : 'fortune --today',
+    fortune,
+    lucky,
+    label: lang === 'en' ? "Today's fortune" : '오늘의 운세',
   });
 
   res.statusCode = 200;

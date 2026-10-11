@@ -3,6 +3,7 @@
 // README에서는 JavaScript가 실행되지 않으므로, 모든 그림은 SVG 도형과 글자로만 그린다.
 
 import { renderPixelCookie, cookieSize } from './cookie.js';
+import { wrapText, textWidth } from './wrap.js';
 
 // SVG(XML) 안에 글자를 넣을 때 깨지지 않도록 특수문자를 바꿔 준다.
 // 예: "rm -rf <폴더>" 같은 문구의 < > 가 태그로 오해받지 않게 한다.
@@ -45,22 +46,37 @@ function renderLuckyLine(t, x, y, key, value) {
 
 // 위젯 전체 SVG 문자열을 만든다.
 // theme: getTheme()으로 얻은 테마 객체
-// command: 프롬프트에 보일 명령어, fortune: 운세 문구
-// lucky: { key, value } 형태의 행운 아이템 (예: { key: 'lucky_status', value: '200 OK' })
-export function renderWidget({ theme: t, command, fortune, lucky }) {
+// command: 프롬프트에 보일 명령어, fortune: 운세 문구, label: 화면 읽기 프로그램용 이름
+// lucky: { key, value } 배열 (예: [{ key: 'lucky_status', value: '200 OK' }])
+export function renderWidget({ theme: t, command, fortune, lucky, label = '오늘의 운세' }) {
   const cookie = cookieSize(PIXEL);
-
-  // 세로 위치 계산: 타이틀바 → 명령어 줄 → 쿠키와 운세 → 마지막 프롬프트
-  const commandY = TITLEBAR + PAD + 12;
-  const cookieY = commandY + 14;
   const cookieX = PAD + 4;
-  const textX = cookieX + cookie.width + 24; // 쿠키 오른쪽에 글자를 둔다.
-  const fortuneY = cookieY + cookie.height / 2 - 6; // 쿠키 높이의 가운데쯤에 운세를 둔다.
-  const luckyY = fortuneY + LINE + 6;
-  const lastPromptY = cookieY + cookie.height + LINE;
+  const textX = cookieX + cookie.width + 18; // 쿠키 오른쪽에 글자를 둔다.
+
+  // 운세 문구를 쿠키 오른쪽 공간에 맞게 줄바꿈한다. ('> ' 표시만큼 폭을 빼 둔다)
+  const fortuneLines = wrapText(fortune, WIDTH - textX - PAD - textWidth('> '));
+
+  // 세로 위치 계산: 타이틀바 → 명령어 줄 → [쿠키 | 운세 + 행운 아이템] → 마지막 프롬프트
+  // 쿠키와 글자 묶음 중 더 높은 쪽에 맞춰 가운데 정렬한다.
+  const commandY = TITLEBAR + PAD + 12;
+  const contentTop = commandY + 14;
+  const textBlockHeight = (fortuneLines.length + lucky.length) * LINE + 8;
+  const contentHeight = Math.max(cookie.height, textBlockHeight);
+  const cookieY = contentTop + (contentHeight - cookie.height) / 2;
+  const firstLineY = contentTop + (contentHeight - textBlockHeight) / 2 + 15; // 15 = 글자 윗부분 높이
+  const luckyStartY = firstLineY + fortuneLines.length * LINE + 8;
+  const lastPromptY = contentTop + contentHeight + LINE + 4;
   const height = lastPromptY + PAD;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" role="img" aria-label="${escapeXml(`오늘의 운세: ${fortune}`)}">
+  // 첫 줄에만 '> '를 붙이고, 다음 줄은 글자 위치를 맞추려고 공백 두 칸으로 들여쓴다.
+  const fortuneText = fortuneLines
+    .map((line, i) => `<tspan x="${textX}" y="${firstLineY + i * LINE}">${i === 0 ? '&gt; ' : '  '}${escapeXml(line)}</tspan>`)
+    .join('');
+  const luckyText = lucky
+    .map((item, i) => renderLuckyLine(t, textX, luckyStartY + i * LINE, item.key, item.value))
+    .join('\n  ');
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" role="img" aria-label="${escapeXml(`${label}: ${fortune}`)}">
   <style>
     .mono { font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace; font-size: 14px; }
     .small { font-size: 12px; }
@@ -76,8 +92,8 @@ export function renderWidget({ theme: t, command, fortune, lucky }) {
   ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY })}
 
   <!-- 운세 출력 -->
-  <text x="${textX}" y="${fortuneY}" class="mono bold" fill="${t.fortune}">&gt; ${escapeXml(fortune)}</text>
-  ${renderLuckyLine(t, textX, luckyY, lucky.key, lucky.value)}
+  <text class="mono bold" fill="${t.fortune}">${fortuneText}</text>
+  ${luckyText}
 
   <!-- 다음 입력을 기다리는 프롬프트와 커서 -->
   <text x="${PAD}" y="${lastPromptY}" class="mono bold" fill="${t.prompt}">$</text>
