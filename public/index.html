@@ -6,44 +6,9 @@
   <title>fortune-commit · 오늘 구운 운세</title>
   <meta name="description" content="커밋하면 열리는 오늘의 개발자 운세. GitHub 프로필에 올려 두는 픽셀 포춘쿠키">
   <link rel="stylesheet" href="/site.css">
+  <link rel="stylesheet" href="/bakery-scene.css">
   <style>
     /* 메인 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
-
-    /* 첫 화면 */
-    .hero { padding: 72px 0 96px; }
-    .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: center; }
-    .hero h1 { margin: 0 0 18px; font-family: var(--title); font-weight: 400; font-size: clamp(40px, 6.4vw, 68px); line-height: 1.12; letter-spacing: -0.01em; }
-    .hero h1 em { font-style: normal; color: var(--caramel); }
-    .hero .lead { margin: 0 0 32px; max-width: 480px; font-size: 18px; color: var(--brown-soft); }
-    .hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-    .hero .stats { display: flex; gap: 28px; margin-top: 40px; color: var(--brown-soft); font-size: 14px; }
-    .hero .stats strong { display: block; font-family: var(--title); font-weight: 400; font-size: 26px; color: var(--brown); }
-
-    /* 접시 위의 쿠키 */
-    .counter { position: relative; display: flex; flex-direction: column; align-items: center; }
-    .plate {
-      position: relative;
-      display: grid;
-      place-items: center;
-      width: min(100%, 420px);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: radial-gradient(circle at 50% 45%, #ffffff 0 52%, #f3e6d3 53% 60%, #fff9f0 61% 100%);
-      box-shadow: var(--shadow), inset 0 -8px 0 rgba(92, 51, 16, 0.06);
-    }
-    .cookie-button { padding: 0; background: none; border: 0; cursor: pointer; width: 74%; }
-    .cookie-button img { display: block; width: 100%; height: auto; }
-    .cookie-button:hover img { transform: scale(1.03); }
-    .cookie-button img { transition: transform 0.2s ease; }
-    .hint { margin: 18px 0 0; font-size: 14px; color: var(--brown-soft); }
-    .hint b { color: var(--caramel-dark); }
-    .shake { animation: shake 0.5s; }
-    @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
-
-    /* 쿠키를 열면 나오는 쪽지 */
-    .slip-area { width: min(100%, 440px); margin-top: 22px; }
-    .slip { animation: slip-in 0.5s ease-out both; }
-    @keyframes slip-in { from { opacity: 0; transform: translateY(-14px) rotate(-1.2deg); } }
 
     /* 레시피 (이렇게 동작해요) */
     .recipe { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
@@ -106,9 +71,7 @@
     .package-note code { padding: 1px 6px; background: var(--dough); border-radius: 4px; }
 
     @media (max-width: 860px) {
-      .hero .wrap, .recipe, .wrap-box { grid-template-columns: 1fr; }
-      .hero { padding-top: 40px; }
-      .counter { order: -1; }
+      .recipe, .wrap-box { grid-template-columns: 1fr; }
       .frame:nth-child(2) { margin-left: 0; }
     }
   </style>
@@ -130,32 +93,92 @@
   </header>
 
   <main>
-    <!-- 첫 화면 -->
-    <section class="hero">
-      <div class="wrap">
-        <div>
-          <span class="eyebrow">Fortune Cookie Bakery</span>
-          <h1>오늘 구운 운세,<br><em>커밋하면</em> 드려요</h1>
-          <p class="lead">GitHub 프로필에 포춘쿠키를 하나 올려 두세요. 매일 밤 0시에 새 쿠키가 구워지고, 그날 커밋을 하면 쿠키가 열려요.</p>
-          <div class="actions">
-            <a class="btn" href="#package">내 프로필에 올리기</a>
-            <a class="btn ghost" id="hero-second" href="/api/auth/login?next=/">로그인하고 스킨 모으기</a>
-          </div>
-          <div class="stats">
-            <span><strong>145</strong>가지 운세</span>
-            <span><strong>11</strong>종 쿠키 스킨</span>
-            <span><strong>0시</strong>마다 새로 굽기</span>
-          </div>
+    <!-- 첫 화면: 빵집 안 장면 (bakery-scene.css, bakery-scene.js) -->
+    <section class="scene-wrap">
+      <div class="scene" id="scene">
+        <div class="wainscot"></div>
+
+        <!-- 천장 조명 (누르면 흔들림) -->
+        <div class="lamp one" aria-hidden="true"><div class="cord"></div><div class="shade"></div><div class="bulb"></div></div>
+        <div class="lamp two" aria-hidden="true"><div class="cord"></div><div class="shade"></div><div class="bulb"></div></div>
+
+        <!-- 왼쪽 벽 선반 -->
+        <div class="shelf-wall" aria-hidden="true">
+          <div class="jars"><span class="jar a"></span><span class="jar b"></span><span class="jar c"></span><span class="jar d"></span></div>
+          <div class="plank"></div>
         </div>
 
-        <div class="counter">
-          <div class="plate">
-            <button type="button" class="cookie-button" id="cookie" aria-label="포춘쿠키 열기">
-              <img class="pixel" id="cookie-img" src="/api/cookie?mode=closed" alt="접시 위의 포춘쿠키" width="328" height="296">
-            </button>
-          </div>
-          <p class="hint" id="hint"><b>쿠키를 눌러</b> 오늘의 운세를 꺼내 보세요</p>
-          <div class="slip-area" id="slip-area" aria-live="polite"></div>
+        <!-- 액자 -->
+        <div class="frame-pic" aria-hidden="true"><img src="/api/cookie?skin=gold&mode=still" alt=""></div>
+
+        <!-- 칠판 메뉴판 = 사이트 메뉴 -->
+        <nav class="chalk" aria-label="오늘의 메뉴">
+          <h2>MENU</h2>
+          <ul>
+            <li><a href="#recipe">레시피</a><span class="dots"></span><span class="price">0시</span></li>
+            <li><a href="/skins.html">진열대</a><span class="dots"></span><span class="price">11종</span></li>
+            <li><a href="#package">포장하기</a><span class="dots"></span><span class="price">무료</span></li>
+            <li><a href="/collection.html">내 도감</a><span class="dots"></span><span class="price">♥</span></li>
+          </ul>
+        </nav>
+
+        <!-- 반죽이 (오리지널 마스코트: 밀가루 반죽 제빵사) -->
+        <button type="button" class="mascot" id="mascot" aria-label="반죽이에게 말 걸기" style="padding:0;background:none;border:0">
+          <svg viewBox="0 0 200 190" aria-hidden="true">
+            <ellipse cx="100" cy="182" rx="62" ry="7" fill="rgba(92,51,16,0.18)"/>
+            <path d="M28 176 C8 128 28 66 100 66 C172 66 192 128 172 176 Z" fill="#fffaf2" stroke="#dcc6a6" stroke-width="4"/>
+            <circle cx="74" cy="46" r="22" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
+            <circle cx="126" cy="46" r="22" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
+            <circle cx="100" cy="32" r="27" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
+            <rect x="66" y="50" width="68" height="22" rx="8" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
+            <g class="eye"><circle cx="78" cy="112" r="9" fill="none"/><g class="pupil"><circle cx="78" cy="112" r="6.5" fill="#3b2a1f"/><circle cx="80" cy="109.5" r="2" fill="#fff"/></g><rect class="eyelid" x="69" y="103" width="18" height="18" rx="9" fill="#fffaf2"/></g>
+            <g class="eye"><circle cx="122" cy="112" r="9" fill="none"/><g class="pupil"><circle cx="122" cy="112" r="6.5" fill="#3b2a1f"/><circle cx="124" cy="109.5" r="2" fill="#fff"/></g><rect class="eyelid" x="113" y="103" width="18" height="18" rx="9" fill="#fffaf2"/></g>
+            <ellipse cx="62" cy="128" rx="9" ry="5" fill="#f6b8b0"/>
+            <ellipse cx="138" cy="128" rx="9" ry="5" fill="#f6b8b0"/>
+            <path d="M92 124 q4 5 8 0 q4 5 8 0" fill="none" stroke="#3b2a1f" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="52" cy="168" rx="16" ry="11" fill="#fffaf2" stroke="#dcc6a6" stroke-width="4"/>
+            <ellipse cx="148" cy="168" rx="16" ry="11" fill="#fffaf2" stroke="#dcc6a6" stroke-width="4"/>
+          </svg>
+        </button>
+        <p class="bubble" id="bubble" aria-live="polite"></p>
+
+        <!-- 카운터 -->
+        <div class="counter-top"></div>
+        <div class="counter-front"><span class="sign">fortune-commit bakery</span></div>
+
+        <!-- 진열장: 스킨 쿠키 (누르면 해금 조건) -->
+        <div class="case" aria-label="쿠키 진열장">
+          <div class="tray"></div>
+          <div class="tray"></div>
+        </div>
+
+        <!-- 접시 위 포춘쿠키 (누르면 운세) -->
+        <div class="plate-spot" id="plate-spot">
+          <span class="call">눌러 보세요!</span>
+          <div class="dish"></div>
+          <button type="button" id="cookie" aria-label="포춘쿠키 열기">
+            <img id="cookie-img" src="/api/cookie?mode=still" alt="접시 위의 포춘쿠키">
+          </button>
+        </div>
+
+        <!-- 커피잔 -->
+        <div class="coffee" aria-hidden="true"><span class="steam"></span><span class="steam"></span><span class="steam"></span><div class="cup"></div></div>
+
+        <!-- 운세 쪽지 -->
+        <div class="fortune-pop" id="fortune-pop" role="dialog" aria-label="오늘의 운세">
+          <button type="button" class="close" aria-label="닫기">✕</button>
+          <div class="slip"></div>
+        </div>
+      </div>
+
+      <div class="scene-caption">
+        <div>
+          <h1>오늘 구운 운세, <em>커밋하면</em> 드려요</h1>
+          <p>GitHub 프로필에 포춘쿠키를 올려 두세요. 매일 0시에 새로 굽고, 커밋하면 열려요.</p>
+        </div>
+        <div class="actions">
+          <a class="btn" href="#package">내 프로필에 올리기</a>
+          <a class="btn ghost" id="hero-second" href="/api/auth/login?next=/">로그인하고 스킨 모으기</a>
         </div>
       </div>
     </section>
@@ -244,6 +267,7 @@
 
   <script type="module">
     import { setupHeader, copyText } from '/site.js';
+    import { setupScene } from '/bakery-scene.js';
 
     const origin = window.location.origin;
     const SITE = `${origin}/`;
@@ -263,15 +287,6 @@
       ['santa', '산타 쿠키', '크리스마스 기여'],
     ];
 
-    // 행운 아이템 이름을 우리말로
-    const LUCKY_LABELS = {
-      lucky_status: '행운의 상태코드',
-      lucky_shortcut: '행운의 단축키',
-      lucky_language: '행운의 언어',
-      lucky_command: '행운의 명령어',
-      skin: '다음 스킨까지',
-    };
-
     // ---------- 헤더 ----------
     setupHeader().then((me) => {
       if (!me.loggedIn) return;
@@ -280,78 +295,21 @@
       second.href = '/collection.html';
     });
 
-    // ---------- 접시 위의 쿠키 ----------
-    let fortune = null;
-    let opened = false;
-
-    async function loadFortune() {
-      try {
-        fortune = await (await fetch('/api/fortune', { cache: 'no-store' })).json();
-      } catch {
-        fortune = null;
-      }
-      document.getElementById('cookie-img').src = `/api/cookie?skin=${fortune?.skin ?? 'plain'}&mode=closed`;
-    }
-
-    // 운세 쪽지를 만든다.
-    function renderSlip({ who, text, tags = [] }) {
-      const slip = document.createElement('div');
-      slip.className = 'slip';
-      const whoLine = document.createElement('p');
-      whoLine.className = 'who';
-      whoLine.textContent = who;
-      const body = document.createElement('p');
-      body.className = 'fortune';
-      body.textContent = text;
-      slip.append(whoLine, body);
-      if (tags.length) {
-        const list = document.createElement('div');
-        list.className = 'tags';
-        for (const { key, value } of tags) {
-          const tag = document.createElement('span');
-          tag.className = 'tag';
-          const label = document.createElement('b');
-          label.textContent = LUCKY_LABELS[key] ?? key;
-          tag.append(label, ` ${value}`);
-          list.append(tag);
-        }
-        slip.append(list);
-      }
-      document.getElementById('slip-area').replaceChildren(slip);
-    }
-
-    function openCookie() {
-      const img = document.getElementById('cookie-img');
-      const hint = document.getElementById('hint');
-      const who = fortune?.user ? `${fortune.user} 님의 오늘의 운세` : '오늘의 운세';
-
-      // 잠겨 있으면 흔들기만 하고 안내 쪽지를 보여준다.
-      if (!fortune || fortune.locked) {
-        img.classList.remove('shake');
-        void img.offsetWidth; // 흔들기 애니메이션을 처음부터 다시 재생하기 위한 트릭
-        img.classList.add('shake');
-        renderSlip(fortune
-          ? { who, text: '아직 쿠키가 구워지는 중이에요. 오늘 첫 커밋을 올리면 열려요.' }
-          : { who, text: '운세를 불러오지 못했어요. 잠시 후 다시 눌러 주세요.' });
-        return;
-      }
-
-      // 열기: 갈라지는 쿠키로 바꾸고, 갈라진 뒤 쪽지를 보여준다.
-      img.src = `/api/cookie?skin=${fortune.skin}&mode=crack&t=${Date.now()}`;
-      hint.textContent = opened ? '같은 날엔 몇 번을 열어도 같은 운세예요' : '쿠키가 열렸어요!';
-      opened = true;
-      setTimeout(() => {
-        renderSlip({ who, text: fortune.fortune, tags: fortune.lucky });
-        if (!fortune.user) {
-          const note = document.createElement('p');
-          note.className = 'hint';
-          note.textContent = '로그인하면 나만의 운세와 내 쿠키 스킨으로 볼 수 있어요.';
-          document.getElementById('slip-area').append(note);
-        }
-      }, 1100);
-    }
-    document.getElementById('cookie').addEventListener('click', openCookie);
-    loadFortune();
+    // ---------- 첫 화면: 빵집 장면 ----------
+    // 오늘의 운세는 한 번만 불러와서, 쿠키를 누를 때마다 다시 쓴다.
+    let fortunePromise = null;
+    const getFortune = () => {
+      fortunePromise ??= fetch('/api/fortune', { cache: 'no-store' }).then((r) => r.json()).catch(() => {
+        fortunePromise = null;
+        return null;
+      });
+      return fortunePromise;
+    };
+    // 로그인했으면 내가 장착한 스킨의 쿠키를 접시에 올린다.
+    getFortune().then((fortune) => {
+      if (fortune?.skin) document.getElementById('cookie-img').src = `/api/cookie?skin=${fortune.skin}&mode=still`;
+    });
+    setupScene({ skins: SKINS, getFortune });
 
     // ---------- 진열대 ----------
     const shelf = document.getElementById('shelf');
