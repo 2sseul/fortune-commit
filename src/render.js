@@ -255,6 +255,7 @@ export function renderClosedCard({
 // 사이트 첫 화면의 큰 쿠키 그림 (터미널 창 없이 쿠키만, 배경 투명)
 //   mode: 'closed' → 안 열린 쿠키가 '눌러 보세요' 하듯 가끔 흔들린다
 //         'crack'  → 흔들리다가 갈라지고 쪽지가 빠져나온다 (누른 뒤 보여준다)
+//         'still'  → 움직이지 않는 안 열린 쿠키 (로고, 진열대용)
 export function renderCookieArt({ theme: t, skin = null, mode = 'closed', pixel = 8 }) {
   const box = cookieBox(pixel, skin);
   const pad = pixel * 4; // 반짝이·흔들림이 잘리지 않게 둘레에 여백을 둔다.
@@ -285,6 +286,7 @@ export function renderCookieArt({ theme: t, skin = null, mode = 'closed', pixel 
       .cookie-closed { display: none; }
       .cookie-open { opacity: 1; }
     }`
+    : mode === 'still' ? ''
     : `
     .cookie { transform-box: fill-box; transform-origin: center; }
     .cookie-closed { animation: nudge 3s ease-in-out 0.8s infinite; }

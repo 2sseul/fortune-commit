@@ -30,11 +30,13 @@ const server = http.createServer(async (req, res) => {
 
   // 첫 화면(/)은 예시 갤러리, /skins.html 처럼 public/ 안의 html 페이지도 보여준다.
   const page = pathname === '/' ? 'index.html' : pathname.slice(1);
-  if (/^[a-z0-9-]+\.html$/.test(page)) {
+  const types = { html: 'text/html', css: 'text/css', js: 'text/javascript' };
+  const ext = page.split('.').pop();
+  if (/^[a-z0-9-]+\.(html|css|js)$/.test(page)) {
     try {
-      const html = await readFile(new URL(page, PUBLIC));
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.end(html);
+      const file = await readFile(new URL(page, PUBLIC));
+      res.setHeader('Content-Type', `${types[ext]}; charset=utf-8`);
+      res.end(file);
       return;
     } catch {
       // 없는 페이지면 아래의 404로 넘어간다.

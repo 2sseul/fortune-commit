@@ -3,421 +3,382 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>fortune-commit</title>
-  <meta name="description" content="커밋하면 열리는 오늘의 개발자 운세. GitHub README에 붙이는 픽셀 포춘쿠키 위젯">
+  <title>fortune-commit · 오늘 구운 운세</title>
+  <meta name="description" content="커밋하면 열리는 오늘의 개발자 운세. GitHub 프로필에 올려 두는 픽셀 포춘쿠키">
+  <link rel="stylesheet" href="/site.css">
   <style>
-    /* 서비스 메인 페이지: 어두운 터미널 감성 */
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --green: #3fb950;
-      --yellow: #f2cc60;
-      --orange: #ffa657;
-      --blue: #79c0ff;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace;
-      line-height: 1.6;
-    }
-    a { color: inherit; }
-    button { font: inherit; }
-    button:focus-visible, a:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
-
-    /* 헤더 */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(13, 17, 23, 0.9);
-      backdrop-filter: blur(6px);
-      border-bottom: 1px solid var(--border);
-    }
-    header .wrap { display: flex; align-items: center; gap: 16px; height: 60px; }
-    .logo { font-weight: 700; text-decoration: none; font-size: 17px; white-space: nowrap; }
-    .logo .prompt { color: var(--green); }
-    nav { display: flex; gap: 14px; margin-left: auto; align-items: center; font-size: 14px; }
-    nav > a { color: var(--muted); text-decoration: none; }
-    nav > a:hover { color: var(--text); }
-    .login {
-      padding: 6px 14px;
-      background: var(--green);
-      color: #0d1117;
-      border-radius: 6px;
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .github-icon { display: inline-flex; color: var(--muted); }
-    .github-icon svg { width: 22px; height: 22px; fill: currentColor; }
-
-    /* 로그인한 사람 메뉴 */
-    .account { position: relative; }
-    .account > button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px 4px 4px;
-      background: var(--panel);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      cursor: pointer;
-    }
-    .account img { width: 28px; height: 28px; border-radius: 50%; }
-    .account ul {
-      position: absolute;
-      right: 0;
-      top: calc(100% + 6px);
-      min-width: 170px;
-      margin: 0;
-      padding: 6px;
-      list-style: none;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-    .account li a { display: block; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 14px; }
-    .account li a:hover { background: var(--bg); }
+    /* 메인 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
 
     /* 첫 화면 */
-    .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px; align-items: center; min-height: calc(100vh - 60px); padding: 40px 16px; }
-    .cookie-button { display: block; margin: 0 auto; padding: 0; background: none; border: 0; cursor: pointer; }
-    .cookie-button img { display: block; width: min(100%, 380px); height: auto; image-rendering: pixelated; }
-    .cookie-hint { text-align: center; color: var(--muted); font-size: 13px; }
-    .hero h1 { margin: 0; font-size: clamp(32px, 6vw, 56px); line-height: 1.15; }
-    .hero h1 .prompt { color: var(--green); }
-    .hero .tagline { margin: 12px 0 24px; font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); }
-    .hero .tagline strong { color: var(--yellow); }
-    .cta { display: flex; flex-wrap: wrap; gap: 10px; }
-    .cta a {
-      padding: 10px 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      border: 1px solid var(--green);
-    }
-    .cta .primary { background: var(--green); color: #0d1117; }
-    .cta .secondary { color: var(--green); }
+    .hero { padding: 72px 0 96px; }
+    .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+    .hero h1 { margin: 0 0 18px; font-family: var(--title); font-weight: 400; font-size: clamp(40px, 6.4vw, 68px); line-height: 1.12; letter-spacing: -0.01em; }
+    .hero h1 em { font-style: normal; color: var(--caramel); }
+    .hero .lead { margin: 0 0 32px; max-width: 480px; font-size: 18px; color: var(--brown-soft); }
+    .hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .hero .stats { display: flex; gap: 28px; margin-top: 40px; color: var(--brown-soft); font-size: 14px; }
+    .hero .stats strong { display: block; font-family: var(--title); font-weight: 400; font-size: 26px; color: var(--brown); }
 
-    /* 쿠키를 누르면 나오는 터미널 출력 */
-    .output {
-      margin-top: 24px;
-      padding: 14px 16px;
-      min-height: 110px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 14px;
+    /* 접시 위의 쿠키 */
+    .counter { position: relative; display: flex; flex-direction: column; align-items: center; }
+    .plate {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: min(100%, 420px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 45%, #ffffff 0 52%, #f3e6d3 53% 60%, #fff9f0 61% 100%);
+      box-shadow: var(--shadow), inset 0 -8px 0 rgba(92, 51, 16, 0.06);
     }
-    .output p { margin: 0 0 6px; }
-    .output .prompt { color: var(--green); font-weight: 700; }
-    .output .fortune { color: var(--yellow); font-weight: 700; }
-    .output .key { color: var(--blue); }
-    .output .value { color: var(--orange); }
-    .output .note { color: var(--muted); font-size: 13px; }
-    .cursor { display: inline-block; width: 8px; height: 1em; vertical-align: text-bottom; background: var(--text); animation: blink 1s step-end infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
+    .cookie-button { padding: 0; background: none; border: 0; cursor: pointer; width: 74%; }
+    .cookie-button img { display: block; width: 100%; height: auto; }
+    .cookie-button:hover img { transform: scale(1.03); }
+    .cookie-button img { transition: transform 0.2s ease; }
+    .hint { margin: 18px 0 0; font-size: 14px; color: var(--brown-soft); }
+    .hint b { color: var(--caramel-dark); }
     .shake { animation: shake 0.5s; }
-    @keyframes shake {
-      0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); }
+    @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+
+    /* 쿠키를 열면 나오는 쪽지 */
+    .slip-area { width: min(100%, 440px); margin-top: 22px; }
+    .slip { animation: slip-in 0.5s ease-out both; }
+    @keyframes slip-in { from { opacity: 0; transform: translateY(-14px) rotate(-1.2deg); } }
+
+    /* 레시피 (이렇게 동작해요) */
+    .recipe { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+    .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+    .steps li { position: relative; padding: 0 0 30px 64px; counter-increment: step; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: -2px;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--dough);
+      border: 2px solid var(--caramel);
+      font-family: var(--title);
+      font-size: 20px;
+      color: var(--caramel-dark);
     }
-
-    /* 아래쪽 섹션 */
-    section.block { padding: 64px 0; border-top: 1px solid var(--border); }
-    section.block h2 { margin: 0 0 8px; font-size: 24px; }
-    section.block h2 .prompt { color: var(--green); }
-    section.block .sub { margin: 0 0 28px; color: var(--muted); }
-    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
-    .step { min-width: 0; padding: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
-    .step h3 { margin: 0 0 10px; font-size: 15px; color: var(--yellow); }
-    .step img { display: block; width: 100%; height: auto; }
-    .step p { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
-    .commit-box { padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
-    .commit-box .prompt { color: var(--green); }
-    .skins { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
-    .skins a { padding: 10px 6px; text-align: center; text-decoration: none; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; color: var(--muted); }
-    .skins a:hover { border-color: var(--green); color: var(--text); }
-    .skins img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
-    .more { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px 20px; }
-    .more a { color: var(--yellow); }
-
-    /* 갤러리 */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 495px), 1fr)); gap: 24px; }
-    .example { min-width: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-    .example.featured { grid-column: 1 / -1; border-color: var(--green); }
-    .example h3 { margin: 0 0 12px; font-size: 15px; color: var(--yellow); }
-    .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
-    .preview { border-radius: 8px; padding: 12px; }
-    .preview.dark { background: #0d1117; }
-    .preview.light { background: #ffffff; }
-    .preview img { display: block; max-width: 100%; height: auto; margin: 0 auto; cursor: pointer; }
-    .code pre { margin: 12px 0 0; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--muted); overflow-x: auto; }
-    .code button { margin-top: 8px; width: 100%; padding: 8px 14px; background: var(--green); color: #0d1117; border: 0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
-
-    footer { padding: 32px 0 48px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
-
-    /* 좁은 화면에서는 쿠키 위, 글자 아래 */
-    @media (max-width: 760px) {
-      .hero { grid-template-columns: 1fr; min-height: auto; gap: 16px; }
-      nav > a.wide { display: none; }
+    .steps li:not(:last-child)::after { /* 단계 사이 점선 */
+      content: '';
+      position: absolute;
+      left: 21px;
+      top: 46px;
+      bottom: 4px;
+      border-left: 2px dashed var(--line);
     }
-    @media (prefers-reduced-motion: reduce) {
-      .cursor, .shake { animation: none; }
-      html { scroll-behavior: auto; }
+    .steps h3 { margin: 0 0 4px; font-family: var(--title); font-weight: 400; font-size: 21px; }
+    .steps p { margin: 0; color: var(--brown-soft); }
+    .steps code { padding: 1px 6px; background: var(--dough); border-radius: 4px; font-size: 13px; }
+    .widget-frames { display: grid; gap: 18px; }
+    .frame { position: relative; padding: 18px; background: #0d1117; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .frame img { display: block; width: 100%; height: auto; }
+    .frame-label { position: absolute; top: -12px; left: 18px; padding: 2px 12px; background: var(--caramel); color: var(--paper); border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .frame:nth-child(2) { margin-left: 40px; }
+
+    /* 진열대 */
+    .display-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 36px; }
+    .display-head .lead { margin: 0; }
+
+    /* 포장하기 (위젯 달기) */
+    .wrap-box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .tabs button {
+      padding: 8px 16px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tabs button[aria-selected="true"] { background: var(--chocolate); border-color: var(--chocolate); color: var(--paper); }
+    .package-preview { padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .package-preview.dark { background: #0d1117; }
+    .package-preview.light { background: #ffffff; border: 1px solid var(--line); }
+    .package-preview img { display: block; width: 100%; height: auto; cursor: pointer; }
+    .package-note { margin: 16px 0 0; font-size: 14px; color: var(--brown-soft); }
+    .package-note code { padding: 1px 6px; background: var(--dough); border-radius: 4px; }
+
+    @media (max-width: 860px) {
+      .hero .wrap, .recipe, .wrap-box { grid-template-columns: 1fr; }
+      .hero { padding-top: 40px; }
+      .counter { order: -1; }
+      .frame:nth-child(2) { margin-left: 0; }
     }
   </style>
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <div class="wrap">
-      <a class="logo" href="/"><span class="prompt">$</span> fortune-commit</a>
-      <nav aria-label="메뉴">
-        <a class="wide" href="#how">이렇게 동작해요</a>
-        <a class="wide" href="/skins.html">스킨</a>
-        <a class="wide" href="#gallery">위젯 달기</a>
-        <span id="account-slot"><a class="login" href="/api/auth/login?next=/">로그인</a></span>
-        <a class="github-icon" href="https://github.com/2sseul/fortune-commit" aria-label="GitHub 저장소">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        </a>
+      <a class="brand" href="/">
+        <img class="pixel" src="/api/cookie?mode=still" alt="" width="40" height="36">
+        <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
+      </a>
+      <nav class="site-nav" aria-label="메뉴">
+        <a class="wide" href="#recipe">레시피</a>
+        <a class="wide" href="#display">진열대</a>
+        <a class="wide" href="#package">포장하기</a>
+        <span id="account-slot"><a class="btn small" href="/api/auth/login?next=/">GitHub 로그인</a></span>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- 첫 화면: 큰 쿠키를 누르면 오늘의 운세 -->
-    <div class="wrap hero">
-      <div>
-        <button type="button" class="cookie-button" id="cookie" aria-label="포춘쿠키 열기">
-          <img id="cookie-img" src="/api/cookie?mode=closed" alt="포춘쿠키" width="328" height="296">
-        </button>
-        <p class="cookie-hint" id="cookie-hint">👆 쿠키를 눌러 오늘의 운세를 열어 보세요</p>
-      </div>
-      <div>
-        <h1><span class="prompt">$</span> fortune-commit</h1>
-        <p class="tagline">커밋하면 열리는 <strong>오늘의 개발자 운세</strong>.<br>GitHub 프로필에 픽셀 포춘쿠키를 달아 보세요.</p>
-        <div class="cta">
-          <a class="primary" href="#gallery">내 프로필에 달기</a>
-          <a class="secondary" id="cta-second" href="/api/auth/login?next=/">로그인하고 스킨 모으기</a>
-        </div>
-        <div class="output" id="output" aria-live="polite">
-          <p><span class="prompt">$</span> <span id="output-command">fortune --today</span></p>
-          <p class="note">쿠키를 누르면 여기에 오늘의 운세가 나와요. <span class="cursor"></span></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 이렇게 동작해요 -->
-    <section class="block" id="how">
+    <!-- 첫 화면 -->
+    <section class="hero">
       <div class="wrap">
-        <h2><span class="prompt">$</span> 이렇게 동작해요</h2>
-        <p class="sub">README에 위젯을 달아 두면, 매일 한국 시간 0시에 쿠키가 잠기고 커밋하면 열려요.</p>
-        <div class="steps">
-          <div class="step">
-            <h3>① 0시가 되면 쿠키가 잠겨요</h3>
+        <div>
+          <span class="eyebrow">Fortune Cookie Bakery</span>
+          <h1>오늘 구운 운세,<br><em>커밋하면</em> 드려요</h1>
+          <p class="lead">GitHub 프로필에 포춘쿠키를 하나 올려 두세요. 매일 밤 0시에 새 쿠키가 구워지고, 그날 커밋을 하면 쿠키가 열려요.</p>
+          <div class="actions">
+            <a class="btn" href="#package">내 프로필에 올리기</a>
+            <a class="btn ghost" id="hero-second" href="/api/auth/login?next=/">로그인하고 스킨 모으기</a>
+          </div>
+          <div class="stats">
+            <span><strong>145</strong>가지 운세</span>
+            <span><strong>11</strong>종 쿠키 스킨</span>
+            <span><strong>0시</strong>마다 새로 굽기</span>
+          </div>
+        </div>
+
+        <div class="counter">
+          <div class="plate">
+            <button type="button" class="cookie-button" id="cookie" aria-label="포춘쿠키 열기">
+              <img class="pixel" id="cookie-img" src="/api/cookie?mode=closed" alt="접시 위의 포춘쿠키" width="328" height="296">
+            </button>
+          </div>
+          <p class="hint" id="hint"><b>쿠키를 눌러</b> 오늘의 운세를 꺼내 보세요</p>
+          <div class="slip-area" id="slip-area" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 레시피: 이렇게 동작해요 -->
+    <section class="section alt" id="recipe">
+      <div class="wrap recipe">
+        <div>
+          <span class="eyebrow">Recipe</span>
+          <h2>쿠키 한 개 굽는 법</h2>
+          <ol class="steps">
+            <li>
+              <h3>0시, 새 쿠키가 구워져요</h3>
+              <p>매일 한국 시간 0시가 되면 프로필 위젯의 쿠키가 다시 닫혀요.</p>
+            </li>
+            <li>
+              <h3>오늘의 커밋을 올려요</h3>
+              <p>공개 저장소에 <code>git push</code>, PR, 이슈, 리뷰 중 하나면 충분해요.</p>
+            </li>
+            <li>
+              <h3>쿠키가 열리고 운세가 나와요</h3>
+              <p>같은 날엔 어디서 봐도 같은 운세. 지난 7일 활동과 주 사용 언어에 맞춘 문구도 나와요.</p>
+            </li>
+          </ol>
+        </div>
+        <div class="widget-frames">
+          <div class="frame">
+            <span class="frame-label">커밋 전</span>
             <img src="/api?user=octocat&preview=locked" alt="잠긴 쿠키 위젯" loading="lazy">
-            <p>오늘 커밋(push, PR, 이슈, 리뷰)을 하기 전까지는 운세를 볼 수 없어요.</p>
           </div>
-          <div class="step">
-            <h3>② 오늘의 커밋을 해요</h3>
-            <div class="commit-box">
-              <p style="margin:0"><span class="prompt">$</span> git commit -m "feat: 오늘도 한 칸"</p>
-              <p style="margin:0"><span class="prompt">$</span> git push</p>
-            </div>
-            <p>공개 저장소에 push하면 몇 분 안에 위젯이 바뀌어요.</p>
-          </div>
-          <div class="step">
-            <h3>③ 쿠키가 갈라지며 운세가 나와요</h3>
+          <div class="frame">
+            <span class="frame-label">커밋 후</span>
             <img src="/api?user=octocat&preview=open" alt="열린 쿠키 위젯" loading="lazy">
-            <p>같은 날에는 어디서 봐도 같은 운세. 지난 7일 활동과 주 사용 언어에 맞춘 문구도 나와요.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 스킨 미리보기 -->
-    <section class="block" id="skins">
+    <!-- 진열대: 스킨 -->
+    <section class="section" id="display">
       <div class="wrap">
-        <h2><span class="prompt">$</span> 활동으로 모으는 쿠키 스킨</h2>
-        <p class="sub">커밋, PR, 코드 리뷰, 연속 기여… 업적을 달성하면 새 쿠키가 해금돼요. 로그인해서 도감에서 장착하면 위젯에 바로 적용돼요.</p>
-        <div class="skins" id="skin-strip"></div>
-        <div class="more">
-          <a href="/collection.html">→ 내 도감 보기</a>
-          <a href="/skins.html">→ 스킨 11종과 해금 조건</a>
+        <div class="display-head">
+          <div>
+            <span class="eyebrow">Today's Display</span>
+            <h2>활동으로 모으는 쿠키</h2>
+            <p class="lead">커밋, PR, 코드 리뷰, 연속 기여… 조건을 채우면 진열대의 쿠키가 내 것이 돼요. 로그인해서 도감에서 고르면 위젯에 바로 올라가요.</p>
+          </div>
+          <a class="btn ghost" href="/collection.html">내 도감 보기</a>
         </div>
+        <div class="shelf" id="shelf"></div>
       </div>
     </section>
 
-    <!-- 갤러리: 예시와 README 코드 -->
-    <section class="block" id="gallery">
+    <!-- 포장하기: 위젯 달기 -->
+    <section class="section alt" id="package">
       <div class="wrap">
-        <h2><span class="prompt">$</span> 내 프로필에 달기</h2>
-        <p class="sub">코드를 복사해 GitHub 프로필 README에 붙이고, <code>YOUR_GITHUB_ID</code>를 내 아이디로 바꾸면 끝! 위젯을 다는 커밋도 오늘의 기여라서 첫날은 바로 열려 있어요.</p>
-        <div class="grid" id="examples"></div>
+        <span class="eyebrow">Take Out</span>
+        <h2>내 프로필에 포장해 가기</h2>
+        <p class="lead">원하는 포장을 고르고 코드를 복사해 GitHub 프로필 README에 붙이세요.</p>
+        <div class="wrap-box">
+          <div>
+            <div class="tabs" role="tablist" aria-label="포장 고르기" id="tabs"></div>
+            <div class="code-box">
+              <div class="code-bar"><span>README.md</span><button type="button" class="btn small copy" id="package-copy">복사</button></div>
+              <pre id="package-code"></pre>
+            </div>
+            <p class="package-note"><code>YOUR_GITHUB_ID</code>를 내 아이디로 바꿔 주세요. 위젯을 올리는 커밋도 오늘의 기여라서 첫날은 바로 열려 있어요.</p>
+          </div>
+          <div class="package-preview dark" id="package-preview">
+            <img id="package-img" alt="위젯 미리보기" title="눌러서 애니메이션 다시 보기">
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer>
+  <footer class="site-footer">
     <div class="wrap">
-      fortune-commit · 모든 쿠키 그림은 오리지널이에요 ·
-      <a href="https://github.com/2sseul/fortune-commit#readme">README와 옵션</a>
+      <span class="brand-name">fortune-commit</span>
+      <span>모든 쿠키 그림은 오리지널이에요</span>
+      <a class="spacer" href="/skins.html">스킨 진열대</a>
+      <a href="/collection.html">내 도감</a>
+      <a href="https://github.com/2sseul/fortune-commit">GitHub</a>
     </div>
   </footer>
 
-  <script>
+  <script type="module">
+    import { setupHeader, copyText } from '/site.js';
+
     const origin = window.location.origin;
     const SITE = `${origin}/`;
 
-    // 스킨 이름 (src/skins.js와 같은 순서)
+    // 스킨 이름과 해금 조건 (src/skins.js, src/unlocks.js와 같은 내용)
     const SKINS = [
-      ['plain', '기본'], ['choco', '초코'], ['matcha', '말차'], ['gold', '황금'],
-      ['cat', '고양이'], ['dog', '강아지'], ['rabbit', '토끼'], ['pumpkin', '호박'],
-      ['snowman', '눈사람'], ['deer', '사슴'], ['santa', '산타'],
+      ['plain', '기본 쿠키', '처음부터'],
+      ['choco', '초코 쿠키', '올해 기여 50개'],
+      ['matcha', '말차 쿠키', '올해 기여 150개'],
+      ['gold', '황금 쿠키', '7일 연속 기여'],
+      ['cat', '고양이 쿠키', '올해 커밋 100개'],
+      ['dog', '강아지 쿠키', '올해 PR 10개'],
+      ['rabbit', '토끼 쿠키', '코드 리뷰 10개'],
+      ['pumpkin', '호박 쿠키', '10월 기여 10개'],
+      ['snowman', '눈사람 쿠키', '12월 기여 10개'],
+      ['deer', '사슴 쿠키', '12월 기여 30개'],
+      ['santa', '산타 쿠키', '크리스마스 기여'],
     ];
 
-    // ---------- 헤더: 로그인 상태 ----------
-    async function loadAccount() {
-      let me = { loggedIn: false };
-      try {
-        me = await (await fetch('/api/me?brief=1', { cache: 'no-store' })).json();
-      } catch {
-        // 확인하지 못하면 로그인 버튼을 그대로 둔다.
-      }
-      if (!me.loggedIn) return me;
+    // 행운 아이템 이름을 우리말로
+    const LUCKY_LABELS = {
+      lucky_status: '행운의 상태코드',
+      lucky_shortcut: '행운의 단축키',
+      lucky_language: '행운의 언어',
+      lucky_command: '행운의 명령어',
+      skin: '다음 스킨까지',
+    };
 
-      const slot = document.getElementById('account-slot');
-      const box = document.createElement('div');
-      box.className = 'account';
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.setAttribute('aria-expanded', 'false');
-      button.setAttribute('aria-haspopup', 'true');
-      const avatar = document.createElement('img');
-      avatar.src = `https://github.com/${encodeURIComponent(me.login)}.png?size=56`;
-      avatar.alt = '';
-      const name = document.createElement('span');
-      name.textContent = me.login;
-      button.append(avatar, name);
-
-      const menu = document.createElement('ul');
-      menu.hidden = true;
-      for (const [label, href] of [['🍪 내 도감', '/collection.html'], ['🎨 스킨 둘러보기', '/skins.html'], ['🚪 로그아웃', '/api/auth/logout']]) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = href;
-        a.textContent = label;
-        li.append(a);
-        menu.append(li);
-      }
-      button.addEventListener('click', () => {
-        menu.hidden = !menu.hidden;
-        button.setAttribute('aria-expanded', String(!menu.hidden));
-      });
-      document.addEventListener('click', (event) => {
-        if (!box.contains(event.target)) { menu.hidden = true; button.setAttribute('aria-expanded', 'false'); }
-      });
-      box.append(button, menu);
-      slot.replaceChildren(box);
-
-      const second = document.getElementById('cta-second');
+    // ---------- 헤더 ----------
+    setupHeader().then((me) => {
+      if (!me.loggedIn) return;
+      const second = document.getElementById('hero-second');
       second.textContent = '내 도감 보기';
       second.href = '/collection.html';
-      return me;
-    }
+    });
 
-    // ---------- 첫 화면: 큰 쿠키 ----------
-    let fortuneData = null;
+    // ---------- 접시 위의 쿠키 ----------
+    let fortune = null;
     let opened = false;
 
     async function loadFortune() {
       try {
-        fortuneData = await (await fetch('/api/fortune', { cache: 'no-store' })).json();
+        fortune = await (await fetch('/api/fortune', { cache: 'no-store' })).json();
       } catch {
-        fortuneData = null;
+        fortune = null;
       }
-      const skin = fortuneData?.skin ?? 'plain';
-      document.getElementById('cookie-img').src = `/api/cookie?skin=${skin}&mode=closed`;
-      document.getElementById('output-command').textContent = fortuneData?.user ? `fortune --user ${fortuneData.user}` : 'fortune --today';
+      document.getElementById('cookie-img').src = `/api/cookie?skin=${fortune?.skin ?? 'plain'}&mode=closed`;
     }
 
-    // 터미널 출력 줄 만들기
-    function line(className, ...parts) {
-      const p = document.createElement('p');
-      if (className) p.className = className;
-      p.append(...parts);
-      return p;
-    }
-    function span(className, text) {
-      const s = document.createElement('span');
-      s.className = className;
-      s.textContent = text;
-      return s;
+    // 운세 쪽지를 만든다.
+    function renderSlip({ who, text, tags = [] }) {
+      const slip = document.createElement('div');
+      slip.className = 'slip';
+      const whoLine = document.createElement('p');
+      whoLine.className = 'who';
+      whoLine.textContent = who;
+      const body = document.createElement('p');
+      body.className = 'fortune';
+      body.textContent = text;
+      slip.append(whoLine, body);
+      if (tags.length) {
+        const list = document.createElement('div');
+        list.className = 'tags';
+        for (const { key, value } of tags) {
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          const label = document.createElement('b');
+          label.textContent = LUCKY_LABELS[key] ?? key;
+          tag.append(label, ` ${value}`);
+          list.append(tag);
+        }
+        slip.append(list);
+      }
+      document.getElementById('slip-area').replaceChildren(slip);
     }
 
     function openCookie() {
       const img = document.getElementById('cookie-img');
-      const output = document.getElementById('output');
-      const command = document.getElementById('output-command').textContent;
-      const hint = document.getElementById('cookie-hint');
+      const hint = document.getElementById('hint');
+      const who = fortune?.user ? `${fortune.user} 님의 오늘의 운세` : '오늘의 운세';
 
-      // 잠겨 있으면 흔들기만 하고 안내를 보여준다.
-      if (!fortuneData || fortuneData.locked) {
+      // 잠겨 있으면 흔들기만 하고 안내 쪽지를 보여준다.
+      if (!fortune || fortune.locked) {
         img.classList.remove('shake');
-        void img.offsetWidth; // 애니메이션을 처음부터 다시 재생하기 위한 트릭
+        void img.offsetWidth; // 흔들기 애니메이션을 처음부터 다시 재생하기 위한 트릭
         img.classList.add('shake');
-        output.replaceChildren(
-          line('', span('prompt', '$'), ` ${command}`),
-          line('fortune', fortuneData ? '> 🔒 오늘의 쿠키가 아직 잠겨 있어요.' : '> 운세를 불러오지 못했어요. 잠시 후 다시 눌러 주세요.'),
-          line('note', fortuneData ? '오늘 0시 이후에 공개 저장소에 커밋을 push하면 몇 분 안에 열려요.' : ''),
-        );
+        renderSlip(fortune
+          ? { who, text: '아직 쿠키가 구워지는 중이에요. 오늘 첫 커밋을 올리면 열려요.' }
+          : { who, text: '운세를 불러오지 못했어요. 잠시 후 다시 눌러 주세요.' });
         return;
       }
 
-      // 열기: 갈라지는 쿠키로 바꾸고, 갈라진 뒤 운세를 출력한다.
-      img.src = `/api/cookie?skin=${fortuneData.skin}&mode=crack&t=${Date.now()}`;
-      hint.textContent = opened ? '👆 다시 눌러도 오늘의 운세는 같아요' : '🥠 쿠키가 열렸어요!';
+      // 열기: 갈라지는 쿠키로 바꾸고, 갈라진 뒤 쪽지를 보여준다.
+      img.src = `/api/cookie?skin=${fortune.skin}&mode=crack&t=${Date.now()}`;
+      hint.textContent = opened ? '같은 날엔 몇 번을 열어도 같은 운세예요' : '쿠키가 열렸어요!';
       opened = true;
-      output.replaceChildren(line('', span('prompt', '$'), ` ${command}`));
       setTimeout(() => {
-        output.append(line('fortune', `> ${fortuneData.fortune}`));
-        for (const { key, value } of fortuneData.lucky) {
-          output.append(line('', span('key', key), ' = ', span('value', `"${value}"`)));
+        renderSlip({ who, text: fortune.fortune, tags: fortune.lucky });
+        if (!fortune.user) {
+          const note = document.createElement('p');
+          note.className = 'hint';
+          note.textContent = '로그인하면 나만의 운세와 내 쿠키 스킨으로 볼 수 있어요.';
+          document.getElementById('slip-area').append(note);
         }
-        if (!fortuneData.user) {
-          output.append(line('note', '로그인하면 나만의 운세와 내 쿠키 스킨으로 볼 수 있어요.'));
-        }
-      }, 1200);
+      }, 1100);
     }
     document.getElementById('cookie').addEventListener('click', openCookie);
+    loadFortune();
 
-    // ---------- 스킨 줄 ----------
-    const strip = document.getElementById('skin-strip');
-    for (const [id, name] of SKINS) {
-      const a = document.createElement('a');
-      a.href = `/skins.html#${id}`;
+    // ---------- 진열대 ----------
+    const shelf = document.getElementById('shelf');
+    for (const [id, name, rule] of SKINS) {
+      const item = document.createElement('a');
+      item.className = 'shelf-item';
+      item.href = `/skins.html#${id}`;
       const img = document.createElement('img');
-      img.src = `/api/cookie?skin=${id}&mode=closed`;
+      img.className = 'pixel';
+      img.src = `/api/cookie?skin=${id}&mode=still`;
       img.alt = '';
       img.loading = 'lazy';
-      a.append(img, name);
-      strip.append(a);
+      const tag = document.createElement('span');
+      tag.className = 'price-tag';
+      const title = document.createElement('strong');
+      title.textContent = name;
+      tag.append(title, rule);
+      item.append(img, tag);
+      shelf.append(item);
     }
 
-    // ---------- 갤러리 ----------
-    const EXAMPLES = [
-      { title: '다크 · 한국어', theme: 'dark', lang: 'ko' },
-      { title: '라이트 · 한국어', theme: 'light', lang: 'ko' },
-      { title: 'Dark · English', theme: 'dark', lang: 'en' },
-      { title: 'Light · English', theme: 'light', lang: 'en' },
+    // ---------- 포장하기 ----------
+    const PACKAGES = [
+      { id: 'auto', label: '자동 전환 (추천)', theme: 'dark', lang: 'ko', auto: true },
+      { id: 'dark', label: '다크', theme: 'dark', lang: 'ko' },
+      { id: 'light', label: '라이트', theme: 'light', lang: 'ko' },
+      { id: 'en', label: 'English', theme: 'dark', lang: 'en' },
     ];
 
     // user를 빼면 잠금 없이 '그날의 공통 운세'가 나온다. 미리보기는 이걸로 보여준다.
@@ -426,80 +387,48 @@
       if (lang !== 'ko') params.set('lang', lang);
       return `${origin}/api?${params}`;
     }
-    function readmeCode(example) {
-      const alt = example.lang === 'en' ? "Today's fortune" : '오늘의 운세';
-      return `[![${alt}](${widgetUrl(example, 'YOUR_GITHUB_ID')})](${SITE})`;
-    }
-    function autoThemeCode() {
+    function packageCode(pkg) {
       const user = 'YOUR_GITHUB_ID';
-      return [
-        `<a href="${SITE}">`,
-        '  <picture>',
-        `    <source media="(prefers-color-scheme: dark)" srcset="${widgetUrl({ theme: 'dark', lang: 'ko' }, user)}">`,
-        `    <img src="${widgetUrl({ theme: 'light', lang: 'ko' }, user)}" alt="오늘의 운세">`,
-        '  </picture>',
-        '</a>',
-      ].join('\n');
-    }
-    async function copy(button, text) {
-      try {
-        await navigator.clipboard.writeText(text);
-        button.textContent = '복사됨!';
-      } catch {
-        button.textContent = '복사 실패 :( 코드를 직접 선택해 주세요';
+      if (pkg.auto) {
+        return [
+          `<a href="${SITE}">`,
+          '  <picture>',
+          `    <source media="(prefers-color-scheme: dark)" srcset="${widgetUrl({ theme: 'dark', lang: 'ko' }, user)}">`,
+          `    <img src="${widgetUrl({ theme: 'light', lang: 'ko' }, user)}" alt="오늘의 운세">`,
+          '  </picture>',
+          '</a>',
+        ].join('\n');
       }
-      setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
-    }
-    function preview(example) {
-      const box = document.createElement('div');
-      box.className = `preview ${example.theme}`;
-      const img = document.createElement('img');
-      img.src = widgetUrl(example);
-      img.alt = `${example.title} 예시 위젯`;
-      img.width = 495;
-      img.loading = 'lazy';
-      img.title = '눌러서 애니메이션 다시 보기';
-      img.addEventListener('click', () => { img.src = widgetUrl(example, null, { t: Date.now() }); });
-      box.append(img);
-      return box;
-    }
-    function codeBox(text, label) {
-      const box = document.createElement('div');
-      box.className = 'code';
-      const pre = document.createElement('pre');
-      pre.textContent = text;
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = '코드 복사';
-      button.setAttribute('aria-label', `${label} 코드 복사`);
-      button.addEventListener('click', () => copy(button, text));
-      box.append(pre, button);
-      return box;
-    }
-    const grid = document.getElementById('examples');
-    {
-      const card = document.createElement('article');
-      card.className = 'example featured';
-      const title = document.createElement('h3');
-      title.textContent = '추천 · 다크/라이트 자동 전환 (보는 사람의 GitHub 화면 모드에 맞춤)';
-      const pair = document.createElement('div');
-      pair.className = 'pair';
-      pair.append(preview({ title: '다크 모드에서', theme: 'dark', lang: 'ko' }), preview({ title: '라이트 모드에서', theme: 'light', lang: 'ko' }));
-      card.append(title, pair, codeBox(autoThemeCode(), '자동 전환'));
-      grid.append(card);
-    }
-    for (const example of EXAMPLES) {
-      const card = document.createElement('article');
-      card.className = 'example';
-      const title = document.createElement('h3');
-      title.textContent = example.title;
-      card.append(title, preview(example), codeBox(readmeCode(example), example.title));
-      grid.append(card);
+      const alt = pkg.lang === 'en' ? "Today's fortune" : '오늘의 운세';
+      return `[![${alt}](${widgetUrl(pkg, user)})](${SITE})`;
     }
 
-    // 시작: 로그인 상태와 오늘의 운세를 불러온다.
-    loadAccount();
-    loadFortune();
+    let current = PACKAGES[0];
+    function showPackage(pkg) {
+      current = pkg;
+      for (const tab of document.querySelectorAll('#tabs button')) {
+        tab.setAttribute('aria-selected', String(tab.dataset.id === pkg.id));
+      }
+      document.getElementById('package-code').textContent = packageCode(pkg);
+      const preview = document.getElementById('package-preview');
+      preview.className = `package-preview ${pkg.theme}`;
+      document.getElementById('package-img').src = widgetUrl(pkg);
+    }
+    const tabs = document.getElementById('tabs');
+    for (const pkg of PACKAGES) {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.role = 'tab';
+      tab.dataset.id = pkg.id;
+      tab.textContent = pkg.label;
+      tab.addEventListener('click', () => showPackage(pkg));
+      tabs.append(tab);
+    }
+    document.getElementById('package-img').addEventListener('click', (event) => {
+      event.currentTarget.src = widgetUrl(current, null, { t: Date.now() });
+    });
+    document.getElementById('package-copy').addEventListener('click', (event) => copyText(event.currentTarget, packageCode(current)));
+    showPackage(PACKAGES[0]);
   </script>
 </body>
 </html>

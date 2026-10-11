@@ -3,157 +3,124 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>fortune-commit 쿠키 스킨 고르기</title>
-  <meta name="description" content="fortune-commit 포춘쿠키 스킨 11종을 보고 골라서 README 코드를 복사하세요">
+  <title>스킨 진열대 · fortune-commit</title>
+  <meta name="description" content="fortune-commit 포춘쿠키 스킨 11종과 해금 조건을 보고, 고른 스킨의 README 코드를 복사하세요">
+  <link rel="stylesheet" href="/site.css">
   <style>
-    /* 스킨 미리보기 페이지: 갤러리와 같은 터미널 느낌 */
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --green: #3fb950;
-      --yellow: #f2cc60;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace;
-      line-height: 1.6;
-    }
-    main { max-width: 1200px; margin: 0 auto; padding: 48px 16px 64px; }
-    h1 { margin: 0; font-size: 26px; }
-    h1 .prompt { color: var(--green); }
-    .lead { color: var(--muted); margin: 8px 0 20px; }
-    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-    .controls button {
-      padding: 6px 12px;
-      background: var(--panel);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font: inherit;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .controls button[aria-pressed="true"] { border-color: var(--green); color: var(--green); }
-    .grid {
+    /* 스킨 진열대 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
+    .page { padding: 56px 0 96px; }
+    .tip { margin: -20px 0 32px; padding: 14px 18px; background: var(--paper); border: 1px dashed var(--caramel); border-radius: 12px; color: var(--brown-soft); }
+    .tip a { color: var(--caramel-dark); font-weight: 700; }
+    .order {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-      gap: 20px;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: 28px;
+      margin-bottom: 48px;
+      padding: 24px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
-    .skin {
-      min-width: 0;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-    }
-    .skin h2 { margin: 0; font-size: 15px; color: var(--yellow); }
-    .skin .id { color: var(--muted); font-size: 12px; }
-    .skin .rule { margin: 4px 0 10px; font-size: 13px; color: var(--muted); }
-    .skin .preview { border-radius: 8px; padding: 8px; }
-    .skin .preview.dark { background: #0d1117; }
-    .skin .preview.light { background: #ffffff; }
-    .skin img { display: block; width: 100%; height: auto; cursor: pointer; }
-    .skin.selected { border-color: var(--green); }
-    .skin .pick {
-      margin-top: 10px;
+    .order .chosen { display: flex; align-items: center; gap: 16px; }
+    .order .chosen img { width: 110px; }
+    .order h2 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 24px; }
+    .order .rule { margin: 2px 0 0; color: var(--brown-soft); font-size: 14px; }
+    .order label { display: block; margin-top: 18px; font-size: 14px; font-weight: 600; }
+    .order input {
+      display: block;
       width: 100%;
-      padding: 7px 12px;
-      background: transparent;
-      color: var(--green);
-      border: 1px solid var(--green);
-      border-radius: 6px;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .skin.selected .pick { background: var(--green); color: #0d1117; }
-
-    /* 고른 스킨의 README 코드 */
-    .chosen {
-      margin-bottom: 28px;
-      padding: 16px;
-      background: var(--panel);
-      border: 1px solid var(--green);
-      border-radius: 12px;
-    }
-    .chosen h2 { margin: 0 0 10px; font-size: 15px; color: var(--yellow); }
-    .chosen label { display: block; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
-    .chosen input {
-      margin-left: 6px;
-      padding: 5px 8px;
-      width: min(260px, 100%);
-      background: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font: inherit;
-    }
-    .chosen pre {
-      margin: 0;
+      margin-top: 6px;
       padding: 10px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      overflow-x: auto;
-    }
-    .chosen .copy {
-      margin-top: 8px;
-      width: 100%;
-      padding: 8px 14px;
-      background: var(--green);
-      color: #0d1117;
-      border: 0;
-      border-radius: 6px;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      border-radius: 10px;
       font: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
+      color: var(--brown);
     }
-    .chosen .note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
-    button:focus-visible, input:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
-    .back { color: var(--muted); font-size: 13px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .controls button { padding: 7px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    .controls button[aria-pressed="true"] { background: var(--chocolate); border-color: var(--chocolate); color: var(--paper); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 22px; }
+    .card { min-width: 0; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); scroll-margin-top: 90px; }
+    .card.selected { border: 2px solid var(--caramel); box-shadow: var(--shadow); }
+    .card h3 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 20px; }
+    .card .meta { margin: 0 0 12px; font-size: 13px; color: var(--brown-soft); }
+    .card .meta code { padding: 1px 6px; background: var(--dough); border-radius: 4px; }
+    .card .preview { padding: 10px; border-radius: 10px; }
+    .card .preview.dark { background: #0d1117; }
+    .card .preview.light { background: #ffffff; border: 1px solid var(--line); }
+    .card .preview img { display: block; width: 100%; height: auto; cursor: pointer; }
+    .card .btn { width: 100%; margin-top: 12px; }
+    .card.selected .btn { background: var(--caramel); border-color: var(--caramel); }
+    @media (max-width: 760px) { .order { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <main>
-    <a class="back" href="/">← fortune-commit 갤러리</a>
-    <h1><span class="prompt">$</span> fortune-commit skins</h1>
-    <p class="lead">
-      GitHub 활동으로 해금하는 포춘쿠키 스킨 11종이에요. 마음에 드는 스킨을 고르고 README 코드를 복사하세요.
-      해금 전에는 기본 쿠키와 진행 상황(예: <code>cat 37/100 commits</code>)이 보이고, 조건을 채우면 자동으로 바뀌어요.
-      해금은 매년 1월 1일에 새로 시작합니다.
-    </p>
-    <p class="lead">💡 <a href="/collection.html" style="color:var(--yellow)">도감</a>에서 GitHub로 로그인해 장착하면, README를 고치지 않아도 위젯에 바로 적용돼요. 아래 코드 복사는 로그인 없이 쓰는 방법이에요.</p>
-
-    <section class="chosen" aria-live="polite">
-      <h2 id="chosen-title">고른 스킨: 기본 쿠키</h2>
-      <label>GitHub 아이디 <input id="user" type="text" placeholder="YOUR_GITHUB_ID" autocomplete="off" spellcheck="false"></label>
-      <pre id="code"></pre>
-      <button type="button" class="copy" id="copy">코드 복사</button>
-      <p class="note">스킨을 바꾸고 싶을 때는 여기서 다시 골라 README 코드를 바꿔 붙이면 돼요.</p>
-    </section>
-
-    <div class="controls" role="group" aria-label="미리보기 설정">
-      <button type="button" data-state="open" aria-pressed="true">열린 쿠키</button>
-      <button type="button" data-state="locked" aria-pressed="false">안 열린 쿠키</button>
-      <button type="button" data-theme="dark" aria-pressed="true">다크</button>
-      <button type="button" data-theme="light" aria-pressed="false">라이트</button>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <img class="pixel" src="/api/cookie?mode=still" alt="" width="40" height="36">
+        <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
+      </a>
+      <nav class="site-nav" aria-label="메뉴">
+        <a class="wide" href="/#recipe">레시피</a>
+        <a class="wide" href="/skins.html" aria-current="page">진열대</a>
+        <a class="wide" href="/collection.html">내 도감</a>
+        <span id="account-slot"></span>
+      </nav>
     </div>
+  </header>
 
-    <div class="grid" id="skins"></div>
+  <main class="page">
+    <div class="wrap">
+      <span class="eyebrow">Cookie Display</span>
+      <h1 class="page-title">스킨 진열대</h1>
+      <p class="page-lead">GitHub 활동으로 해금하는 쿠키 11종이에요. 해금 전에는 기본 쿠키와 진행 상황(예: <code>cat 37/100 commits</code>)이 보이고, 조건을 채우면 자동으로 바뀌어요. 해금은 매년 1월 1일에 새로 시작해요.</p>
+      <p class="tip">로그인해서 <a href="/collection.html">내 도감</a>에서 고르면 README를 고치지 않아도 바로 바뀌어요. 아래 주문서는 로그인 없이 쓰는 방법이에요.</p>
+
+      <!-- 주문서: 고른 스킨의 README 코드 -->
+      <section class="order" aria-live="polite">
+        <div>
+          <div class="chosen">
+            <img class="pixel" id="chosen-img" src="/api/cookie?mode=still" alt="">
+            <div>
+              <h2 id="chosen-name">기본 쿠키</h2>
+              <p class="rule" id="chosen-rule">처음부터</p>
+            </div>
+          </div>
+          <label>GitHub 아이디 <input id="user" type="text" placeholder="YOUR_GITHUB_ID" autocomplete="off" spellcheck="false"></label>
+        </div>
+        <div class="code-box">
+          <div class="code-bar"><span>README.md</span><button type="button" class="btn small copy" id="copy">복사</button></div>
+          <pre id="code"></pre>
+        </div>
+      </section>
+
+      <div class="controls" role="group" aria-label="미리보기 설정">
+        <button type="button" data-state="open" aria-pressed="true">열린 쿠키</button>
+        <button type="button" data-state="locked" aria-pressed="false">안 열린 쿠키</button>
+        <button type="button" data-theme="dark" aria-pressed="true">다크</button>
+        <button type="button" data-theme="light" aria-pressed="false">라이트</button>
+      </div>
+      <div class="cards" id="cards"></div>
+    </div>
   </main>
 
-  <script>
-    // 스킨 목록과 해금 조건 (src/skins.js, PRD v2-3과 같은 내용)
+  <footer class="site-footer">
+    <div class="wrap">
+      <span class="brand-name">fortune-commit</span>
+      <span>모든 쿠키 그림은 오리지널이에요</span>
+      <a class="spacer" href="/">메인</a>
+      <a href="/collection.html">내 도감</a>
+      <a href="https://github.com/2sseul/fortune-commit">GitHub</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { setupHeader, copyText } from '/site.js';
+
+    // 스킨 목록과 해금 조건 (src/skins.js, src/unlocks.js와 같은 내용)
     const SKINS = [
       { id: 'plain', name: '기본 쿠키', rule: '처음부터' },
       { id: 'choco', name: '초코 쿠키', rule: '올해 기여 50개' },
@@ -168,14 +135,13 @@
       { id: 'santa', name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
     ];
 
-    // 지금 고른 미리보기 설정과 스킨
-    const view = { state: 'open', theme: 'dark' };
-    let chosen = 'plain';
     const origin = window.location.origin;
-    // README에서 위젯을 누르면 열리는 소개 페이지
     const SITE = `${origin}/`;
+    const view = { state: 'open', theme: 'dark' };
+    // 주소에 #cat 처럼 스킨이 적혀 있으면 그 스킨을 고른 상태로 시작한다. (메인 진열대에서 눌러 온 경우)
+    let chosen = SKINS.some((s) => s.id === location.hash.slice(1)) ? location.hash.slice(1) : 'plain';
 
-    // README에 붙일 코드: 다크/라이트 자동 전환 + 고른 스킨 + 누르면 소개 페이지
+    // README 코드: 다크/라이트 자동 전환 + 고른 스킨 + 누르면 메인 페이지
     function readmeCode() {
       const user = document.getElementById('user').value.trim() || 'YOUR_GITHUB_ID';
       const url = (theme) => {
@@ -193,66 +159,64 @@
       ].join('\n');
     }
 
-    // 고른 스킨 이름과 코드를 화면에 반영한다.
-    function updateCode() {
+    function updateOrder() {
       const skin = SKINS.find((s) => s.id === chosen);
-      document.getElementById('chosen-title').textContent = `고른 스킨: ${skin.name} (${skin.rule})`;
+      document.getElementById('chosen-img').src = `/api/cookie?skin=${skin.id}&mode=still`;
+      document.getElementById('chosen-name').textContent = skin.name;
+      document.getElementById('chosen-rule').textContent = `해금 조건: ${skin.rule}`;
       document.getElementById('code').textContent = readmeCode();
     }
 
     // 미리보기 위젯 주소 (preview로 해금과 상관없이 스킨을 보여준다)
     function previewUrl(id, extra = {}) {
-      const params = new URLSearchParams({ user: 'octocat', skin: id, preview: view.state, theme: view.theme, ...extra });
-      return `${origin}/api?${params}`;
+      return `${origin}/api?${new URLSearchParams({ user: 'octocat', skin: id, preview: view.state, theme: view.theme, ...extra })}`;
     }
 
-    function render() {
-      const grid = document.getElementById('skins');
-      grid.replaceChildren();
+    function renderCards() {
+      const cards = document.getElementById('cards');
+      cards.replaceChildren();
       for (const skin of SKINS) {
         const card = document.createElement('article');
-        card.className = 'skin';
+        card.className = 'card';
+        card.id = skin.id;
+        if (skin.id === chosen) card.classList.add('selected');
 
-        const title = document.createElement('h2');
+        const title = document.createElement('h3');
         title.textContent = skin.name;
-        const id = document.createElement('span');
-        id.className = 'id';
-        id.textContent = ` skin=${skin.id}`;
-        title.append(id);
-
-        const rule = document.createElement('p');
-        rule.className = 'rule';
-        rule.textContent = `🔓 ${skin.rule}`;
+        const meta = document.createElement('p');
+        meta.className = 'meta';
+        const code = document.createElement('code');
+        code.textContent = `skin=${skin.id}`;
+        meta.append(`${skin.rule} · `, code);
 
         const preview = document.createElement('div');
         preview.className = `preview ${view.theme}`;
         const img = document.createElement('img');
         img.src = previewUrl(skin.id);
         img.alt = `${skin.name} 미리보기`;
+        img.loading = 'lazy';
         img.title = '눌러서 애니메이션 다시 보기';
-        // 누르면 위젯을 새로 불러와 애니메이션을 처음부터 다시 보여준다.
         img.addEventListener('click', () => { img.src = previewUrl(skin.id, { t: Date.now() }); });
         preview.append(img);
 
         const pick = document.createElement('button');
         pick.type = 'button';
-        pick.className = 'pick';
+        pick.className = 'btn small';
         pick.setAttribute('aria-pressed', String(skin.id === chosen));
-        pick.textContent = skin.id === chosen ? '✓ 고른 스킨' : '이 스킨 고르기';
+        pick.textContent = skin.id === chosen ? '주문서에 담았어요' : '주문서에 담기';
         pick.addEventListener('click', () => {
           chosen = skin.id;
-          render();
-          updateCode();
-          document.querySelector('.chosen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          renderCards();
+          updateOrder();
+          document.querySelector('.order').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        if (skin.id === chosen) card.classList.add('selected');
-        card.append(title, rule, preview, pick);
-        grid.append(card);
+        card.append(title, meta, preview, pick);
+        cards.append(card);
       }
     }
 
-    // 설정 버튼: 같은 줄의 버튼 중 하나만 눌린 상태가 된다.
+    // 미리보기 설정 버튼: 같은 줄의 버튼 중 하나만 눌린 상태가 된다.
     for (const button of document.querySelectorAll('.controls button')) {
       button.addEventListener('click', () => {
         const key = button.dataset.state ? 'state' : 'theme';
@@ -260,27 +224,17 @@
         for (const other of document.querySelectorAll(`.controls button[data-${key}]`)) {
           other.setAttribute('aria-pressed', String(other === button));
         }
-        render();
+        renderCards();
       });
     }
 
-    // 아이디를 입력하면 코드에 바로 들어간다.
-    document.getElementById('user').addEventListener('input', updateCode);
+    document.getElementById('user').addEventListener('input', updateOrder);
+    document.getElementById('copy').addEventListener('click', (event) => copyText(event.currentTarget, readmeCode()));
 
-    // 코드 복사 버튼
-    document.getElementById('copy').addEventListener('click', async (event) => {
-      const button = event.currentTarget;
-      try {
-        await navigator.clipboard.writeText(readmeCode());
-        button.textContent = '복사됨!';
-      } catch {
-        button.textContent = '복사 실패 :( 코드를 직접 선택해 주세요';
-      }
-      setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
-    });
-
-    render();
-    updateCode();
+    setupHeader();
+    renderCards();
+    updateOrder();
+    if (location.hash) document.getElementById(chosen)?.scrollIntoView({ block: 'center' });
   </script>
 </body>
 </html>

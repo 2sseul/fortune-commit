@@ -1,0 +1,201 @@
+/* fortune-commit 사이트 공통 스타일: "따뜻한 베이커리"
+   크림색 바탕에 갈색 글씨, 캐러멜색 포인트. README 위젯(터미널 모양)과는 별개로 사이트에만 쓴다.
+   글꼴: 제목 Jua(둥근 한글), 본문 Pretendard, 코드는 고정폭 */
+
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+:root {
+  --cream: #fff8ee;        /* 바탕 */
+  --paper: #fffdf8;        /* 종이·카드 */
+  --dough: #f6e7d0;        /* 반죽색 (옅은 면) */
+  --line: #eadcc8;         /* 테두리 */
+  --brown: #3b2a1f;        /* 글씨 */
+  --brown-soft: #8a715c;   /* 흐린 글씨 */
+  --caramel: #d9822b;      /* 포인트 */
+  --caramel-dark: #b4651a;
+  --chocolate: #5c3310;    /* 버튼 */
+  --berry: #d7263d;        /* 쪽지 줄, 강조 */
+  --shelf: #a8703f;        /* 진열대 나무 */
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(92, 51, 16, 0.12);
+  --title: 'Jua', 'Pretendard Variable', sans-serif;
+  --body: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--brown);
+  font-family: var(--body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+img { max-width: 100%; }
+code, pre { font-family: var(--mono); }
+:focus-visible { outline: 3px solid var(--caramel); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.pixel { image-rendering: pixelated; }
+
+/* ---------- 헤더 ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 248, 238, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.site-header .wrap { display: flex; align-items: center; gap: 20px; height: 68px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand img { width: 40px; height: auto; }
+.brand-name { font-family: var(--title); font-size: 22px; line-height: 1; }
+.brand-sub { display: block; font-family: var(--body); font-size: 11px; letter-spacing: 0.2em; color: var(--brown-soft); text-transform: uppercase; }
+.site-nav { display: flex; align-items: center; gap: 22px; margin-left: auto; font-size: 15px; }
+.site-nav > a { text-decoration: none; color: var(--brown-soft); font-weight: 500; }
+.site-nav > a:hover, .site-nav > a[aria-current="page"] { color: var(--brown); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border: 2px solid var(--chocolate);
+  border-radius: 999px;
+  background: var(--chocolate);
+  color: var(--paper);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn:hover { transform: translateY(-1px); background: #4a2809; }
+.btn.ghost { background: transparent; color: var(--chocolate); }
+.btn.ghost:hover { background: var(--dough); }
+.btn.small { padding: 7px 16px; font-size: 14px; }
+
+/* 로그인한 사람 메뉴 */
+.account { position: relative; }
+.account > button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px 4px 4px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.account > button img { width: 32px; height: 32px; border-radius: 50%; }
+.account ul {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.account li a { display: block; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 15px; }
+.account li a:hover { background: var(--dough); }
+
+/* ---------- 섹션 공통 ---------- */
+.section { padding: 96px 0; }
+.section.alt { background: var(--paper); border-block: 1px solid var(--line); }
+.eyebrow { display: inline-block; margin-bottom: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; color: var(--caramel-dark); text-transform: uppercase; }
+.section h2, .page-title { margin: 0 0 12px; font-family: var(--title); font-weight: 400; font-size: clamp(28px, 4vw, 40px); line-height: 1.25; }
+.section .lead, .page-lead { margin: 0 0 40px; max-width: 640px; color: var(--brown-soft); font-size: 17px; }
+
+/* ---------- 운세 쪽지 ---------- */
+.slip {
+  position: relative;
+  padding: 22px 24px 18px;
+  background: #fffefb;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(92, 51, 16, 0.15);
+  transform: rotate(-1.2deg);
+  background-image: repeating-linear-gradient(transparent 0 31px, rgba(215, 38, 61, 0.12) 31px 32px);
+}
+.slip::before { /* 쪽지 왼쪽의 빨간 세로줄 */
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(215, 38, 61, 0.35);
+}
+.slip .who { margin: 0 0 6px; font-size: 13px; color: var(--brown-soft); }
+.slip .fortune { margin: 0; font-family: var(--title); font-size: 22px; line-height: 1.5; }
+.slip .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tag { padding: 3px 10px; background: var(--dough); border-radius: 999px; font-size: 13px; }
+.tag b { color: var(--caramel-dark); font-weight: 700; }
+
+/* ---------- 진열대 ---------- */
+/* 칸마다 아래에 나무판을 깔아서, 줄이 바뀌어도 줄마다 선반이 이어진다. */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); row-gap: 34px; }
+.shelf-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 8px 12px;
+  text-decoration: none;
+  text-align: center;
+  border-bottom: 12px solid var(--shelf);
+  box-shadow: 0 6px 0 rgba(92, 51, 16, 0.15);
+}
+.shelf-item img { width: 100%; max-width: 112px; transition: transform 0.2s ease; }
+.shelf-item:hover img { transform: translateY(-6px) rotate(-3deg); }
+.price-tag {
+  padding: 2px 10px;
+  background: var(--paper);
+  border: 1px dashed var(--caramel);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--brown-soft);
+}
+.price-tag strong { display: block; font-family: var(--title); font-weight: 400; font-size: 16px; color: var(--brown); }
+
+/* ---------- 코드 상자 ---------- */
+/* 위쪽 막대에 복사 버튼을 두고, 아래에 코드를 보여준다. */
+.code-box { overflow: hidden; background: #2b1d14; border-radius: 12px; }
+.code-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px 8px 16px; border-bottom: 1px solid #4a3426; color: #c9b39a; font-size: 13px; }
+.code-box pre {
+  margin: 0;
+  padding: 14px 16px 16px;
+  color: #f6e7d0;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.code-box .copy { padding: 5px 14px; border-color: var(--caramel); background: var(--caramel); }
+.code-box .copy:hover { background: var(--caramel-dark); }
+
+/* ---------- 푸터 ---------- */
+.site-footer { padding: 48px 0 56px; background: #2b1d14; color: #e9d8c2; font-size: 14px; }
+.site-footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; }
+.site-footer .brand-name { color: var(--paper); }
+.site-footer a { color: #e9d8c2; }
+.site-footer .spacer { margin-left: auto; }
+
+@media (max-width: 760px) {
+  .site-nav > a.wide { display: none; }
+  .section { padding: 64px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
