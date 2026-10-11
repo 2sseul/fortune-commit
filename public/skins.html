@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fortune-commit 쿠키 스킨</title>
+  <meta name="description" content="fortune-commit 포춘쿠키 스킨 11종 미리보기">
+  <style>
+    /* 스킨 미리보기 페이지: 갤러리와 같은 터미널 느낌 */
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --yellow: #f2cc60;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace;
+      line-height: 1.6;
+    }
+    main { max-width: 1200px; margin: 0 auto; padding: 48px 16px 64px; }
+    h1 { margin: 0; font-size: 26px; }
+    h1 .prompt { color: var(--green); }
+    .lead { color: var(--muted); margin: 8px 0 20px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .controls button {
+      padding: 6px 12px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .controls button[aria-pressed="true"] { border-color: var(--green); color: var(--green); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+      gap: 20px;
+    }
+    .skin {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .skin h2 { margin: 0; font-size: 15px; color: var(--yellow); }
+    .skin .id { color: var(--muted); font-size: 12px; }
+    .skin .rule { margin: 4px 0 10px; font-size: 13px; color: var(--muted); }
+    .skin .preview { border-radius: 8px; padding: 8px; }
+    .skin .preview.dark { background: #0d1117; }
+    .skin .preview.light { background: #ffffff; }
+    .skin img { display: block; width: 100%; height: auto; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1><span class="prompt">$</span> fortune-commit skins</h1>
+    <p class="lead">GitHub 활동으로 해금하는 포춘쿠키 스킨 11종. 위젯을 누르면 애니메이션을 다시 볼 수 있어요.</p>
+
+    <div class="controls" role="group" aria-label="미리보기 설정">
+      <button type="button" data-state="open" aria-pressed="true">열린 쿠키</button>
+      <button type="button" data-state="locked" aria-pressed="false">안 열린 쿠키</button>
+      <button type="button" data-theme="dark" aria-pressed="true">다크</button>
+      <button type="button" data-theme="light" aria-pressed="false">라이트</button>
+    </div>
+
+    <div class="grid" id="skins"></div>
+  </main>
+
+  <script>
+    // 스킨 목록과 해금 조건 (src/skins.js, PRD v2-3과 같은 내용)
+    const SKINS = [
+      { id: 'plain', name: '기본 쿠키', rule: '처음부터' },
+      { id: 'choco', name: '초코 쿠키', rule: '올해 기여 50개' },
+      { id: 'matcha', name: '말차 쿠키', rule: '올해 기여 150개' },
+      { id: 'gold', name: '황금 쿠키', rule: '올해 7일 연속 기여' },
+      { id: 'cat', name: '고양이 쿠키', rule: '올해 커밋 100개' },
+      { id: 'dog', name: '강아지 쿠키', rule: '올해 PR 10개' },
+      { id: 'rabbit', name: '토끼 쿠키', rule: '올해 코드 리뷰 10개' },
+      { id: 'pumpkin', name: '호박 쿠키', rule: '10월에 기여 10개' },
+      { id: 'snowman', name: '눈사람 쿠키', rule: '12월에 기여 10개' },
+      { id: 'deer', name: '사슴 쿠키', rule: '12월에 기여 30개' },
+      { id: 'santa', name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
+    ];
+
+    // 지금 고른 미리보기 설정
+    const view = { state: 'open', theme: 'dark' };
+    const origin = window.location.origin;
+
+    // 미리보기 위젯 주소 (preview로 해금과 상관없이 스킨을 보여준다)
+    function previewUrl(id, extra = {}) {
+      const params = new URLSearchParams({ user: 'octocat', skin: id, preview: view.state, theme: view.theme, ...extra });
+      return `${origin}/api?${params}`;
+    }
+
+    function render() {
+      const grid = document.getElementById('skins');
+      grid.replaceChildren();
+      for (const skin of SKINS) {
+        const card = document.createElement('article');
+        card.className = 'skin';
+
+        const title = document.createElement('h2');
+        title.textContent = skin.name;
+        const id = document.createElement('span');
+        id.className = 'id';
+        id.textContent = ` skin=${skin.id}`;
+        title.append(id);
+
+        const rule = document.createElement('p');
+        rule.className = 'rule';
+        rule.textContent = `🔓 ${skin.rule}`;
+
+        const preview = document.createElement('div');
+        preview.className = `preview ${view.theme}`;
+        const img = document.createElement('img');
+        img.src = previewUrl(skin.id);
+        img.alt = `${skin.name} 미리보기`;
+        img.title = '눌러서 애니메이션 다시 보기';
+        // 누르면 위젯을 새로 불러와 애니메이션을 처음부터 다시 보여준다.
+        img.addEventListener('click', () => { img.src = previewUrl(skin.id, { t: Date.now() }); });
+        preview.append(img);
+
+        card.append(title, rule, preview);
+        grid.append(card);
+      }
+    }
+
+    // 설정 버튼: 같은 줄의 버튼 중 하나만 눌린 상태가 된다.
+    for (const button of document.querySelectorAll('.controls button')) {
+      button.addEventListener('click', () => {
+        const key = button.dataset.state ? 'state' : 'theme';
+        view[key] = button.dataset[key];
+        for (const other of document.querySelectorAll(`.controls button[data-${key}]`)) {
+          other.setAttribute('aria-pressed', String(other === button));
+        }
+        render();
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 import handler from './api/index.js';
 
 const PORT = Number(process.env.PORT) || 3000;
-const GALLERY = new URL('./public/index.html', import.meta.url);
+const PUBLIC = new URL('./public/', import.meta.url);
 
 const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, 'http://localhost');
@@ -18,11 +18,17 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // 첫 화면(/)은 예시 갤러리 페이지를 보여준다.
-  if (pathname === '/' || pathname === '/index.html') {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.end(await readFile(GALLERY));
-    return;
+  // 첫 화면(/)은 예시 갤러리, /skins.html 처럼 public/ 안의 html 페이지도 보여준다.
+  const page = pathname === '/' ? 'index.html' : pathname.slice(1);
+  if (/^[a-z0-9-]+\.html$/.test(page)) {
+    try {
+      const html = await readFile(new URL(page, PUBLIC));
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.end(html);
+      return;
+    } catch {
+      // 없는 페이지면 아래의 404로 넘어간다.
+    }
   }
 
   res.statusCode = 404;
@@ -32,5 +38,6 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`예시 갤러리: http://localhost:${PORT}/`);
+  console.log(`스킨 미리보기: http://localhost:${PORT}/skins.html`);
   console.log(`위젯: http://localhost:${PORT}/api?user=octocat`);
 });
