@@ -20,7 +20,7 @@
       position: relative;
       z-index: 6;
       max-width: 660px;
-      margin: -70px auto 0;
+      margin: -44px auto 0;
       padding: 30px 34px 28px;
       background: var(--paper);
       border-radius: 26px;
@@ -51,13 +51,14 @@
 
     /* 갓 구운 쿠키 쟁반 그림 */
     .fresh-tray { position: relative; margin: 0; aspect-ratio: 600 / 420; }
-    .fresh-tray svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-    .fresh-tray img { position: absolute; width: 21%; image-rendering: pixelated; filter: drop-shadow(0 4px 0 rgba(92, 51, 16, 0.2)); }
-    .fresh-tray .c1 { left: 22%; top: 42%; transform: rotate(-8deg); }
-    .fresh-tray .c2 { left: 40%; top: 38%; transform: rotate(6deg); }
-    .fresh-tray .c3 { left: 58%; top: 42%; transform: rotate(-4deg); }
-    .fresh-tray .c4 { left: 30%; top: 52%; transform: rotate(10deg); }
-    .fresh-tray .c5 { left: 50%; top: 53%; transform: rotate(-12deg); }
+    .fresh-tray img { position: absolute; image-rendering: pixelated; }
+    .fresh-tray .base { inset: 0; width: 100%; height: 100%; }
+    .fresh-tray .c1, .fresh-tray .c2, .fresh-tray .c3, .fresh-tray .c4, .fresh-tray .c5 { width: 20%; filter: drop-shadow(0 4px 0 rgba(92, 51, 16, 0.2)); }
+    .fresh-tray .c1 { left: 21%; top: 40%; }
+    .fresh-tray .c2 { left: 40%; top: 36%; }
+    .fresh-tray .c3 { left: 59%; top: 40%; }
+    .fresh-tray .c4 { left: 30%; top: 50%; }
+    .fresh-tray .c5 { left: 50%; top: 51%; }
     .fresh-badge {
       position: absolute;
       z-index: 2;
@@ -66,22 +67,24 @@
       padding: 6px 16px;
       background: var(--berry);
       color: #fff;
-      border-radius: 999px;
+      border-radius: 4px;
       font-family: var(--title);
       font-size: 18px;
       transform: rotate(8deg);
-      box-shadow: 0 6px 14px rgba(215, 38, 61, 0.3);
+      box-shadow: 4px 4px 0 #8f1626;
     }
-    .fresh-steam path { opacity: 0; animation: fresh-steam 2.6s ease-in-out infinite; }
-    .fresh-steam path:nth-child(2) { animation-delay: 0.8s; }
-    .fresh-steam path:nth-child(3) { animation-delay: 1.6s; }
+    .fresh-tray .steam { position: absolute; left: 30%; top: 6%; width: 40%; display: flex; justify-content: space-around; }
+    .fresh-tray .steam img { position: static; width: 12%; opacity: 0; animation: fresh-steam 2.6s ease-in-out infinite; }
+    .fresh-tray .steam img:nth-child(2) { animation-delay: 0.8s; }
+    .fresh-tray .steam img:nth-child(3) { animation-delay: 1.6s; }
     @keyframes fresh-steam {
       0% { opacity: 0; transform: translateY(20px); }
-      40% { opacity: 0.85; }
+      40% { opacity: 0.9; }
       100% { opacity: 0; transform: translateY(-24px); }
     }
-    .fresh-spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s ease-in-out infinite; }
-    .fresh-spark.two { animation-delay: 0.9s; }
+    .fresh-tray .spark { width: 6%; animation: twinkle 1.8s steps(3) infinite; }
+    .fresh-tray .s1 { left: 80%; top: 26%; }
+    .fresh-tray .s2 { left: 16%; top: 30%; width: 4.5%; animation-delay: 0.9s; }
     @keyframes twinkle { 0%, 100% { transform: scale(0.6); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
 
     /* 커밋 전/후 위젯 */
@@ -142,8 +145,8 @@
       .welcome { margin-top: -24px; padding: 24px 20px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .friend-spot .stage img, .fresh-steam path, .fresh-spark { animation: none; }
-      .fresh-steam path { opacity: 0.6; }
+      .friend-spot .stage img, .fresh-tray .steam img, .fresh-tray .spark { animation: none; }
+      .fresh-tray .steam img { opacity: 0.7; }
     }
   </style>
 </head>
@@ -168,81 +171,53 @@
     <!-- ① 첫 화면: 빵집 장면 (bakery-scene.css, bakery-scene.js) + 걸쳐 놓인 환영 카드 -->
     <section class="hero">
       <div class="scene-wrap">
-      <div class="scene" id="scene">
-        <div class="wainscot"></div>
+        <div class="scene" id="scene">
+          <!-- 배경: 픽셀 빵집 그림 (img/bakery-scene-original.png에서 진열장 쿠키만 지운 것). 아래는 그 위에 올리는 것들 -->
+          <span class="glow one" aria-hidden="true"></span>
+          <span class="glow two" aria-hidden="true"></span>
 
-        <!-- 천장 조명 (누르면 흔들림) -->
-        <div class="lamp one" aria-hidden="true"><div class="cord"></div><div class="shade"></div><div class="bulb"></div></div>
-        <div class="lamp two" aria-hidden="true"><div class="cord"></div><div class="shade"></div><div class="bulb"></div></div>
+          <!-- 칠판 메뉴: 그림 속 글자 위 투명 링크 -->
+          <nav aria-label="오늘의 메뉴">
+            <ul class="chalk-links">
+              <li><a href="#story">이야기</a></li>
+              <li><a href="#friends">쿠키 친구들</a></li>
+              <li><a href="#take-out">포장하기</a></li>
+              <li><a href="/collection.html">내 도감</a></li>
+            </ul>
+          </nav>
 
-        <!-- 왼쪽 벽 선반 -->
-        <div class="shelf-wall" aria-hidden="true">
-          <div class="jars"><span class="jar a"></span><span class="jar b"></span><span class="jar c"></span><span class="jar d"></span></div>
-          <div class="plank"></div>
-        </div>
-
-        <!-- 액자 -->
-        <div class="frame-pic" aria-hidden="true"><img src="/api/cookie?skin=gold&mode=still" alt=""></div>
-
-        <!-- 칠판 메뉴판 = 사이트 메뉴 -->
-        <nav class="chalk" aria-label="오늘의 메뉴">
-          <h2>MENU</h2>
-          <ul>
-            <li><a href="#story">이야기</a><span class="dots"></span><span class="price">0시</span></li>
-            <li><a href="#friends">쿠키 친구들</a><span class="dots"></span><span class="price">11종</span></li>
-            <li><a href="#take-out">포장하기</a><span class="dots"></span><span class="price">무료</span></li>
-            <li><a href="/collection.html">내 도감</a><span class="dots"></span><span class="price">♥</span></li>
-          </ul>
-        </nav>
-
-        <!-- 반죽이 (오리지널 마스코트: 밀가루 반죽 제빵사) -->
-        <button type="button" class="mascot" id="mascot" aria-label="반죽이에게 말 걸기" style="padding:0;background:none;border:0">
-          <svg viewBox="0 0 200 190" aria-hidden="true">
-            <ellipse cx="100" cy="182" rx="62" ry="7" fill="rgba(92,51,16,0.18)"/>
-            <path d="M28 176 C8 128 28 66 100 66 C172 66 192 128 172 176 Z" fill="#fffaf2" stroke="#dcc6a6" stroke-width="4"/>
-            <circle cx="74" cy="46" r="22" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
-            <circle cx="126" cy="46" r="22" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
-            <circle cx="100" cy="32" r="27" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
-            <rect x="66" y="50" width="68" height="22" rx="8" fill="#fff" stroke="#dcc6a6" stroke-width="4"/>
-            <g class="eye"><circle cx="78" cy="112" r="9" fill="none"/><g class="pupil"><circle cx="78" cy="112" r="6.5" fill="#3b2a1f"/><circle cx="80" cy="109.5" r="2" fill="#fff"/></g><rect class="eyelid" x="69" y="103" width="18" height="18" rx="9" fill="#fffaf2"/></g>
-            <g class="eye"><circle cx="122" cy="112" r="9" fill="none"/><g class="pupil"><circle cx="122" cy="112" r="6.5" fill="#3b2a1f"/><circle cx="124" cy="109.5" r="2" fill="#fff"/></g><rect class="eyelid" x="113" y="103" width="18" height="18" rx="9" fill="#fffaf2"/></g>
-            <ellipse cx="62" cy="128" rx="9" ry="5" fill="#f6b8b0"/>
-            <ellipse cx="138" cy="128" rx="9" ry="5" fill="#f6b8b0"/>
-            <path d="M92 124 q4 5 8 0 q4 5 8 0" fill="none" stroke="#3b2a1f" stroke-width="3" stroke-linecap="round"/>
-            <ellipse cx="52" cy="168" rx="16" ry="11" fill="#fffaf2" stroke="#dcc6a6" stroke-width="4"/>
-            <ellipse cx="148" cy="168" rx="16" ry="11" fill="#fffaf2" stroke="#dcc6a6" stroke-width="4"/>
-          </svg>
-        </button>
-        <p class="bubble" id="bubble" aria-live="polite"></p>
-
-        <!-- 카운터 -->
-        <div class="counter-top"></div>
-        <div class="counter-front"><span class="sign">fortune-commit bakery</span></div>
-
-        <!-- 진열장: 스킨 쿠키 (누르면 해금 조건) -->
-        <div class="case" aria-label="쿠키 진열장">
-          <div class="tray"></div>
-          <div class="tray"></div>
-        </div>
-
-        <!-- 접시 위 포춘쿠키 (누르면 운세) -->
-        <div class="plate-spot" id="plate-spot">
-          <span class="call">눌러 보세요!</span>
-          <div class="dish"></div>
-          <button type="button" id="cookie" aria-label="포춘쿠키 열기">
-            <img id="cookie-img" src="/api/cookie?mode=still" alt="접시 위의 포춘쿠키">
+          <!-- 반죽이: 그림 속 반죽이에 눈을 얹는다 (눈이 마우스를 따라옴) -->
+          <button type="button" class="mascot" id="mascot" aria-label="반죽이에게 말 걸기">
+            <svg viewBox="690 440 255 265" preserveAspectRatio="none" aria-hidden="true">
+              <g class="eye"><g class="pupil"><rect x="761" y="615" width="14" height="22" fill="#3b2a1f"/><rect x="767" y="618" width="5" height="6" fill="#fff"/></g><rect class="eyelid" x="759" y="613" width="18" height="26" fill="#fdf6e4"/></g>
+              <g class="eye"><g class="pupil"><rect x="855" y="615" width="14" height="22" fill="#3b2a1f"/><rect x="861" y="618" width="5" height="6" fill="#fff"/></g><rect class="eyelid" x="853" y="613" width="18" height="26" fill="#fdf6e4"/></g>
+            </svg>
           </button>
-        </div>
+          <p class="bubble" id="bubble" aria-live="polite"></p>
 
-        <!-- 커피잔 -->
-        <div class="coffee" aria-hidden="true"><span class="steam"></span><span class="steam"></span><span class="steam"></span><div class="cup"></div></div>
+          <!-- 진열장: 실제 스킨 쿠키 (누르면 해금 조건) -->
+          <div class="case" aria-label="쿠키 진열장">
+            <div class="tray"></div>
+            <div class="tray"></div>
+          </div>
 
-        <!-- 운세 쪽지 -->
-        <div class="fortune-pop" id="fortune-pop" role="dialog" aria-label="오늘의 운세">
-          <button type="button" class="close" aria-label="닫기">✕</button>
-          <div class="slip"></div>
+          <!-- 접시 위 포춘쿠키 (누르면 운세) -->
+          <div class="plate-spot" id="plate-spot">
+            <span class="call">눌러 보세요!</span>
+            <button type="button" id="cookie" aria-label="포춘쿠키 열기">
+              <img id="cookie-img" src="/api/cookie?mode=still" alt="접시 위의 포춘쿠키">
+            </button>
+          </div>
+
+          <!-- 커피 김 -->
+          <div class="steam-px" aria-hidden="true"><img src="/img/fresh-steam.png" alt=""><img src="/img/fresh-steam.png" alt=""><img src="/img/fresh-steam.png" alt=""></div>
+
+          <!-- 운세 쪽지 -->
+          <div class="fortune-pop" id="fortune-pop" role="dialog" aria-label="오늘의 운세">
+            <button type="button" class="close" aria-label="닫기">✕</button>
+            <div class="slip"></div>
+          </div>
         </div>
-      </div>
       </div>
 
       <div class="welcome">
@@ -264,42 +239,10 @@
           <!-- 갓 구운 쿠키 쟁반을 오븐 장갑 낀 두 손이 들고 있는 그림 -->
           <figure class="fresh-tray" aria-label="오븐 장갑을 낀 손이 갓 구운 포춘쿠키 쟁반을 들고 있는 그림">
             <span class="fresh-badge">갓 구움!</span>
-            <svg viewBox="0 0 600 420" aria-hidden="true">
-              <ellipse cx="300" cy="392" rx="230" ry="16" fill="rgba(92,51,16,0.12)"/>
-              <!-- 쟁반 -->
-              <path d="M92 238 H508 L548 318 H52 Z" fill="#8f8a83"/>
-              <path d="M52 318 H548 V334 Q548 342 540 342 H60 Q52 342 52 334 Z" fill="#6f6a64"/>
-              <path d="M110 246 H490 L522 310 H78 Z" fill="#b9b3aa"/>
-              <path d="M128 252 H472 L498 304 H102 Z" fill="#f4e3c4"/>
-              <path d="M150 262 L170 262 M200 288 L226 288 M380 266 L400 266 M430 292 L452 292" stroke="#e6cfa6" stroke-width="3" stroke-linecap="round"/>
-              <!-- 왼쪽 장갑 -->
-              <g transform="translate(34 6) rotate(-10 70 300)">
-                <rect x="-6" y="300" width="96" height="120" rx="18" fill="#fff" stroke="#e6cfa6" stroke-width="3"/>
-                <rect x="-8" y="296" width="100" height="26" rx="12" fill="#f4dfc2" stroke="#e6cfa6" stroke-width="3"/>
-                <path d="M2 304 C-6 230 24 196 64 200 C100 204 112 240 104 304 Z" fill="#d7263d"/>
-                <path d="M86 236 C104 214 132 218 134 236 C136 252 116 260 98 262 Z" fill="#d7263d"/>
-                <path d="M24 214 V300 M48 202 V300 M72 204 V300" stroke="#b81d31" stroke-width="3" stroke-dasharray="7 7"/>
-                <path d="M40 222 Q50 214 62 220" stroke="#ff8c9c" stroke-width="5" fill="none" stroke-linecap="round"/>
-              </g>
-              <!-- 오른쪽 장갑 -->
-              <g transform="translate(566 6) scale(-1 1) rotate(-10 70 300)">
-                <rect x="-6" y="300" width="96" height="120" rx="18" fill="#fff" stroke="#e6cfa6" stroke-width="3"/>
-                <rect x="-8" y="296" width="100" height="26" rx="12" fill="#f4dfc2" stroke="#e6cfa6" stroke-width="3"/>
-                <path d="M2 304 C-6 230 24 196 64 200 C100 204 112 240 104 304 Z" fill="#d7263d"/>
-                <path d="M86 236 C104 214 132 218 134 236 C136 252 116 260 98 262 Z" fill="#d7263d"/>
-                <path d="M24 214 V300 M48 202 V300 M72 204 V300" stroke="#b81d31" stroke-width="3" stroke-dasharray="7 7"/>
-                <path d="M40 222 Q50 214 62 220" stroke="#ff8c9c" stroke-width="5" fill="none" stroke-linecap="round"/>
-              </g>
-              <!-- 김 -->
-              <g class="fresh-steam" fill="none" stroke="#e2bf94" stroke-width="6" stroke-linecap="round">
-                <path d="M210 190 c-14 -20 14 -34 0 -56 c-12 -20 12 -32 2 -50"/>
-                <path d="M300 176 c-14 -20 14 -34 0 -56 c-12 -20 12 -32 2 -50"/>
-                <path d="M390 190 c-14 -20 14 -34 0 -56 c-12 -20 12 -32 2 -50"/>
-              </g>
-              <!-- 반짝 -->
-              <path class="fresh-spark" d="M478 120 l6 14 14 6 -14 6 -6 14 -6 -14 -14 -6 14 -6 z" fill="#ffd166"/>
-              <path class="fresh-spark two" d="M128 150 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#ffd166"/>
-            </svg>
+            <img class="base" src="/img/fresh-tray.png" alt="">
+            <span class="steam" aria-hidden="true"><img src="/img/fresh-steam.png" alt=""><img src="/img/fresh-steam.png" alt=""><img src="/img/fresh-steam.png" alt=""></span>
+            <img class="spark s1" src="/img/fresh-spark.png" alt="">
+            <img class="spark s2" src="/img/fresh-spark.png" alt="">
             <img class="c1" src="/api/cookie?mode=still" alt="">
             <img class="c2" src="/api/cookie?skin=choco&mode=still" alt="">
             <img class="c3" src="/api/cookie?mode=still" alt="">

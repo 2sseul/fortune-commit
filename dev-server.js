@@ -30,12 +30,13 @@ const server = http.createServer(async (req, res) => {
 
   // 첫 화면(/)은 예시 갤러리, /skins.html 처럼 public/ 안의 html 페이지도 보여준다.
   const page = pathname === '/' ? 'index.html' : pathname.slice(1);
-  const types = { html: 'text/html', css: 'text/css', js: 'text/javascript' };
+  // img/ 안의 그림(png, webp)도 보여준다.
+  const types = { html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', png: 'image/png', webp: 'image/webp' };
   const ext = page.split('.').pop();
-  if (/^[a-z0-9-]+\.(html|css|js)$/.test(page)) {
+  if (/^(img\/)?[a-z0-9-]+\.(html|css|js|png|webp)$/.test(page)) {
     try {
       const file = await readFile(new URL(page, PUBLIC));
-      res.setHeader('Content-Type', `${types[ext]}; charset=utf-8`);
+      res.setHeader('Content-Type', types[ext]);
       res.end(file);
       return;
     } catch {
