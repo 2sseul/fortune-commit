@@ -94,6 +94,15 @@ function renderWindow(t, { width, height, radius, hideBorder, title }) {
   <text x="${width / 2}" y="19.5" text-anchor="middle" class="mono small" fill="${t.titleText}">${escapeXml(title)}</text>`;
 }
 
+// key = "value" 모양의 코드 한 줄 (애니메이션 없음)
+function renderCodeLine(t, { x, y, key, value }) {
+  return `<text x="${x}" y="${y}" class="mono">`
+    + `<tspan fill="${t.key}">${escapeXml(key)}</tspan>`
+    + `<tspan fill="${t.operator}"> = </tspan>`
+    + `<tspan fill="${t.value}">${escapeXml(value)}</tspan>`
+    + '</text>';
+}
+
 // 몇 번째 줄인지에 따라 나타나는 시각을 정한다.
 function revealDelay(order) {
   return `animation-delay: ${(TEXT_AT + order * TEXT_STEP).toFixed(2)}s`;
@@ -174,14 +183,16 @@ export function renderWidget({
 </svg>`;
 }
 
-// 접기(<details>)의 제목 자리에 들어가는 "안 열린 쿠키 카드"를 만든다. (?state=closed)
-// README에서는 이 카드만 먼저 보이고, 누르면 아래에 열린 위젯이 펼쳐진다.
+// "커밋하고 열기"의 잠긴 화면: 안 열린 쿠키와 안내 문구를 보여준다.
+// 오늘 기여를 하기 전까지는 이 화면이 보이고, 기여를 하면 열린 위젯으로 바뀐다.
 // command: 프롬프트에 보일 명령어, hint: 안내 문구, label: 화면 읽기 프로그램용 이름
+// detail: 안내 아래에 코드처럼 보여줄 한 줄 (예: { key: 'today_contributions', value: '0' })
 export function renderClosedCard({
   theme: t,
   command,
   hint,
   label,
+  detail,
   style = { width: 495, radius: 10, hideBorder: false },
 }) {
   const { width } = style;
@@ -191,7 +202,8 @@ export function renderClosedCard({
 
   const commandY = TITLEBAR + PAD + 12;
   const cookieY = commandY + 14;
-  const hintY = cookieY + cookie.height / 2 + 5; // 쿠키 가운데 높이에 안내 문구를 둔다.
+  // 쿠키 가운데 높이에 안내 문구(+ 아래 한 줄)를 둔다.
+  const hintY = cookieY + cookie.height / 2 + (detail ? -6 : 5);
   const height = cookieY + cookie.height + PAD;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(label)}">
@@ -231,5 +243,6 @@ export function renderClosedCard({
   <!-- 안내 문구와 깜빡이는 커서 -->
   <!-- 커서를 문구와 같은 <text> 안에 넣어서, 글자 폭과 상관없이 항상 문구 바로 뒤에 붙게 한다 -->
   <text x="${textX}" y="${hintY}" class="mono bold" fill="${t.fortune}">&gt; ${escapeXml(hint)} <tspan class="cursor" fill="${t.cursor}">█</tspan></text>
+  ${detail ? renderCodeLine(t, { x: textX, y: hintY + LINE + 4, ...detail }) : ''}
 </svg>`;
 }

@@ -52,15 +52,12 @@
     }
     .example h2 { margin: 0 0 12px; font-size: 15px; color: var(--yellow); }
 
-    /* 위젯 미리보기: README에서처럼 접기(<details>)로 보여준다.
-       밝은 테마 예시는 밝은 바탕 위에 보여준다. */
+    /* 위젯 미리보기: 밝은 테마 예시는 밝은 바탕 위에 보여준다 */
     .preview { border-radius: 8px; padding: 12px; }
-    .preview.dark { background: #0d1117; color: #e6edf3; }
-    .preview.light { background: #ffffff; color: #1f2328; }
-    .preview summary { cursor: pointer; }
-    .preview summary img { vertical-align: middle; }
-    .preview img { max-width: 100%; height: auto; }
-    .preview details > img { display: block; margin-top: 8px; }
+    .preview.dark { background: #0d1117; }
+    .preview.light { background: #ffffff; }
+    .preview img { display: block; max-width: 100%; height: auto; margin: 0 auto; cursor: pointer; }
+    .preview figcaption { margin-top: 6px; font-size: 12px; text-align: center; color: #8b949e; }
 
     .code { margin-top: 12px; }
     .code pre {
@@ -98,9 +95,9 @@
 
     <section class="steps" aria-label="사용 방법">
       <ol>
-        <li>아래 예시의 쿠키를 눌러 열어 보고, 마음에 드는 예시의 <strong>코드 복사</strong>를 누릅니다.</li>
-        <li>README에 붙여 넣고, <code>YOUR_GITHUB_ID</code>를 본인 GitHub 아이디로 바꿉니다. (두 군데)</li>
-        <li>끝! 방문자가 쿠키를 누르면 열리고, 매일 한국 시간 자정에 새 운세가 나옵니다.</li>
+        <li>마음에 드는 예시의 <strong>코드 복사</strong>를 누릅니다.</li>
+        <li>README에 붙여 넣고, <code>YOUR_GITHUB_ID</code>를 본인 GitHub 아이디로 바꿉니다.</li>
+        <li>끝! 오늘 커밋(기여)을 하기 전에는 쿠키가 잠겨 있고, 커밋하면 쿠키가 열리며 오늘의 운세가 나옵니다.</li>
       </ol>
     </section>
 
@@ -122,35 +119,20 @@
       { title: 'Light · English', theme: 'light', lang: 'en' },
     ];
 
-    // 미리보기에 쓸 예시 아이디 (복사되는 코드에는 YOUR_GITHUB_ID가 들어간다)
-    const PREVIEW_USER = 'octocat';
-
     // 지금 열린 주소를 기준으로 위젯 주소를 만든다. (로컬에서도, 배포 후에도 그대로 동작)
     const origin = window.location.origin;
 
-    function widgetUrl(user, { theme, lang }, extra = {}) {
-      const params = new URLSearchParams({ user, theme, ...extra });
+    // user를 빼면 잠금 없이 '그날의 공통 운세'가 나온다. 미리보기는 이걸로 보여준다.
+    function widgetUrl({ theme, lang }, user, extra = {}) {
+      const params = new URLSearchParams({ ...(user ? { user } : {}), theme, ...extra });
       if (lang !== 'ko') params.set('lang', lang); // 한국어는 기본값이라 생략한다.
       return `${origin}/api?${params}`;
     }
 
-    function altTexts(lang) {
-      return lang === 'en'
-        ? { closed: "Click to open today's fortune cookie", open: "Today's fortune" }
-        : { closed: '눌러서 오늘의 포춘쿠키 열기', open: '오늘의 운세' };
-    }
-
-    // README에 붙일 코드: 안 열린 쿠키 카드를 누르면 열린 위젯이 펼쳐지는 접기(<details>) 방식
-    // 이미지를 <picture>로 감싸야 GitHub가 이미지를 링크로 바꾸지 않아서, 눌렀을 때 접기가 펼쳐진다.
+    // README에 붙일 코드: 이미지 한 줄
     function readmeCode(example) {
-      const user = 'YOUR_GITHUB_ID';
-      const alt = altTexts(example.lang);
-      return [
-        '<details>',
-        `  <summary><picture><img src="${widgetUrl(user, example, { state: 'closed' })}" alt="${alt.closed}"></picture></summary>`,
-        `  <picture><img src="${widgetUrl(user, example)}" alt="${alt.open}"></picture>`,
-        '</details>',
-      ].join('\n');
+      const alt = example.lang === 'en' ? "Today's fortune" : '오늘의 운세';
+      return `![${alt}](${widgetUrl(example, 'YOUR_GITHUB_ID')})`;
     }
 
     // 버튼을 누르면 코드를 클립보드에 복사하고 잠깐 "복사됨!"을 보여준다.
@@ -164,29 +146,20 @@
       setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
     }
 
-    // 미리보기: README와 똑같이 접기 방식으로 보여준다.
-    // (갤러리는 일반 웹페이지라 JS가 되므로, 펼칠 때마다 위젯을 새로 불러와 애니메이션을 처음부터 보여준다)
+    // 미리보기 이미지. 누르면 위젯을 다시 불러와 쿠키가 갈라지는 애니메이션을 처음부터 보여준다.
     function renderPreview(example) {
-      const alt = altTexts(example.lang);
-      const details = document.createElement('details');
-
-      const summary = document.createElement('summary');
-      const closedImg = document.createElement('img');
-      closedImg.src = widgetUrl(PREVIEW_USER, example, { state: 'closed' });
-      closedImg.alt = alt.closed;
-      closedImg.width = 495;
-      summary.append(closedImg);
-
-      const openImg = document.createElement('img');
-      openImg.alt = alt.open;
-      openImg.width = 495;
-
-      details.addEventListener('toggle', () => {
-        if (details.open) openImg.src = widgetUrl(PREVIEW_USER, example, { t: Date.now() });
-      });
-
-      details.append(summary, openImg);
-      return details;
+      const figure = document.createElement('figure');
+      figure.style.margin = '0';
+      const img = document.createElement('img');
+      img.src = widgetUrl(example);
+      img.alt = `${example.title} 예시 위젯`;
+      img.width = 495;
+      img.title = '눌러서 애니메이션 다시 보기';
+      img.addEventListener('click', () => { img.src = widgetUrl(example, null, { t: Date.now() }); });
+      const caption = document.createElement('figcaption');
+      caption.textContent = '커밋한 날의 모습 · 눌러서 다시 보기';
+      figure.append(img, caption);
+      return figure;
     }
 
     const grid = document.getElementById('examples');
