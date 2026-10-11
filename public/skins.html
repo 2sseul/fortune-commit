@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>fortune-commit 쿠키 스킨</title>
-  <meta name="description" content="fortune-commit 포춘쿠키 스킨 11종 미리보기">
+  <title>fortune-commit 쿠키 스킨 고르기</title>
+  <meta name="description" content="fortune-commit 포춘쿠키 스킨 11종을 보고 골라서 README 코드를 복사하세요">
   <style>
     /* 스킨 미리보기 페이지: 갤러리와 같은 터미널 느낌 */
     :root {
@@ -59,12 +59,87 @@
     .skin .preview.dark { background: #0d1117; }
     .skin .preview.light { background: #ffffff; }
     .skin img { display: block; width: 100%; height: auto; cursor: pointer; }
+    .skin.selected { border-color: var(--green); }
+    .skin .pick {
+      margin-top: 10px;
+      width: 100%;
+      padding: 7px 12px;
+      background: transparent;
+      color: var(--green);
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .skin.selected .pick { background: var(--green); color: #0d1117; }
+
+    /* 고른 스킨의 README 코드 */
+    .chosen {
+      margin-bottom: 28px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--green);
+      border-radius: 12px;
+    }
+    .chosen h2 { margin: 0 0 10px; font-size: 15px; color: var(--yellow); }
+    .chosen label { display: block; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+    .chosen input {
+      margin-left: 6px;
+      padding: 5px 8px;
+      width: min(260px, 100%);
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font: inherit;
+    }
+    .chosen pre {
+      margin: 0;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      overflow-x: auto;
+    }
+    .chosen .copy {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px 14px;
+      background: var(--green);
+      color: #0d1117;
+      border: 0;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .chosen .note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+    .back { color: var(--muted); font-size: 13px; }
   </style>
 </head>
 <body>
   <main>
+    <a class="back" href="/">← fortune-commit 갤러리</a>
     <h1><span class="prompt">$</span> fortune-commit skins</h1>
-    <p class="lead">GitHub 활동으로 해금하는 포춘쿠키 스킨 11종. 위젯을 누르면 애니메이션을 다시 볼 수 있어요.</p>
+    <p class="lead">
+      GitHub 활동으로 해금하는 포춘쿠키 스킨 11종이에요. 마음에 드는 스킨을 고르고 README 코드를 복사하세요.
+      해금 전에는 기본 쿠키와 진행 상황(예: <code>cat 37/100 commits</code>)이 보이고, 조건을 채우면 자동으로 바뀌어요.
+      해금은 매년 1월 1일에 새로 시작합니다.
+    </p>
+
+    <section class="chosen" aria-live="polite">
+      <h2 id="chosen-title">고른 스킨: 기본 쿠키</h2>
+      <label>GitHub 아이디 <input id="user" type="text" placeholder="YOUR_GITHUB_ID" autocomplete="off" spellcheck="false"></label>
+      <pre id="code"></pre>
+      <button type="button" class="copy" id="copy">코드 복사</button>
+      <p class="note">스킨을 바꾸고 싶을 때는 여기서 다시 골라 README 코드를 바꿔 붙이면 돼요.</p>
+    </section>
 
     <div class="controls" role="group" aria-label="미리보기 설정">
       <button type="button" data-state="open" aria-pressed="true">열린 쿠키</button>
@@ -92,9 +167,37 @@
       { id: 'santa', name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
     ];
 
-    // 지금 고른 미리보기 설정
+    // 지금 고른 미리보기 설정과 스킨
     const view = { state: 'open', theme: 'dark' };
+    let chosen = 'plain';
     const origin = window.location.origin;
+    // README에서 위젯을 누르면 열리는 소개 페이지
+    const SITE = `${origin}/`;
+
+    // README에 붙일 코드: 다크/라이트 자동 전환 + 고른 스킨 + 누르면 소개 페이지
+    function readmeCode() {
+      const user = document.getElementById('user').value.trim() || 'YOUR_GITHUB_ID';
+      const url = (theme) => {
+        const params = new URLSearchParams({ user, theme });
+        if (chosen !== 'plain') params.set('skin', chosen); // 기본 쿠키는 skin을 생략한다.
+        return `${origin}/api?${params}`;
+      };
+      return [
+        `<a href="${SITE}">`,
+        '  <picture>',
+        `    <source media="(prefers-color-scheme: dark)" srcset="${url('dark')}">`,
+        `    <img src="${url('light')}" alt="오늘의 운세">`,
+        '  </picture>',
+        '</a>',
+      ].join('\n');
+    }
+
+    // 고른 스킨 이름과 코드를 화면에 반영한다.
+    function updateCode() {
+      const skin = SKINS.find((s) => s.id === chosen);
+      document.getElementById('chosen-title').textContent = `고른 스킨: ${skin.name} (${skin.rule})`;
+      document.getElementById('code').textContent = readmeCode();
+    }
 
     // 미리보기 위젯 주소 (preview로 해금과 상관없이 스킨을 보여준다)
     function previewUrl(id, extra = {}) {
@@ -130,7 +233,20 @@
         img.addEventListener('click', () => { img.src = previewUrl(skin.id, { t: Date.now() }); });
         preview.append(img);
 
-        card.append(title, rule, preview);
+        const pick = document.createElement('button');
+        pick.type = 'button';
+        pick.className = 'pick';
+        pick.setAttribute('aria-pressed', String(skin.id === chosen));
+        pick.textContent = skin.id === chosen ? '✓ 고른 스킨' : '이 스킨 고르기';
+        pick.addEventListener('click', () => {
+          chosen = skin.id;
+          render();
+          updateCode();
+          document.querySelector('.chosen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        if (skin.id === chosen) card.classList.add('selected');
+        card.append(title, rule, preview, pick);
         grid.append(card);
       }
     }
@@ -147,7 +263,23 @@
       });
     }
 
+    // 아이디를 입력하면 코드에 바로 들어간다.
+    document.getElementById('user').addEventListener('input', updateCode);
+
+    // 코드 복사 버튼
+    document.getElementById('copy').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      try {
+        await navigator.clipboard.writeText(readmeCode());
+        button.textContent = '복사됨!';
+      } catch {
+        button.textContent = '복사 실패 :( 코드를 직접 선택해 주세요';
+      }
+      setTimeout(() => { button.textContent = '코드 복사'; }, 1500);
+    });
+
     render();
+    updateCode();
   </script>
 </body>
 </html>
