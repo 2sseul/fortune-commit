@@ -122,6 +122,7 @@ function renderLuckyLine(t, { x, y, key, value, order }) {
 // command: 프롬프트에 보일 명령어, fortune: 운세 문구, label: 화면 읽기 프로그램용 이름
 // lucky: { key, value } 배열 (예: [{ key: 'lucky_status', value: '200 OK' }])
 // style: { width, radius, hideBorder } 모양 옵션 (src/options.js에서 검사한 값)
+// skin: 쿠키 스킨 (src/skins.js, 없으면 기본 쿠키)
 export function renderWidget({
   theme: t,
   command,
@@ -129,6 +130,7 @@ export function renderWidget({
   lucky,
   label = '오늘의 운세',
   style = { width: 495, radius: 10, hideBorder: false },
+  skin = null,
 }) {
   const { width } = style;
   const cookie = cookieSize(PIXEL);
@@ -170,8 +172,8 @@ export function renderWidget({
   </text>
 
   <!-- 같은 자리에 안 열린 쿠키와 열린 쿠키를 겹쳐 두고, 애니메이션으로 바꿔 보여준다 -->
-  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed' })}
-  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'open' })}
+  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed', skin })}
+  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'open', skin })}
 
   <!-- 운세 출력 -->
   <text class="mono bold reveal" fill="${t.fortune}" style="${revealDelay(0)}">${fortuneText}</text>
@@ -194,6 +196,7 @@ export function renderClosedCard({
   label,
   detail,
   style = { width: 495, radius: 10, hideBorder: false },
+  skin = null,
 }) {
   const { width } = style;
   const cookie = cookieSize(PIXEL);
@@ -238,7 +241,7 @@ export function renderClosedCard({
     <tspan fill="${t.prompt}" class="bold">$</tspan><tspan fill="${t.text}"> ${escapeXml(command)}</tspan>
   </text>
 
-  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed' })}
+  ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed', skin })}
 
   <!-- 안내 문구와 깜빡이는 커서 -->
   <!-- 커서를 문구와 같은 <text> 안에 넣어서, 글자 폭과 상관없이 항상 문구 바로 뒤에 붙게 한다 -->

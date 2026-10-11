@@ -13,6 +13,7 @@
 //   width : 위젯 너비 400 ~ 800 (기본 495)
 //   radius : 모서리 둥글기 0 ~ 30 (기본 10)
 //   hide_border : true면 테두리 선을 숨긴다
+//   skin  : 쿠키 스킨 이름 (plain, choco, matcha, gold, cat, dog, rabbit, pumpkin, snow). 모르는 이름이면 기본 쿠키
 //   preview : (테스트용) locked면 잠긴 화면, open이면 열린 화면을 기여 수와 상관없이 보여준다
 //   잘못된 값은 기본값으로, 범위를 벗어난 값은 가장 가까운 허용값으로 바꾼다. (src/options.js)
 
@@ -21,6 +22,7 @@ import { renderWidget, renderClosedCard } from '../src/render.js';
 import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from '../src/pick.js';
 import { parseStyleOptions } from '../src/options.js';
 import { fetchActivity } from '../src/github.js';
+import { getSkin } from '../src/skins.js';
 
 const LOCKED_CACHE_SECONDS = 5 * 60; // 잠긴 화면은 5분만 캐시 (커밋하면 곧 열리도록)
 
@@ -33,6 +35,7 @@ export default async function handler(req, res) {
   const tz = searchParams.get('tz');
   const date = todayIn(tz);
   const style = parseStyleOptions(searchParams);
+  const skin = getSkin(searchParams.get('skin'));
 
   // 터미널에 입력한 것처럼 보이는 명령어. 아이디가 있으면 --user로 보여준다.
   const command = user ? `fortune --user ${user}` : 'fortune --today';
@@ -58,6 +61,7 @@ export default async function handler(req, res) {
         : '오늘의 포춘쿠키가 잠겨 있어요. 오늘 기여를 하면 열려요.',
       detail: { key: 'today_contributions', value: '0' },
       style,
+      skin,
     });
     cacheSeconds = LOCKED_CACHE_SECONDS;
   } else {
@@ -69,6 +73,7 @@ export default async function handler(req, res) {
       lucky,
       label: lang === 'en' ? "Today's fortune" : '오늘의 운세',
       style,
+      skin,
     });
     // 운세는 자정에 바뀌므로 다음 자정까지만 캐시한다. 단, 너무 오래 묵지 않게 최대 1시간.
     cacheSeconds = Math.max(60, Math.min(3600, secondsUntilMidnight(tz)));
