@@ -1,0 +1,13 @@
+{
+  "name": "fortune-commit",
+  "version": "0.1.0",
+  "description": "GitHub README에 붙이는 오늘의 개발자 운세 포춘쿠키 위젯",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "node dev-server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
