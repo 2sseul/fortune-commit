@@ -8,76 +8,142 @@
   <link rel="stylesheet" href="/site.css">
   <link rel="stylesheet" href="/bakery-scene.css">
   <style>
-    /* 메인 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
+    /* 메인 페이지 구성: 넓은 첫 화면 + 걸쳐 놓인 환영 카드 → 이야기 → 즐길 거리 → 새 소식 → 쿠키 친구들
+       섹션마다 바탕색을 바꾸고, 사이를 물결 모양으로 잇는다. (공통 스타일은 site.css) */
 
-    /* 레시피 (이렇게 동작해요) */
-    .recipe { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
-    .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
-    .steps li { position: relative; padding: 0 0 30px 64px; counter-increment: step; }
-    .steps li::before {
-      content: counter(step);
+    /* ---------- 첫 화면 ---------- */
+    .hero { padding-bottom: 12px; }
+    .hero .scene { max-width: 1240px; }
+
+    /* 장면 아래쪽에 살짝 걸쳐 놓인 환영 카드 */
+    .welcome {
+      position: relative;
+      z-index: 6;
+      max-width: 660px;
+      margin: -70px auto 0;
+      padding: 30px 34px 28px;
+      background: var(--paper);
+      border-radius: 26px;
+      box-shadow: 0 18px 40px rgba(92, 51, 16, 0.18);
+      text-align: center;
+      transform: rotate(-1deg);
+    }
+    .welcome h1 { margin: 0 0 10px; font-family: var(--title); font-weight: 400; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.2; }
+    .welcome h1 em { font-style: normal; color: var(--caramel); }
+    .welcome p { margin: 0 auto 20px; max-width: 520px; color: var(--brown-soft); }
+    .welcome .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+    /* ---------- 물결 경계와 섹션 바탕 ---------- */
+    .wave { display: block; width: 100%; height: 60px; margin-top: 40px; }
+    .wave + .band { margin-top: -1px; }
+    .band-1 { background: #fff1de; }
+    .band-2 { background: #fde3c8; }
+    .band .inner { padding-top: 30px; padding-bottom: 80px; }
+    .band + .wave { margin-top: 0; }
+
+    /* ---------- 이야기 / 즐길 거리: 그림 + 글, 좌우 번갈아 ---------- */
+    .feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+    .feature.flip .feature-art { order: 2; }
+    .feature h2 { margin: 0 0 14px; font-family: var(--title); font-weight: 400; font-size: clamp(30px, 4.4vw, 44px); line-height: 1.2; }
+    .feature p { margin: 0 0 16px; color: var(--brown-soft); font-size: 17px; }
+    .feature ol { margin: 0 0 24px; padding-left: 20px; }
+    .feature ol li { margin-bottom: 6px; }
+
+    /* 갓 구운 쿠키 쟁반 그림 */
+    .fresh-tray { position: relative; margin: 0; aspect-ratio: 600 / 420; }
+    .fresh-tray svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .fresh-tray img { position: absolute; width: 21%; image-rendering: pixelated; filter: drop-shadow(0 4px 0 rgba(92, 51, 16, 0.2)); }
+    .fresh-tray .c1 { left: 22%; top: 42%; transform: rotate(-8deg); }
+    .fresh-tray .c2 { left: 40%; top: 38%; transform: rotate(6deg); }
+    .fresh-tray .c3 { left: 58%; top: 42%; transform: rotate(-4deg); }
+    .fresh-tray .c4 { left: 30%; top: 52%; transform: rotate(10deg); }
+    .fresh-tray .c5 { left: 50%; top: 53%; transform: rotate(-12deg); }
+    .fresh-badge {
       position: absolute;
-      left: 0;
-      top: -2px;
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--caramel);
-      border: 3px solid var(--ink);
-      box-shadow: 0 3px 0 var(--ink);
-      font-family: var(--title);
-      font-size: 20px;
+      z-index: 2;
+      right: 4%;
+      top: 4%;
+      padding: 6px 16px;
+      background: var(--berry);
       color: #fff;
-    }
-    .steps li:not(:last-child)::after { /* 단계 사이 점선 */
-      content: '';
-      position: absolute;
-      left: 21px;
-      top: 46px;
-      bottom: 4px;
-      border-left: 2px dashed var(--line);
-    }
-    .steps h3 { margin: 0 0 4px; font-family: var(--title); font-weight: 400; font-size: 21px; }
-    .steps p { margin: 0; color: var(--brown-soft); }
-    .steps code { padding: 1px 6px; background: var(--dough); border-radius: 4px; font-size: 13px; }
-    .widget-frames { display: grid; gap: 18px; }
-    .frame { position: relative; padding: 18px; background: #0d1117; border: 3px solid var(--ink); border-radius: var(--radius); box-shadow: var(--sticker); transform: rotate(-1deg); }
-    .frame:nth-child(2) { transform: rotate(1.2deg); }
-    .frame img { display: block; width: 100%; height: auto; }
-    .frame-label { position: absolute; top: -14px; left: 18px; padding: 2px 14px; background: var(--caramel); color: #fff; border: 3px solid var(--ink); border-radius: 999px; font-family: var(--title); font-size: 15px; }
-    .frame:nth-child(2) { margin-left: 40px; }
-
-    /* 진열대 */
-    .display-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 36px; }
-    .display-head .lead { margin: 0; }
-
-    /* 포장하기 (위젯 달기) */
-    .wrap-box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
-    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-    .tabs button {
-      padding: 7px 16px;
-      background: #fff;
-      border: 3px solid var(--ink);
       border-radius: 999px;
-      box-shadow: 0 4px 0 var(--ink);
-      cursor: pointer;
       font-family: var(--title);
-      font-size: 15px;
+      font-size: 18px;
+      transform: rotate(8deg);
+      box-shadow: 0 6px 14px rgba(215, 38, 61, 0.3);
     }
-    .tabs button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
-    .tabs button[aria-selected="true"] { background: var(--caramel); color: #fff; }
-    .package-preview { padding: 22px; border: 3px solid var(--ink); border-radius: var(--radius); box-shadow: var(--sticker); transform: rotate(1deg); }
+    .fresh-steam path { opacity: 0; animation: fresh-steam 2.6s ease-in-out infinite; }
+    .fresh-steam path:nth-child(2) { animation-delay: 0.8s; }
+    .fresh-steam path:nth-child(3) { animation-delay: 1.6s; }
+    @keyframes fresh-steam {
+      0% { opacity: 0; transform: translateY(20px); }
+      40% { opacity: 0.85; }
+      100% { opacity: 0; transform: translateY(-24px); }
+    }
+    .fresh-spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s ease-in-out infinite; }
+    .fresh-spark.two { animation-delay: 0.9s; }
+    @keyframes twinkle { 0%, 100% { transform: scale(0.6); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
+
+    /* 커밋 전/후 위젯 */
+    .before-after { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 28px; margin-top: 56px; }
+    .frame { position: relative; padding: 16px; background: #0d1117; border-radius: 20px; box-shadow: var(--shadow); }
+    .frame img { display: block; width: 100%; height: auto; }
+    .frame-label { position: absolute; top: -12px; left: 18px; padding: 2px 12px; background: var(--caramel); color: #fff; border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .frame:nth-child(1) { transform: rotate(-1deg); }
+    .frame:nth-child(2) { transform: rotate(1deg); }
+
+    /* 포장하기 탭 */
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tabs button { padding: 8px 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-weight: 600; }
+    .tabs button[aria-selected="true"] { background: var(--chocolate); border-color: var(--chocolate); color: var(--paper); }
+    .package-preview { padding: 20px; border-radius: 22px; box-shadow: var(--shadow); transform: rotate(1deg); }
     .package-preview.dark { background: #0d1117; }
-    .package-preview.light { background: #ffffff; }
+    .package-preview.light { background: #fff; }
     .package-preview img { display: block; width: 100%; height: auto; cursor: pointer; }
-    .package-note { margin: 16px 0 0; font-size: 14px; color: var(--brown-soft); }
-    .package-note code { padding: 1px 6px; background: var(--dough); border-radius: 4px; }
+    .package-note { margin: 14px 0 0; font-size: 14px; color: var(--brown-soft); }
+    .feature code { padding: 1px 6px; background: var(--dough); border-radius: 4px; font-size: 0.9em; }
+
+    /* ---------- 새 소식 ---------- */
+    .section-title { margin: 0 0 30px; font-family: var(--title); font-weight: 400; font-size: clamp(30px, 4.4vw, 44px); line-height: 1.2; }
+    .news { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
+    .news-card { display: flex; flex-direction: column; overflow: hidden; background: var(--paper); border-radius: 22px; box-shadow: var(--shadow); text-decoration: none; transition: transform 0.2s ease; }
+    .news-card:hover { transform: translateY(-6px) rotate(-0.6deg); }
+    .news-card .thumb { display: grid; place-items: center; height: 170px; }
+    .news-card .thumb img { width: 140px; image-rendering: pixelated; }
+    .news-card .body { padding: 18px 22px 22px; }
+    .news-card .date { display: inline-block; margin-bottom: 8px; padding: 2px 10px; background: var(--dough); border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--caramel-dark); }
+    .news-card h3 { margin: 0 0 6px; font-family: var(--title); font-weight: 400; font-size: 22px; }
+    .news-card p { margin: 0; color: var(--brown-soft); font-size: 15px; }
+
+    /* ---------- 쿠키 친구들 ---------- */
+    .friends { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; }
+    .friend-spot { text-align: center; }
+    .friend-spot .stage { display: grid; place-items: center; aspect-ratio: 1; max-width: 340px; margin: 0 auto 10px; border-radius: 50%; background: var(--paper); box-shadow: var(--shadow); }
+    .friend-spot .stage img { width: 72%; image-rendering: pixelated; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+    .friend-spot h3 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 28px; }
+    .friend-spot p { margin: 6px auto 0; max-width: 380px; color: var(--brown-soft); }
+    .friend-spot .rule { display: inline-block; margin-top: 12px; padding: 4px 14px; background: var(--paper); border-radius: 999px; font-size: 14px; font-weight: 700; color: var(--caramel-dark); }
+    .friend-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px; }
+    .friend-list button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; background: var(--paper); border: 2px solid transparent; border-radius: 18px; cursor: pointer; font-size: 13px; font-weight: 600; transition: transform 0.15s ease; }
+    .friend-list button:hover { transform: translateY(-4px); }
+    .friend-list button[aria-pressed="true"] { border-color: var(--caramel); }
+    .friend-list img { width: 68px; image-rendering: pixelated; }
+    .promos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 22px; margin-top: 56px; }
+    .promo { display: flex; align-items: center; gap: 18px; padding: 22px 24px; background: var(--paper); border-radius: 22px; box-shadow: var(--shadow); }
+    .promo img { width: 86px; flex: none; image-rendering: pixelated; }
+    .promo h3 { margin: 0 0 4px; font-family: var(--title); font-weight: 400; font-size: 22px; }
+    .promo p { margin: 0 0 10px; color: var(--brown-soft); font-size: 15px; }
+    .promo .soon { display: inline-block; padding: 1px 10px; background: var(--dough); border-radius: 999px; font-family: var(--body); font-size: 12px; font-weight: 700; color: var(--brown-soft); vertical-align: middle; }
 
     @media (max-width: 860px) {
-      .recipe, .wrap-box { grid-template-columns: 1fr; }
-      .frame:nth-child(2) { margin-left: 0; }
+      .feature, .friends { grid-template-columns: 1fr; gap: 32px; }
+      .feature.flip .feature-art { order: 0; }
+      .welcome { margin-top: -24px; padding: 24px 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .friend-spot .stage img, .fresh-steam path, .fresh-spark { animation: none; }
+      .fresh-steam path { opacity: 0.6; }
     }
   </style>
 </head>
@@ -89,17 +155,19 @@
         <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
       </a>
       <nav class="site-nav" aria-label="메뉴">
-        <a class="wide" href="#recipe">레시피</a>
-        <a class="wide" href="#display">진열대</a>
-        <a class="wide" href="#package">포장하기</a>
+        <a class="wide" href="#story">이야기</a>
+        <a class="wide" href="#take-out">포장하기</a>
+        <a class="wide" href="#news">새 소식</a>
+        <a class="wide" href="#friends">쿠키 친구들</a>
         <span id="account-slot"><a class="btn small" href="/api/auth/login?next=/">GitHub 로그인</a></span>
       </nav>
     </div>
   </header>
 
   <main>
-    <!-- 첫 화면: 빵집 안 장면 (bakery-scene.css, bakery-scene.js) -->
-    <section class="scene-wrap">
+    <!-- ① 첫 화면: 빵집 장면 (bakery-scene.css, bakery-scene.js) + 걸쳐 놓인 환영 카드 -->
+    <section class="hero">
+      <div class="scene-wrap">
       <div class="scene" id="scene">
         <div class="wainscot"></div>
 
@@ -120,9 +188,9 @@
         <nav class="chalk" aria-label="오늘의 메뉴">
           <h2>MENU</h2>
           <ul>
-            <li><a href="#recipe">레시피</a><span class="dots"></span><span class="price">0시</span></li>
-            <li><a href="/skins.html">진열대</a><span class="dots"></span><span class="price">11종</span></li>
-            <li><a href="#package">포장하기</a><span class="dots"></span><span class="price">무료</span></li>
+            <li><a href="#story">이야기</a><span class="dots"></span><span class="price">0시</span></li>
+            <li><a href="#friends">쿠키 친구들</a><span class="dots"></span><span class="price">11종</span></li>
+            <li><a href="#take-out">포장하기</a><span class="dots"></span><span class="price">무료</span></li>
             <li><a href="/collection.html">내 도감</a><span class="dots"></span><span class="price">♥</span></li>
           </ul>
         </nav>
@@ -166,12 +234,6 @@
           </button>
         </div>
 
-        <!-- 손님 쿠키 캐릭터들 (누르면 자기 소개) -->
-        <button type="button" class="char sit" data-skin="cat" aria-label="고양이 쿠키"><span class="leg l"></span><span class="leg r"></span><img src="/api/cookie?skin=cat&mode=still&face=1" alt=""></button>
-        <button type="button" class="char walk" data-skin="choco" aria-label="초코 쿠키"><span class="leg l"></span><span class="leg r"></span><span class="arm l"></span><span class="arm r"></span><span class="tray"></span><img src="/api/cookie?skin=choco&mode=still&face=1" alt=""></button>
-        <button type="button" class="char hop" data-skin="pumpkin" aria-label="호박 쿠키"><span class="leg l"></span><span class="leg r"></span><span class="arm l"></span><span class="arm r"></span><img src="/api/cookie?skin=pumpkin&mode=still&face=1" alt=""></button>
-        <button type="button" class="char wave" data-skin="snowman" aria-label="눈사람 쿠키"><span class="leg l"></span><span class="leg r"></span><span class="arm l"></span><span class="arm r"></span><img src="/api/cookie?skin=snowman&mode=still&face=1" alt=""></button>
-
         <!-- 커피잔 -->
         <div class="coffee" aria-hidden="true"><span class="steam"></span><span class="steam"></span><span class="steam"></span><div class="cup"></div></div>
 
@@ -181,85 +243,157 @@
           <div class="slip"></div>
         </div>
       </div>
+      </div>
 
-      <div class="scene-caption">
-        <div>
-          <h1>오늘 구운 운세, <em>커밋하면</em> 드려요</h1>
-          <p>GitHub 프로필에 포춘쿠키를 올려 두세요. 매일 0시에 새로 굽고, 커밋하면 열려요.</p>
-        </div>
+      <div class="welcome">
+        <h1>포춘 커밋 베이커리에 <em>어서 오세요!</em></h1>
+        <p>매일 밤 0시에 새 포춘쿠키를 구워요. 오늘 커밋한 개발자에게만 쿠키가 열리고, 그 안에 오늘의 운세가 들어 있어요. GitHub 프로필에 쿠키를 올려 두고 매일 열어 보세요.</p>
         <div class="actions">
-          <a class="btn" href="#package">내 프로필에 올리기</a>
-          <a class="btn ghost" id="hero-second" href="/api/auth/login?next=/">로그인하고 스킨 모으기</a>
+          <a class="btn" href="#take-out">내 프로필에 올리기</a>
+          <a class="btn ghost" id="hero-second" href="/api/auth/login?next=/">로그인하고 쿠키 모으기</a>
         </div>
       </div>
     </section>
 
-    <!-- 레시피: 이렇게 동작해요 -->
-    <section class="section alt" id="recipe">
-      <div class="wrap recipe">
-        <div>
-          <span class="eyebrow">Recipe</span>
-          <h2>쿠키 한 개 굽는 법</h2>
-          <ol class="steps">
-            <li>
-              <h3>0시, 새 쿠키가 구워져요</h3>
-              <p>매일 한국 시간 0시가 되면 프로필 위젯의 쿠키가 다시 닫혀요.</p>
-            </li>
-            <li>
-              <h3>오늘의 커밋을 올려요</h3>
-              <p>공개 저장소에 <code>git push</code>, PR, 이슈, 리뷰 중 하나면 충분해요.</p>
-            </li>
-            <li>
-              <h3>쿠키가 열리고 운세가 나와요</h3>
-              <p>같은 날엔 어디서 봐도 같은 운세. 지난 7일 활동과 주 사용 언어에 맞춘 문구도 나와요.</p>
-            </li>
-          </ol>
-        </div>
-        <div class="widget-frames">
-          <div class="frame">
-            <span class="frame-label">커밋 전</span>
-            <img src="/api?user=octocat&preview=locked" alt="잠긴 쿠키 위젯" loading="lazy">
+    <!-- ② 이야기: 이렇게 동작해요 -->
+    <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34 C240 0 480 60 720 30 C960 2 1200 54 1440 24 L1440 60 L0 60 Z" fill="#fff1de"/></svg>
+    <section class="band band-1" id="story">
+      <div class="wrap inner">
+        <div class="feature">
+          <div class="feature-art">
+          <!-- 갓 구운 쿠키 쟁반을 오븐 장갑 낀 두 손이 들고 있는 그림 -->
+          <figure class="fresh-tray" aria-label="오븐 장갑을 낀 손이 갓 구운 포춘쿠키 쟁반을 들고 있는 그림">
+            <span class="fresh-badge">갓 구움!</span>
+            <svg viewBox="0 0 600 420" aria-hidden="true">
+              <ellipse cx="300" cy="392" rx="230" ry="16" fill="rgba(92,51,16,0.12)"/>
+              <!-- 쟁반 -->
+              <path d="M92 238 H508 L548 318 H52 Z" fill="#8f8a83"/>
+              <path d="M52 318 H548 V334 Q548 342 540 342 H60 Q52 342 52 334 Z" fill="#6f6a64"/>
+              <path d="M110 246 H490 L522 310 H78 Z" fill="#b9b3aa"/>
+              <path d="M128 252 H472 L498 304 H102 Z" fill="#f4e3c4"/>
+              <path d="M150 262 L170 262 M200 288 L226 288 M380 266 L400 266 M430 292 L452 292" stroke="#e6cfa6" stroke-width="3" stroke-linecap="round"/>
+              <!-- 왼쪽 장갑 -->
+              <g transform="translate(34 6) rotate(-10 70 300)">
+                <rect x="-6" y="300" width="96" height="120" rx="18" fill="#fff" stroke="#e6cfa6" stroke-width="3"/>
+                <rect x="-8" y="296" width="100" height="26" rx="12" fill="#f4dfc2" stroke="#e6cfa6" stroke-width="3"/>
+                <path d="M2 304 C-6 230 24 196 64 200 C100 204 112 240 104 304 Z" fill="#d7263d"/>
+                <path d="M86 236 C104 214 132 218 134 236 C136 252 116 260 98 262 Z" fill="#d7263d"/>
+                <path d="M24 214 V300 M48 202 V300 M72 204 V300" stroke="#b81d31" stroke-width="3" stroke-dasharray="7 7"/>
+                <path d="M40 222 Q50 214 62 220" stroke="#ff8c9c" stroke-width="5" fill="none" stroke-linecap="round"/>
+              </g>
+              <!-- 오른쪽 장갑 -->
+              <g transform="translate(566 6) scale(-1 1) rotate(-10 70 300)">
+                <rect x="-6" y="300" width="96" height="120" rx="18" fill="#fff" stroke="#e6cfa6" stroke-width="3"/>
+                <rect x="-8" y="296" width="100" height="26" rx="12" fill="#f4dfc2" stroke="#e6cfa6" stroke-width="3"/>
+                <path d="M2 304 C-6 230 24 196 64 200 C100 204 112 240 104 304 Z" fill="#d7263d"/>
+                <path d="M86 236 C104 214 132 218 134 236 C136 252 116 260 98 262 Z" fill="#d7263d"/>
+                <path d="M24 214 V300 M48 202 V300 M72 204 V300" stroke="#b81d31" stroke-width="3" stroke-dasharray="7 7"/>
+                <path d="M40 222 Q50 214 62 220" stroke="#ff8c9c" stroke-width="5" fill="none" stroke-linecap="round"/>
+              </g>
+              <!-- 김 -->
+              <g class="fresh-steam" fill="none" stroke="#e2bf94" stroke-width="6" stroke-linecap="round">
+                <path d="M210 190 c-14 -20 14 -34 0 -56 c-12 -20 12 -32 2 -50"/>
+                <path d="M300 176 c-14 -20 14 -34 0 -56 c-12 -20 12 -32 2 -50"/>
+                <path d="M390 190 c-14 -20 14 -34 0 -56 c-12 -20 12 -32 2 -50"/>
+              </g>
+              <!-- 반짝 -->
+              <path class="fresh-spark" d="M478 120 l6 14 14 6 -14 6 -6 14 -6 -14 -14 -6 14 -6 z" fill="#ffd166"/>
+              <path class="fresh-spark two" d="M128 150 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#ffd166"/>
+            </svg>
+            <img class="c1" src="/api/cookie?mode=still" alt="">
+            <img class="c2" src="/api/cookie?skin=choco&mode=still" alt="">
+            <img class="c3" src="/api/cookie?mode=still" alt="">
+            <img class="c4" src="/api/cookie?skin=matcha&mode=still" alt="">
+            <img class="c5" src="/api/cookie?mode=still" alt="">
+          </figure>
           </div>
-          <div class="frame">
-            <span class="frame-label">커밋 후</span>
-            <img src="/api?user=octocat&preview=open" alt="열린 쿠키 위젯" loading="lazy">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 진열대: 스킨 -->
-    <section class="section" id="display">
-      <div class="wrap">
-        <div class="display-head">
           <div>
-            <span class="eyebrow">Today's Display</span>
-            <h2>활동으로 모으는 쿠키</h2>
-            <p class="lead">커밋, PR, 코드 리뷰, 연속 기여… 조건을 채우면 진열대의 쿠키가 내 것이 돼요. 로그인해서 도감에서 고르면 위젯에 바로 올라가요.</p>
+            <span class="eyebrow">Our Story</span>
+            <h2>매일 밤 0시,<br>쿠키가 구워져요</h2>
+            <p>잔디를 꾸준히 심는 건 생각보다 어려워요. 그래서 하루에 한 번, 커밋을 하면 열리는 작은 선물을 굽기로 했어요.</p>
+            <ol>
+              <li>매일 한국 시간 0시에 프로필 위젯의 쿠키가 새로 구워지고 닫혀요.</li>
+              <li>공개 저장소에 push, PR, 이슈, 리뷰 중 하나면 충분해요.</li>
+              <li>쿠키가 갈라지며 오늘의 운세와 행운 아이템이 나와요.</li>
+            </ol>
+            <a class="btn ghost" href="https://github.com/2sseul/fortune-commit#readme">더 자세히 보기</a>
           </div>
-          <a class="btn ghost" href="/collection.html">내 도감 보기</a>
         </div>
-        <div class="shelf" id="shelf"></div>
+        <div class="before-after">
+          <div class="frame"><span class="frame-label">커밋 전</span><img src="/api?user=octocat&preview=locked" alt="잠긴 쿠키 위젯" loading="lazy"></div>
+          <div class="frame"><span class="frame-label">커밋 후</span><img src="/api?user=octocat&preview=open" alt="열린 쿠키 위젯" loading="lazy"></div>
+        </div>
       </div>
     </section>
 
-    <!-- 포장하기: 위젯 달기 -->
-    <section class="section alt" id="package">
-      <div class="wrap">
-        <span class="eyebrow">Take Out</span>
-        <h2>내 프로필에 포장해 가기</h2>
-        <p class="lead">원하는 포장을 고르고 코드를 복사해 GitHub 프로필 README에 붙이세요.</p>
-        <div class="wrap-box">
+    <!-- ③ 즐길 거리: 내 프로필에 올리기 -->
+    <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true" style="background:#fff1de"><path d="M0 26 C260 60 520 0 760 30 C1000 58 1220 6 1440 32 L1440 60 L0 60 Z" fill="#fff8ee"/></svg>
+    <section class="band" id="take-out">
+      <div class="wrap inner">
+        <div class="feature flip">
+          <div class="feature-art">
+            <div class="package-preview dark" id="package-preview">
+              <img id="package-img" alt="위젯 미리보기" title="눌러서 애니메이션 다시 보기">
+            </div>
+          </div>
           <div>
+            <span class="eyebrow">Take Out</span>
+            <h2>내 프로필에<br>쿠키 포장해 가기</h2>
+            <p>원하는 포장을 고르고 코드를 복사해 GitHub 프로필 README에 붙이세요. <code>YOUR_GITHUB_ID</code>만 내 아이디로 바꾸면 끝이에요.</p>
             <div class="tabs" role="tablist" aria-label="포장 고르기" id="tabs"></div>
             <div class="code-box">
               <div class="code-bar"><span>README.md</span><button type="button" class="btn small copy" id="package-copy">복사</button></div>
               <pre id="package-code"></pre>
             </div>
-            <p class="package-note"><code>YOUR_GITHUB_ID</code>를 내 아이디로 바꿔 주세요. 위젯을 올리는 커밋도 오늘의 기여라서 첫날은 바로 열려 있어요.</p>
+            <p class="package-note">위젯을 올리는 커밋도 오늘의 기여라서 첫날은 바로 열려 있어요.</p>
           </div>
-          <div class="package-preview dark" id="package-preview">
-            <img id="package-img" alt="위젯 미리보기" title="눌러서 애니메이션 다시 보기">
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ 새 소식 -->
+    <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true" style="background:#fff8ee"><path d="M0 38 C300 4 560 58 820 26 C1060 0 1260 46 1440 20 L1440 60 L0 60 Z" fill="#fde3c8"/></svg>
+    <section class="band band-2" id="news">
+      <div class="wrap inner">
+        <span class="eyebrow">Fresh from the Oven</span>
+        <h2 class="section-title">오븐에서 막 나온 소식</h2>
+        <div class="news" id="news-list"></div>
+      </div>
+    </section>
+
+    <!-- ⑤ 쿠키 친구들 + 도감·상점 -->
+    <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true" style="background:#fde3c8"><path d="M0 22 C220 56 500 4 760 34 C1020 60 1240 8 1440 34 L1440 60 L0 60 Z" fill="#fff1de"/></svg>
+    <section class="band band-1" id="friends">
+      <div class="wrap inner">
+        <span class="eyebrow">Meet the Cookies</span>
+        <h2 class="section-title" style="margin-bottom:10px">쿠키 친구들을 만나 보세요</h2>
+        <p class="page-lead">진열대의 쿠키들은 저마다 성격이 있어요. 활동으로 친해지면 내 프로필에 데려갈 수 있어요.</p>
+        <div class="friends">
+          <div class="friend-spot" aria-live="polite">
+            <div class="stage"><img id="friend-img" alt=""></div>
+            <h3 id="friend-name"></h3>
+            <p id="friend-desc"></p>
+            <span class="rule" id="friend-rule"></span>
+          </div>
+          <div class="friend-list" id="friend-list"></div>
+        </div>
+
+        <div class="promos">
+          <div class="promo">
+            <img src="/api/cookie?skin=choco&mode=still" alt="">
+            <div>
+              <h3>내 쿠키 상자 (도감)</h3>
+              <p>로그인하면 모은 쿠키와 진행 상황을 보고, 고른 쿠키를 위젯에 바로 올릴 수 있어요.</p>
+              <a class="btn small" href="/collection.html">도감 열기</a>
+            </div>
+          </div>
+          <div class="promo">
+            <img src="/api/cookie?skin=gold&mode=still" alt="">
+            <div>
+              <h3>쿠키 상점 <span class="soon">준비 중</span></h3>
+              <p>커밋으로 모은 포인트로 쿠키와 터미널 테마를 살 수 있는 상점을 굽고 있어요.</p>
+              <a class="btn small ghost" href="/skins.html">진열대 구경하기</a>
+            </div>
           </div>
         </div>
       </div>
@@ -283,19 +417,26 @@
     const origin = window.location.origin;
     const SITE = `${origin}/`;
 
-    // 스킨 이름과 해금 조건 (src/skins.js, src/unlocks.js와 같은 내용)
+    // 쿠키 친구들: 아이디, 이름, 해금 조건, 성격 (src/skins.js, src/unlocks.js와 같은 내용)
     const SKINS = [
-      ['plain', '기본 쿠키', '처음부터'],
-      ['choco', '초코 쿠키', '올해 기여 50개'],
-      ['matcha', '말차 쿠키', '올해 기여 150개'],
-      ['gold', '황금 쿠키', '7일 연속 기여'],
-      ['cat', '고양이 쿠키', '올해 커밋 100개'],
-      ['dog', '강아지 쿠키', '올해 PR 10개'],
-      ['rabbit', '토끼 쿠키', '코드 리뷰 10개'],
-      ['pumpkin', '호박 쿠키', '10월 기여 10개'],
-      ['snowman', '눈사람 쿠키', '12월 기여 10개'],
-      ['deer', '사슴 쿠키', '12월 기여 30개'],
-      ['santa', '산타 쿠키', '크리스마스 기여'],
+      ['plain', '기본 쿠키', '처음부터', '언제나 그 자리에 있는 든든한 친구. 처음 온 손님을 제일 먼저 반겨요.'],
+      ['choco', '초코 쿠키', '올해 기여 50개', '달콤하고 꾸준한 맛. 기여 50개를 함께하면 단짝이 돼요.'],
+      ['matcha', '말차 쿠키', '올해 기여 150개', '쌉싸름하지만 깊은 맛. 150번의 기여를 함께한 장인에게만 마음을 열어요.'],
+      ['gold', '황금 쿠키', '7일 연속 기여', '반짝반짝 행운의 상징. 일주일 내내 들러야 모습을 드러내요.'],
+      ['cat', '고양이 쿠키', '올해 커밋 100개', '새침하지만 커밋 100번을 함께한 친구에게는 다정해요.'],
+      ['dog', '강아지 쿠키', '올해 PR 10개', 'PR만 보면 꼬리를 흔들어요. PR 10개면 졸졸 따라와요.'],
+      ['rabbit', '토끼 쿠키', '코드 리뷰 10개', '귀가 밝아서 코드 리뷰를 좋아해요. 리뷰 10번이면 찾아와요.'],
+      ['pumpkin', '호박 쿠키', '10월 기여 10개', '10월에만 문을 여는 장난꾸러기. 할로윈에 제일 신나요.'],
+      ['snowman', '눈사람 쿠키', '12월 기여 10개', '첫눈 같은 친구. 12월에 기여 10번이면 녹지 않고 곁에 있어요.'],
+      ['deer', '사슴 쿠키', '12월 기여 30개', '12월 내내 썰매를 끄는 성실파. 기여 30번이면 함께 달려요.'],
+      ['santa', '산타 쿠키', '크리스마스 기여', '크리스마스 당일에 커밋한 사람에게만 선물처럼 찾아와요.'],
+    ];
+
+    // 새 소식 (만든 기록에서)
+    const NEWS = [
+      { date: '2026.10.12', skin: 'cat', bg: '#fff1de', title: '로그인하고 바로 적용', text: 'GitHub로 로그인해서 도감에서 쿠키를 고르면, README를 고치지 않아도 위젯에 바로 올라가요.', href: '/collection.html' },
+      { date: '2026.10.11', skin: 'gold', bg: '#fdf0c8', title: '쿠키 스킨 11종 출시', text: '커밋, PR, 코드 리뷰, 연속 기여로 모으는 쿠키 스킨이 진열대에 올라왔어요.', href: '/skins.html' },
+      { date: '2026.10.11', skin: 'plain', bg: '#f3e6d3', title: '커밋하고 열기 시작', text: '매일 0시에 잠기고, 오늘 커밋하면 열리는 오늘의 운세 위젯을 굽기 시작했어요.', href: 'https://github.com/2sseul/fortune-commit#readme' },
     ];
 
     // ---------- 헤더 ----------
@@ -322,25 +463,59 @@
     });
     setupScene({ skins: SKINS, getFortune });
 
-    // ---------- 진열대 ----------
-    const shelf = document.getElementById('shelf');
-    for (const [id, name, rule] of SKINS) {
-      const item = document.createElement('a');
-      item.className = 'shelf-item';
-      item.href = `/skins.html#${id}`;
+    // ---------- 새 소식 ----------
+    const newsList = document.getElementById('news-list');
+    for (const item of NEWS) {
+      const card = document.createElement('a');
+      card.className = 'news-card';
+      card.href = item.href;
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      thumb.style.background = item.bg;
       const img = document.createElement('img');
-      img.className = 'pixel';
+      img.src = `/api/cookie?skin=${item.skin}&mode=still`;
+      img.alt = '';
+      img.loading = 'lazy';
+      thumb.append(img);
+      const body = document.createElement('div');
+      body.className = 'body';
+      const date = document.createElement('span');
+      date.className = 'date';
+      date.textContent = item.date;
+      const title = document.createElement('h3');
+      title.textContent = item.title;
+      const text = document.createElement('p');
+      text.textContent = item.text;
+      body.append(date, title, text);
+      card.append(thumb, body);
+      newsList.append(card);
+    }
+
+    // ---------- 쿠키 친구들: 누르면 왼쪽 무대에 소개 ----------
+    const friendList = document.getElementById('friend-list');
+    function showFriend(id) {
+      const [, name, rule, desc] = SKINS.find(([skinId]) => skinId === id);
+      document.getElementById('friend-img').src = `/api/cookie?skin=${id}&mode=still`;
+      document.getElementById('friend-name').textContent = name;
+      document.getElementById('friend-desc').textContent = desc;
+      document.getElementById('friend-rule').textContent = `🔓 ${rule}`;
+      for (const button of friendList.querySelectorAll('button')) {
+        button.setAttribute('aria-pressed', String(button.dataset.id === id));
+      }
+    }
+    for (const [id, name] of SKINS) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.id = id;
+      const img = document.createElement('img');
       img.src = `/api/cookie?skin=${id}&mode=still`;
       img.alt = '';
       img.loading = 'lazy';
-      const tag = document.createElement('span');
-      tag.className = 'price-tag';
-      const title = document.createElement('strong');
-      title.textContent = name;
-      tag.append(title, rule);
-      item.append(img, tag);
-      shelf.append(item);
+      button.append(img, name);
+      button.addEventListener('click', () => showFriend(id));
+      friendList.append(button);
     }
+    showFriend('cat');
 
     // ---------- 포장하기 ----------
     const PACKAGES = [
@@ -379,8 +554,7 @@
         tab.setAttribute('aria-selected', String(tab.dataset.id === pkg.id));
       }
       document.getElementById('package-code').textContent = packageCode(pkg);
-      const preview = document.getElementById('package-preview');
-      preview.className = `package-preview ${pkg.theme}`;
+      document.getElementById('package-preview').className = `package-preview ${pkg.theme}`;
       document.getElementById('package-img').src = widgetUrl(pkg);
     }
     const tabs = document.getElementById('tabs');
