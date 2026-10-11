@@ -20,7 +20,7 @@ const WIDTH = 495;
 const TITLEBAR = 30; // 타이틀바 높이
 const PAD = 20; // 창 안쪽 여백
 const LINE = 22; // 글자 줄 간격
-const PIXEL = 5; // 픽셀 쿠키 한 칸 크기
+const PIXEL = 3; // 픽셀 쿠키 한 칸 크기
 
 // 터미널 창 껍데기 (배경 + 타이틀바 + 빨강·노랑·초록 버튼)
 function renderWindow(t, height, title) {
@@ -55,9 +55,9 @@ export function renderWidget({ theme: t, command, fortune, lucky }) {
   const cookieY = commandY + 14;
   const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 24; // 쿠키 오른쪽에 글자를 둔다.
-  const fortuneY = cookieY + 24;
-  const luckyY = fortuneY + LINE + 14;
-  const lastPromptY = cookieY + cookie.height + LINE + 4;
+  const fortuneY = cookieY + cookie.height / 2 - 6; // 쿠키 높이의 가운데쯤에 운세를 둔다.
+  const luckyY = fortuneY + LINE + 6;
+  const lastPromptY = cookieY + cookie.height + LINE;
   const height = lastPromptY + PAD;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${height}" viewBox="0 0 ${WIDTH} ${height}" role="img" aria-label="${escapeXml(`오늘의 운세: ${fortune}`)}">
