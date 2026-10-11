@@ -3,7 +3,7 @@
 // README에서는 JavaScript가 실행되지 않으므로, 모든 그림은 SVG 도형과 글자로만 그리고
 // 움직임은 SVG 안의 CSS 애니메이션으로만 만든다.
 
-import { renderPixelCookie, cookieSize } from './cookie.js';
+import { renderPixelCookie, cookieBox } from './cookie.js';
 import { wrapText, textWidth } from './wrap.js';
 
 // SVG(XML) 안에 글자를 넣을 때 깨지지 않도록 특수문자를 바꿔 준다.
@@ -133,7 +133,7 @@ export function renderWidget({
   skin = null,
 }) {
   const { width } = style;
-  const cookie = cookieSize(PIXEL);
+  const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
   const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18; // 쿠키 오른쪽에 글자를 둔다.
 
@@ -146,7 +146,8 @@ export function renderWidget({
   const contentTop = commandY + 14;
   const textBlockHeight = (fortuneLines.length + lucky.length) * LINE + 8;
   const contentHeight = Math.max(cookie.height, textBlockHeight);
-  const cookieY = contentTop + (contentHeight - cookie.height) / 2;
+  // 쿠키 지도의 0행이 놓일 위치 (위로 튀어나온 귀·모자만큼 아래로 내린다)
+  const cookieY = contentTop + (contentHeight - cookie.height) / 2 + cookie.top;
   const firstLineY = contentTop + (contentHeight - textBlockHeight) / 2 + 15; // 15 = 글자 윗부분 높이
   const luckyStartY = firstLineY + fortuneLines.length * LINE + 8;
   const lastPromptY = contentTop + contentHeight + LINE + 4;
@@ -199,15 +200,16 @@ export function renderClosedCard({
   skin = null,
 }) {
   const { width } = style;
-  const cookie = cookieSize(PIXEL);
+  const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
   const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18;
 
   const commandY = TITLEBAR + PAD + 12;
-  const cookieY = commandY + 14;
+  const boxTop = commandY + 14; // 쿠키(귀·모자 포함)의 맨 윗줄
+  const cookieY = boxTop + cookie.top; // 쿠키 지도의 0행이 놓일 위치
   // 쿠키 가운데 높이에 안내 문구(+ 아래 한 줄)를 둔다.
-  const hintY = cookieY + cookie.height / 2 + (detail ? -6 : 5);
-  const height = cookieY + cookie.height + PAD;
+  const hintY = boxTop + cookie.height / 2 + (detail ? -6 : 5);
+  const height = boxTop + cookie.height + PAD;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(label)}">
   <style>

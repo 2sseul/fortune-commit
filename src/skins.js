@@ -1,125 +1,166 @@
 // 쿠키 스킨 모음 (v2)
-// 모든 스킨은 오리지널 그림이다. (기존 캐릭터를 따라 그리지 않는다)
+// 디자인 원본: img/*-fortune-cookie.png (사용자가 만든 오리지널 그림). 그림을 보며 픽셀로 다시 그렸다.
 //
 // 스킨 하나는 이렇게 생겼다.
 //   label   : 화면에 보여줄 이름 (한국어/영어)
 //   palette : 쿠키 색 바꾸기. O=테두리, B=몸통, H=빛 받는 부분, S=그림자 (쪽지 색 P, L은 테마를 따른다)
-//   ears    : 쿠키 윗부분에 붙이는 귀 모양. shape는 아래쪽이 쿠키에 닿는 작은 픽셀 지도, columns는 귀를 붙일 열
-//   pixels  : 쿠키 위에 덧그리는 픽셀 [행, 열, 글자]. 행이 음수면 쿠키보다 위쪽이다.
-// 덧그리는 픽셀의 글자 색은 아래 DECOR_COLORS를 쓴다. (B, O 등 쿠키 글자를 쓰면 스킨 색을 따른다)
+//   recolor : 쿠키의 일부 영역 색 바꾸기 (예: 산타의 흰 털, 눈사람의 목도리)
+//             { piece: 'front'|'back', rows: [시작, 끝], cols: [시작, 끝], to: { B: '새 글자', ... } }
+//   parts   : 쿠키 위에 얹는 작은 픽셀 그림 (귀, 모자, 리본 등)
+//             { at: [행, 열], shape: [...] } — shape의 왼쪽 위 칸이 at 위치에 온다. 행이 음수면 쿠키보다 위쪽이다.
+//             shape 글자: '.'은 비움, 대문자는 앞쪽 조각, 소문자는 뒤쪽 날개에 붙는다. (갈라질 때 같이 움직인다)
+// 꾸밈 글자의 색은 아래 DECOR_COLORS를 쓰고, O·B·H·S는 스킨 색을 따른다.
 
 export const DECOR_COLORS = {
-  K: '#2B1B12', // 눈 (진한 갈색)
-  I: '#F4A6B8', // 볼터치, 귀 안쪽 (분홍)
-  D: '#8A5A33', // 강아지 귀 (갈색)
-  G: '#4E8A2E', // 호박 꼭지 (초록)
-  N: '#F28C28', // 눈사람 당근 코 (주황)
-  Y: '#FFE27A', // 반짝이 가운데 (연노랑)
-  A: '#F0A81C', // 반짝이 빛줄기 (호박색, 밝은 바탕에서도 보이게)
+  K: '#1F1A17', // 검정 (모자, 벨트, 호박 얼굴)
+  I: '#F2A0B0', // 분홍 (귀 안쪽)
+  D: '#7A4A2A', // 갈색 (강아지 귀)
+  M: '#E3A15F', // 황갈색 (강아지 얼룩)
+  T: '#6B3F22', // 진갈색 (사슴뿔)
+  R: '#D7263D', // 빨강 (리본, 산타 모자, 목도리)
+  E: '#A3172A', // 진빨강 (빨간 부분의 그림자)
+  Y: '#F7C948', // 금색 (방울, 버클, 반짝이)
+  A: '#E09B12', // 호박색 (반짝이 빛줄기, 방울 그림자)
+  W: '#FFFFFF', // 흰색 (반짝이 가운데)
+  F: '#F4F1EC', // 털 흰색 (산타 털, 모자 끝 방울)
+  U: '#D3CBBE', // 털 그림자
+  G: '#3F7A24', // 진초록 (호박 꼭지)
+  J: '#7FC24A', // 연초록 (호박 꼭지 빛)
+  N: '#F28C28', // 주황 (눈사람 당근 코)
+  V: '#C65F0E', // 진주황 (당근 코 그림자)
 };
 
-// 동물 쿠키에 공통으로 넣는 얼굴 (앞쪽 조각 가운데)
-const FACE = [
-  [10, 5, 'K'], [10, 9, 'K'], // 눈
-  [12, 4, 'I'], [12, 10, 'I'], // 볼터치
-];
+// 동물 쿠키가 함께 쓰는 크림색 쿠키
+const CREAM = { O: '#5C3310', B: '#F6D9A8', H: '#FFF3DC', S: '#DDB27A' };
 
 export const SKINS = {
   plain: {
     label: { ko: '기본 쿠키', en: 'Plain cookie' },
-    palette: {},
   },
 
   // 맛·색 변형
   choco: {
     label: { ko: '초코 쿠키', en: 'Choco cookie' },
-    palette: { O: '#2E1A0E', B: '#7B4A2A', H: '#A8714B', S: '#5A341C' },
+    palette: { O: '#2A160B', B: '#7A4426', H: '#B07448', S: '#53291A' },
   },
   matcha: {
     label: { ko: '말차 쿠키', en: 'Matcha cookie' },
-    palette: { O: '#33451A', B: '#8DB255', H: '#B9D98A', S: '#627F35' },
+    palette: { O: '#2F3D12', B: '#9BBF4A', H: '#D4EA8C', S: '#6E8C2E' },
   },
   gold: {
     label: { ko: '황금 쿠키', en: 'Golden cookie' },
-    palette: { O: '#6B4E0A', B: '#F5C542', H: '#FFF1A8', S: '#C99A1A' },
-    // 쿠키 주변의 반짝이 (가운데 Y + 상하좌우 빛줄기 A)
-    pixels: [
-      [-2, 20, 'Y'], [-3, 20, 'A'], [-1, 20, 'A'], [-2, 19, 'A'], [-2, 21, 'A'],
-      [4, -2, 'Y'], [3, -2, 'A'], [5, -2, 'A'], [4, -3, 'A'], [4, -1, 'A'],
-      [20, 22, 'Y'], [19, 22, 'A'], [21, 22, 'A'], [20, 21, 'A'], [20, 23, 'A'],
+    palette: { O: '#6B4A06', B: '#F5C21B', H: '#FFF1A8', S: '#C8930A' },
+    // 네 갈래 반짝이 세 개
+    parts: [
+      { at: [-4, -1], shape: ['..A..', '..Y..', 'AYWYA', '..Y..', '..A..'] },
+      { at: [3, 24], shape: ['.a.', 'ayw', '.a.'] },
+      { at: [19, 20], shape: ['..A..', '..Y..', 'AYWYA', '..Y..', '..A..'] },
     ],
   },
 
-  // 동물
+  // 동물 (얼굴 없이 크림색 쿠키에 귀만 단다)
   cat: {
     label: { ko: '고양이 쿠키', en: 'Cat cookie' },
-    palette: {},
-    ears: {
-      shape: [
-        '..O..',
-        '.OIO.',
-        '.OIO.',
-        'OBIBO',
-      ],
-      columns: [6, 13],
-    },
-    pixels: FACE,
+    palette: CREAM,
+    parts: [
+      // 앞쪽 조각 왼쪽 위의 세모 귀
+      { at: [-3, 3], shape: ['..O....', '..OO...', '..OIO..', '.OIIO..', '.OIIIOO', 'OIIIIBB', 'OBBBBB.', '.O.....'] },
+      // 뒤쪽 날개 위의 세모 귀
+      { at: [-1, 18], shape: ['.....o', '....oo', '...oio', '..oiio', '.oiiio', 'oiiiio', 'obbbbo', '..bbbo'] },
+    ],
   },
   dog: {
-    label: { ko: '강아지 쿠키', en: 'Dog cookie' },
-    palette: {},
-    ears: {
-      shape: [
-        '.OO..',
-        'ODDO.',
-        'ODDDO',
-        'ODDDO',
-      ],
-      columns: [6, 13],
-    },
-    pixels: [...FACE, [11, 7, 'K']], // 코
+    label: { ko: '강아지 쿠키', en: 'Puppy cookie' },
+    palette: CREAM,
+    parts: [
+      // 양쪽으로 처진 갈색 귀
+      { at: [1, 0], shape: ['...OOOO.', '..ODDDDO', '.ODDDDDO', 'ODDDDDO.', 'ODDDDO..', 'ODDDO...', '.OOO....'] },
+      { at: [4, 19], shape: ['.ooo..', 'odddo.', 'oddddo', '.odddo', '..oddo', '...oo.'] },
+      // 황갈색 얼룩
+      { at: [11, 4], shape: ['MM', 'MMM', '.M'] },
+      { at: [16, 9], shape: ['.MM', 'MMM'] },
+      { at: [8, 9], shape: ['MM'] },
+      { at: [9, 18], shape: ['mm', 'mmm'] },
+      { at: [14, 21], shape: ['mm', '.mm'] },
+    ],
   },
   rabbit: {
     label: { ko: '토끼 쿠키', en: 'Bunny cookie' },
-    palette: {},
-    ears: {
-      shape: [
-        '.O.',
-        'OIO',
-        'OIO',
-        'OIO',
-        'OBO',
-      ],
-      columns: [7, 12],
-    },
-    pixels: FACE,
+    palette: CREAM,
+    parts: [
+      // 앞쪽: 위로 쫑긋 선 긴 귀
+      { at: [-8, 5], shape: ['.OOO..', 'OBIBO.', 'OBIIBO', 'OBIIBO', 'OBIIBO', '.OBIBO', '.OBIBO', '.OBIBO', '.OBBBO', '..OBBO'] },
+      // 뒤쪽: 길게 섰다가 끝이 오른쪽으로 접힌 귀
+      { at: [-6, 16], shape: ['....oooo..', '...obbiio.', '..obiiibo.', '..obiio...', '..obio....', '..obio....', '..obio....', '.obbo.....', 'obbo......'] },
+    ],
   },
 
   // 시즌
   pumpkin: {
     label: { ko: '호박 쿠키', en: 'Pumpkin cookie' },
-    palette: { O: '#6B3305', B: '#F28C28', H: '#FFB866', S: '#C25E0E' },
-    ears: {
-      shape: [
-        '.GG',
-        'GG.',
-      ],
-      columns: [13],
-    },
-    // 호박 얼굴 (세모 눈, 웃는 입)
-    pixels: [
-      [9, 5, 'K'], [10, 4, 'K'], [10, 5, 'K'], [10, 6, 'K'],
-      [9, 9, 'K'], [10, 8, 'K'], [10, 9, 'K'], [10, 10, 'K'],
-      [13, 4, 'K'], [14, 5, 'K'], [14, 6, 'K'], [14, 7, 'K'], [14, 8, 'K'], [14, 9, 'K'], [13, 10, 'K'],
+    palette: { O: '#5A2A04', B: '#F28C28', H: '#FFC070', S: '#C25E0E' },
+    parts: [
+      // 초록 꼭지
+      { at: [-4, 12], shape: ['..GJ', '.GJ.', '.G..', 'GG..'] },
+      // 세모 눈
+      { at: [8, 3], shape: ['...K', '..KK', '.KKK'] },
+      { at: [8, 9], shape: ['K...', 'KK..', 'KKK.'] },
+      // 지그재그로 웃는 입
+      { at: [13, 3], shape: ['K.........K', 'KK.KK.KK.KK', '.KKKKKKKKK.', '..K..K..K..'] },
     ],
   },
-  snow: {
+  snowman: {
     label: { ko: '눈사람 쿠키', en: 'Snowman cookie' },
-    palette: { O: '#5B6B7C', B: '#EEF3F8', H: '#FFFFFF', S: '#C3D0DE' },
-    pixels: [
-      [10, 5, 'K'], [10, 9, 'K'], // 눈
-      [11, 7, 'N'], [11, 8, 'N'], [11, 9, 'N'], // 당근 코
-      [13, 5, 'K'], [14, 6, 'K'], [14, 7, 'K'], [14, 8, 'K'], [13, 9, 'K'], // 웃는 입
+    palette: { O: '#4A5A6A', B: '#F2F6FA', H: '#FFFFFF', S: '#C8D4E0' },
+    recolor: [
+      // 아래쪽에 빨간 목도리
+      { piece: 'front', rows: [18, 20], cols: [0, 20], to: { B: 'R', H: 'R', S: 'E' } },
+    ],
+    parts: [
+      // 빨간 띠를 두른 검은 모자
+      { at: [-5, 8], shape: ['..KKKKKK..', '..KKKKKK..', '..KKKKKK..', '..RRRRRR..', '..KKKKKK..', 'KKKKKKKKKK'] },
+      // 당근 코 (뒤쪽 날개에서 오른쪽으로)
+      { at: [11, 17], shape: ['nnnn.', 'vnnnn', 'vv...'] },
+      // 늘어진 목도리 끝
+      { at: [20, 7], shape: ['RRR', 'RER', 'RER', 'R.R'] },
+    ],
+  },
+  deer: {
+    label: { ko: '사슴 쿠키', en: 'Reindeer cookie' },
+    palette: CREAM,
+    parts: [
+      // 사슴뿔 두 개
+      { at: [-6, 4], shape: ['T..T....', 'TT.T..T.', '.TTT.TT.', '..TTTT..', '...TT...', '...TT...', '...TT...'] },
+      { at: [-2, 17], shape: ['t..t....', 'tt.t..t.', '.ttt.tt.', '..tttt..', '...tt...', '...tt...', '...tt...', '...tt...'] },
+      // 작은 귀
+      { at: [1, 1], shape: ['OOO..', 'OIIBO', '.OIBO', '..OO.'] },
+      { at: [5, 22], shape: ['..ooo', '.obiio', 'obiio.', '.oo...'] },
+      // 빨간 리본과 금방울
+      { at: [16, 3], shape: ['.RR...RR.', 'RRRR.RRRR', 'RERRYRRER', '.RR.Y.RR.', '...YYY...', '...YAY...'] },
+    ],
+  },
+  santa: {
+    label: { ko: '산타 쿠키', en: 'Santa cookie' },
+    palette: { O: '#5A0F14', B: '#D7263D', H: '#F25C6E', S: '#A3172A' },
+    recolor: [
+      // 아래쪽 흰 털 장식
+      { piece: 'front', rows: [19, 25], cols: [0, 20], to: { B: 'F', H: 'F', S: 'U' } },
+      { piece: 'back', rows: [16, 18], cols: [0, 26], to: { b: 'f', h: 'f', s: 'u' } },
+      // 검은 벨트
+      { piece: 'front', rows: [15, 16], cols: [0, 15], to: { B: 'K', H: 'K', S: 'K' } },
+    ],
+    parts: [
+      // 금색 버클
+      { at: [14, 6], shape: ['YYYY', 'YKKY', 'YKKY', 'YYYY'] },
+      // 흰 털이 달린 산타 모자 (끝의 방울은 오른쪽)
+      { at: [-3, 9], shape: [
+        '.....RRRR.........',
+        '...RRRRRRRRR......',
+        '..RRRRRRRRRRRRR...',
+        '.FFFFFFFFFFRRRRR..',
+        'FFFFFFFFFFF...RRF.',
+        '..............FFF.',
+      ] },
     ],
   },
 };

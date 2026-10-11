@@ -81,35 +81,50 @@ function pieceOf(ch) {
 }
 
 // 픽셀 글자의 색을 고른다.
-//   q(쪽지 테두리)는 쿠키 테두리 색, K·I 같은 꾸밈 글자는 DECOR_COLORS 색을 쓴다.
+//   q(쪽지 테두리)는 쿠키 테두리 색, K·I 같은 꾸밈 글자는 대소문자 상관없이 DECOR_COLORS 색을 쓴다.
 function colorOf(colors, ch) {
-  if (DECOR_COLORS[ch]) return DECOR_COLORS[ch];
-  return colors[ch === 'q' ? 'O' : ch.toUpperCase()];
+  const upper = ch.toUpperCase();
+  if (DECOR_COLORS[upper]) return DECOR_COLORS[upper];
+  return colors[ch === 'q' ? 'O' : upper];
 }
 
-// 쿠키 지도에 스킨의 귀와 꾸밈 픽셀을 얹어서 [행, 열, 글자] 목록으로 만든다.
+// 쿠키 지도에 스킨의 영역 색 바꾸기와 얹는 그림을 적용해서 [행, 열, 글자] 목록으로 만든다.
 function buildPixels(map, skin) {
-  const pixels = new Map(); // 열쇠 '행,열' → 글자 (같은 자리는 나중 것이 덮어쓴다)
+  const pixels = new Map(); // 열쇠 '행,열' → [행, 열, 글자] (같은 자리는 나중 것이 덮어쓴다)
   const put = (row, col, ch) => pixels.set(`${row},${col}`, [row, col, ch]);
 
   map.forEach((line, row) => [...line].forEach((ch, col) => { if (ch !== '.') put(row, col, ch); }));
 
-  // 귀: 그 열에서 쿠키가 시작하는 맨 윗줄에 귀의 아랫줄이 겹치도록 붙인다.
-  if (skin?.ears) {
-    const { shape, columns } = skin.ears;
-    const width = shape[0].length;
-    for (const center of columns) {
-      const top = map.findIndex((line) => line[center] !== '.');
-      shape.forEach((line, i) => [...line].forEach((ch, j) => {
-        if (ch !== '.') put(top - (shape.length - 1) + i, center - Math.floor(width / 2) + j, ch);
-      }));
+  // 영역 색 바꾸기: 정한 조각·행·열 범위 안의 글자를 다른 글자로 바꾼다. (예: 산타의 아래쪽을 흰 털로)
+  for (const { piece, rows, cols, to } of skin?.recolor ?? []) {
+    for (const [row, col, ch] of pixels.values()) {
+      const inside = row >= rows[0] && row <= rows[1] && col >= cols[0] && col <= cols[1];
+      if (inside && pieceOf(ch) === piece && to[ch]) put(row, col, to[ch]);
     }
   }
 
-  // 얼굴, 반짝이 같은 꾸밈 픽셀
-  for (const [row, col, ch] of skin?.pixels ?? []) put(row, col, ch);
+  // 얹는 그림: 귀, 모자, 리본 등을 at 위치에 겹쳐 그린다.
+  for (const { at: [top, left], shape } of skin?.parts ?? []) {
+    shape.forEach((line, i) => [...line].forEach((ch, j) => {
+      if (ch !== '.') put(top + i, left + j, ch);
+    }));
+  }
 
   return [...pixels.values()];
+}
+
+// 스킨까지 얹은 쿠키가 차지하는 범위(px)를 알려준다. 레이아웃 계산에 쓴다.
+//   top: 쿠키 지도 0행보다 위로 튀어나온 높이 (귀, 모자 등), height: 전체 높이
+export function cookieBox(pixel, skin = null) {
+  let minRow = 0;
+  let maxRow = COOKIE_MAPS.open.length - 1;
+  for (const state of ['open', 'closed']) {
+    for (const [row] of buildPixels(COOKIE_MAPS[state], skin)) {
+      minRow = Math.min(minRow, row);
+      maxRow = Math.max(maxRow, row);
+    }
+  }
+  return { top: -minRow * pixel, width: COLUMNS * pixel, height: (maxRow - minRow + 1) * pixel };
 }
 
 // 한 조각에 속한 픽셀만 SVG 사각형들로 바꾼다.
@@ -139,9 +154,4 @@ export function renderPixelCookie({ colors, pixel, x, y, state = 'open', skin = 
       ${piece('front')}
     </g>
   </g>`;
-}
-
-// 쿠키 전체 크기(px)를 알려준다. 레이아웃 계산에 쓴다.
-export function cookieSize(pixel) {
-  return { width: COLUMNS * pixel, height: ROWS * pixel };
 }

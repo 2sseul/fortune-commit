@@ -6,8 +6,8 @@ import { SKINS, getSkin } from '../src/skins.js';
 import { renderPixelCookie } from '../src/cookie.js';
 import { themes } from '../src/themes.js';
 
-test('스킨은 기본 포함 9종이다', () => {
-  assert.deepEqual(Object.keys(SKINS), ['plain', 'choco', 'matcha', 'gold', 'cat', 'dog', 'rabbit', 'pumpkin', 'snow']);
+test('스킨은 기본 포함 11종이다', () => {
+  assert.deepEqual(Object.keys(SKINS), ['plain', 'choco', 'matcha', 'gold', 'cat', 'dog', 'rabbit', 'pumpkin', 'snowman', 'deer', 'santa']);
 });
 
 test('모르는 스킨 이름이면 기본 쿠키를 쓴다', () => {
