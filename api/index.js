@@ -6,10 +6,15 @@
 //   lang  : ko(기본) 또는 en
 //   tz    : 하루가 바뀌는 기준 시간대. 기본은 Asia/Seoul (예: UTC, America/New_York)
 //   theme : dark(기본) 또는 light
+//   width : 위젯 너비 400 ~ 800 (기본 495)
+//   radius : 모서리 둥글기 0 ~ 30 (기본 10)
+//   hide_border : true면 테두리 선을 숨긴다
+//   잘못된 값은 기본값으로, 범위를 벗어난 값은 가장 가까운 허용값으로 바꾼다. (src/options.js)
 
 import { getTheme } from '../src/themes.js';
 import { renderWidget } from '../src/render.js';
 import { pickFortune, todayIn, normalizeUser } from '../src/pick.js';
+import { parseStyleOptions } from '../src/options.js';
 
 export default function handler(req, res) {
   // 주소 뒤의 옵션을 읽는다.
@@ -18,6 +23,7 @@ export default function handler(req, res) {
   const user = normalizeUser(searchParams.get('user'));
   const lang = searchParams.get('lang') === 'en' ? 'en' : 'ko';
   const date = todayIn(searchParams.get('tz'));
+  const style = parseStyleOptions(searchParams);
 
   const { fortune, lucky } = pickFortune({ user, date, lang });
 
@@ -28,6 +34,7 @@ export default function handler(req, res) {
     fortune,
     lucky,
     label: lang === 'en' ? "Today's fortune" : '오늘의 운세',
+    style,
   });
 
   res.statusCode = 200;
