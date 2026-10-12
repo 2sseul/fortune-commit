@@ -119,6 +119,11 @@ export function setupScene({ skins, getFortune, onOpen }) {
   const cookieButton = document.getElementById('cookie');
   const cookieImg = document.getElementById('cookie-img');
   const pop = document.getElementById('fortune-pop');
+  // 휴대폰에서는 장면이 작아 쪽지가 잘리므로, 쪽지를 장면 밖(화면 가운데)으로 옮긴다.
+  if (window.matchMedia('(max-width: 600px)').matches) {
+    pop.classList.add('floating');
+    document.body.append(pop);
+  }
 
   function showSlip({ who, text, tags = [], note }) {
     const slip = pop.querySelector('.slip');
@@ -158,6 +163,12 @@ export function setupScene({ skins, getFortune, onOpen }) {
     cookieButton.focus({ preventScroll: true });
   });
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') pop.classList.remove('show'); });
+  // 휴대폰(쪽지가 화면 가운데에 뜰 때)에서는 쪽지 바깥을 눌러도 닫힌다.
+  document.addEventListener('click', (event) => {
+    if (pop.classList.contains('floating') && pop.classList.contains('show') && !pop.contains(event.target) && !cookieButton.contains(event.target)) {
+      pop.classList.remove('show');
+    }
+  });
 
   let opened = false;
   cookieButton.addEventListener('click', async () => {

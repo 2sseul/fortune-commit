@@ -140,9 +140,14 @@
     .promo .soon { display: inline-block; padding: 1px 10px; background: var(--dough); border-radius: 999px; font-family: var(--body); font-size: 12px; font-weight: 700; color: var(--brown-soft); vertical-align: middle; }
 
     @media (max-width: 860px) {
-      .feature, .friends { grid-template-columns: 1fr; gap: 32px; }
+      .feature, .friends { grid-template-columns: minmax(0, 1fr); gap: 32px; } /* 긴 코드 줄이 칸을 넓히지 않게 */
       .feature.flip .feature-art { order: 0; }
       .welcome { margin-top: -24px; padding: 24px 20px; }
+      .band .inner { padding-bottom: 56px; }
+      .friend-spot .stage { max-width: 220px; }
+      .friend-list { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+      .friend-list img { width: 52px; }
+      .before-after { margin-top: 36px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .friend-spot .stage img, .fresh-tray .steam img, .fresh-tray .spark { animation: none; }

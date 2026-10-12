@@ -191,6 +191,41 @@ code, pre { font-family: var(--mono); }
 .site-footer a { color: #e9d8c2; }
 .site-footer .spacer { margin-left: auto; }
 
+/* ---------- 휴대폰 아래 탭 막대 (앱처럼) ----------
+   site.js가 모든 페이지에 넣는다. 760px 이하에서만 보인다. */
+.tabbar { display: none; }
+@media (max-width: 760px) {
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 25;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: rgba(255, 253, 248, 0.96);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -6px 20px rgba(92, 51, 16, 0.08);
+  }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; border-radius: 12px; color: var(--brown-soft); font-size: 11px; font-weight: 700; text-decoration: none; }
+  .tabbar img { width: 30px; height: 27px; image-rendering: pixelated; filter: grayscale(0.6) opacity(0.7); transition: transform 0.15s ease; }
+  .tabbar a[aria-current="page"] { color: var(--caramel-dark); background: var(--dough); }
+  .tabbar a[aria-current="page"] img { filter: none; transform: translateY(-2px) scale(1.08); }
+
+  /* 헤더는 로고와 로그인만, 한 줄로 */
+  .site-header .wrap { height: 58px; gap: 10px; }
+  .brand img { width: 32px; }
+  .brand-name { font-size: 19px; }
+  .brand-sub { display: none; }
+  .site-nav .btn.small { padding: 6px 12px; font-size: 13px; white-space: nowrap; }
+  .account > button { padding: 3px 10px 3px 3px; font-size: 13px; }
+  .account > button img { width: 28px; height: 28px; }
+  .account > button span { max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
 @media (max-width: 760px) {
   .site-nav > a.wide { display: none; }
   .section { padding: 64px 0; }

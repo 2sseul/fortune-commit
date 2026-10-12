@@ -2,8 +2,35 @@
 // 헤더의 로그인 상태(로그인 버튼 ↔ 프로필 사진·아이디 메뉴)를 모든 페이지에서 똑같이 보여준다.
 // 페이지에 <span id="account-slot"> 이 있으면 그 자리를 채운다.
 
+// 휴대폰에서 화면 아래에 보이는 탭 막대 (홈, 상점, 내 도감, 진열대). 아이콘은 쿠키 스킨 그림.
+const TABS = [
+  ['/', '홈', 'plain'],
+  ['/shop.html', '상점', 'gold'],
+  ['/collection.html', '내 도감', 'choco'],
+  ['/skins.html', '진열대', 'cat'],
+];
+function setupTabbar() {
+  if (document.querySelector('.tabbar')) return;
+  const bar = document.createElement('nav');
+  bar.className = 'tabbar';
+  bar.setAttribute('aria-label', '아래 메뉴');
+  const here = location.pathname === '/index.html' ? '/' : location.pathname;
+  for (const [href, label, skin] of TABS) {
+    const a = document.createElement('a');
+    a.href = href;
+    if (href === here) a.setAttribute('aria-current', 'page');
+    const icon = document.createElement('img');
+    icon.src = `/api/cookie?skin=${skin}&mode=still`;
+    icon.alt = '';
+    a.append(icon, label);
+    bar.append(a);
+  }
+  document.body.append(bar);
+}
+
 // 로그인 상태를 확인해서 헤더를 채운다. 로그인 정보({ loggedIn, login, equipped })를 돌려준다.
 export async function setupHeader() {
+  setupTabbar();
   let me = { loggedIn: false };
   try {
     me = await (await fetch('/api/me?brief=1', { cache: 'no-store' })).json();
@@ -18,7 +45,7 @@ export async function setupHeader() {
     login.className = 'btn small';
     // 로그인 후 지금 보던 페이지로 돌아오게 한다.
     login.href = `/api/auth/login?next=${encodeURIComponent(location.pathname)}`;
-    login.textContent = 'GitHub 로그인';
+    login.textContent = window.matchMedia('(max-width: 760px)').matches ? '로그인' : 'GitHub 로그인';
     slot.replaceChildren(login);
     return me;
   }
