@@ -49,6 +49,7 @@
     .item.using { border: 2px solid var(--caramel); box-shadow: var(--shadow); }
     .item .badge { position: absolute; top: 12px; right: 12px; z-index: 1; padding: 2px 10px; background: var(--caramel); color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; }
     .item .badge.mine { background: #5b9a4f; }
+    .item .badge.year { background: #fff; color: var(--caramel-dark); border: 1px solid var(--caramel); }
     .item .art { display: grid; place-items: center; height: 130px; margin-bottom: 4px; background: var(--dough); border-radius: 14px; }
     .item .art img { width: 112px; image-rendering: pixelated; }
     .item .preview { display: block; width: 100%; height: auto; border-radius: 10px; }
@@ -56,7 +57,7 @@
     .item .desc { margin: 0; font-size: 13px; color: var(--brown-soft); }
     .item .price { font-family: var(--title); font-size: 20px; color: var(--caramel-dark); }
     .item .btn { margin-top: auto; }
-    .item .actions { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .item .actions { display: flex; flex-direction: column; gap: 6px; margin-top: auto; padding-top: 8px; } /* 버튼은 항상 카드 맨 아래 */
     .item .btn[disabled] { background: transparent; color: var(--brown-soft); border-color: var(--line); cursor: default; transform: none; }
     .item .btn.confirm { background: var(--berry); border-color: var(--berry); }
     .note { margin: -36px 0 56px; color: var(--brown-soft); font-size: 14px; }
@@ -248,6 +249,13 @@
         } else if (isOwned) {
           card.append(el('span', 'badge mine', '내 거'));
         }
+        // 올해 업적으로 이미 해금한 스킨: 올해는 쓸 수 있지만 1월 1일에 다시 잠긴다. 사면 계속 내 것.
+        const yearOnly = item.kind === 'skin' && !isOwned && unlockedThisYear.has(item.name);
+        if (yearOnly) {
+          const badge = el('span', 'badge year', '올해 해금됨');
+          badge.title = '업적 해금은 1월 1일에 다시 잠겨요. 사 두면 계속 쓸 수 있어요.';
+          card.append(badge);
+        }
 
         if (item.kind === 'skin') {
           const art = el('div', 'art');
@@ -265,13 +273,10 @@
           card.append(img);
         }
         card.append(el('h3', '', name), el('p', 'desc', desc));
-        if (item.kind === 'skin' && !isOwned && unlockedThisYear.has(item.name)) {
-          card.append(el('p', 'desc', '✨ 올해 업적으로 해금됐어요. 사 두면 내년에도 계속 가져요.'));
-        }
 
         const actions = el('div', 'actions');
         if (!isOwned) actions.append(el('span', 'price', won(item.price)));
-        actions.append(actionButton(item, { isOwned, isUsing, balance }));
+        actions.append(actionButton(item, { isOwned, isUsing, balance, yearOnly }));
         card.append(actions);
         lists[item.kind].append(card);
       }
@@ -287,7 +292,7 @@
       }
     }
 
-    function actionButton(item, { isOwned, isUsing, balance }) {
+    function actionButton(item, { isOwned, isUsing, balance, yearOnly }) {
       const button = el('button', 'btn small');
       button.type = 'button';
       if (!shop.loggedIn) {
@@ -317,7 +322,7 @@
         button.textContent = `정말 살까요? (${won(item.price)})`;
         button.addEventListener('click', () => buy(item, button));
       } else {
-        button.textContent = '사기';
+        button.textContent = yearOnly ? '사서 계속 갖기' : '사기';
         button.addEventListener('click', () => { confirming = item.id; renderItems(); });
       }
       return button;
