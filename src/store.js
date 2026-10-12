@@ -3,6 +3,7 @@
 //   equip:아이디          장착한 스킨 이름
 //   theme:아이디          장착한 테마 이름 (v2.2)
 //   owned:아이디          상점에서 산 물건 집합, 예: skin:cat, theme:strawberry (v2.2, 영원히)
+//   earned:아이디         업적으로 한 번이라도 해금한 스킨 집합, 예: cat (v2.2, 영원히)
 //   spent:아이디:연도     그해에 쓴 포인트 (v2.2)
 //   attend:아이디:연도    그해에 출석 보상을 받은 날짜 집합 (v2.2)
 // Redis 주소는 Vercel에 연결한 DB가 넣어 주는 환경변수 REDIS_URL을 쓴다.
@@ -31,6 +32,7 @@ const keys = {
   equip: (login) => `equip:${id(login)}`,
   theme: (login) => `theme:${id(login)}`,
   owned: (login) => `owned:${id(login)}`,
+  earned: (login) => `earned:${id(login)}`,
   spent: (login, year) => `spent:${id(login)}:${year}`,
   attend: (login, year) => `attend:${id(login)}:${year}`,
 };
@@ -39,8 +41,8 @@ const keys = {
 const memory = new Map();
 const MEMORY_MS = 60 * 1000;
 
-// 장착한 스킨·테마와 산 물건을 한 번에 읽는다.
-//   { skin: 이름|null, theme: 이름|null, owned: ['skin:cat', ...] }. 확인할 수 없으면 null.
+// 장착한 스킨·테마, 산 물건, 업적으로 해금했던 스킨을 한 번에 읽는다.
+//   { skin: 이름|null, theme: 이름|null, owned: ['skin:cat', ...], earned: ['cat', ...] }. 확인할 수 없으면 null.
 export async function getProfile(login, { now = Date.now() } = {}) {
   if (!login) return null;
   const remembered = memory.get(id(login));
@@ -48,12 +50,13 @@ export async function getProfile(login, { now = Date.now() } = {}) {
   try {
     const client = await getClient();
     if (!client) return null;
-    const [skin, theme, owned] = await client.multi()
+    const [skin, theme, owned, earned] = await client.multi()
       .get(keys.equip(login))
       .get(keys.theme(login))
       .sMembers(keys.owned(login))
+      .sMembers(keys.earned(login))
       .exec();
-    const profile = { skin, theme, owned };
+    const profile = { skin, theme, owned, earned };
     memory.set(id(login), { profile, expiresAt: now + MEMORY_MS });
     return profile;
   } catch {
@@ -74,6 +77,12 @@ export async function setEquippedSkin(login, skin) {
 // 장착한 테마를 저장한다. null이면 장착을 해제한다. 성공하면 true.
 export async function setEquippedTheme(login, theme) {
   return write(login, (client) => (theme ? client.set(keys.theme(login), theme) : client.del(keys.theme(login))));
+}
+
+// 업적으로 해금한 스킨을 영원히 기록한다. (이미 기록된 것은 빼고 부른다)
+export async function addEarnedSkins(login, skins) {
+  if (!login || !skins.length) return true;
+  return write(login, (client) => client.sAdd(keys.earned(login), skins));
 }
 
 // 쓰기를 하고, 기억해 둔 프로필을 지워 다음 읽기에서 새 값을 보게 한다.

@@ -84,7 +84,7 @@
     <div class="wrap">
       <span class="eyebrow">My Cookie Box</span>
       <h1 class="page-title">내 도감</h1>
-      <p class="page-lead">올해 활동으로 해금한 쿠키를 모아 둔 상자예요. 장착한 쿠키는 README를 고치지 않아도 위젯에 바로 올라가요.</p>
+      <p class="page-lead">활동으로 해금한 쿠키를 모아 둔 상자예요. 한 번 해금한 쿠키는 해가 바뀌어도 계속 내 거예요. 장착한 쿠키는 README를 고치지 않아도 위젯에 바로 올라가요.</p>
 
       <div id="notice"></div>
       <div id="top"></div>
@@ -221,7 +221,7 @@
         img.alt = '';
         img.loading = 'lazy';
         art.append(img);
-        box.append(art, el('h3', '', info.name), el('p', 'rule', skin.bought ? `${info.rule} · 상점에서 산 쿠키 🛍️` : info.rule));
+        box.append(art, el('h3', '', info.name), el('p', 'rule', skin.bought ? `${info.rule} · 상점에서 산 쿠키 🛍️` : skin.kept ? `${info.rule} · 예전에 해금 ✓` : info.rule));
 
         if (me.loggedIn && !skin.unlocked && skin.goal) {
           const bar = el('div', 'bar');

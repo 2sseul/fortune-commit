@@ -6,12 +6,12 @@
 // 다른 사람의 설정은 바꿀 수 없다: 장착은 항상 서명된 로그인 쿠키의 아이디에만 저장한다.
 
 import { sessionLogin } from '../src/session.js';
-import { getProfile, setEquippedSkin, setEquippedTheme } from '../src/store.js';
+import { getProfile, setEquippedSkin, setEquippedTheme, addEarnedSkins } from '../src/store.js';
 import { fetchYearActivity } from '../src/github.js';
 import { todayIn } from '../src/pick.js';
 import { SKINS } from '../src/skins.js';
 import { shopThemes } from '../src/themes.js';
-import { skinStatus } from '../src/unlocks.js';
+import { skinStatus, hasSkin, newlyEarned } from '../src/unlocks.js';
 import { sendJson, readJson, isSameOrigin } from '../src/http.js';
 
 export default async function handler(req, res) {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const profile = (await getProfile(login)) ?? { skin: null, theme: null, owned: [] };
+  const profile = (await getProfile(login)) ?? { skin: null, theme: null, owned: [], earned: [] };
   const owned = new Set(profile.owned);
 
   // 헤더처럼 로그인 여부만 필요할 때는 GitHub 활동을 확인하지 않고 바로 돌려준다.
@@ -37,28 +37,34 @@ export default async function handler(req, res) {
     }
     const body = await readJson(req);
     if ('theme' in body) await equipTheme(res, login, owned, body.theme);
-    else await equipSkin(res, login, owned, body.skin);
+    else await equipSkin(res, login, profile, body.skin);
     return;
   }
 
   // GET: 도감 정보
   const year = await fetchYearActivity({ login, date: todayIn() });
+  // 올해 새로 해금한 스킨은 영원히 기록한다. (해가 바뀌어도 계속 내 것)
+  const fresh = newlyEarned({ year, profile });
+  await addEarnedSkins(login, fresh);
+  const earned = new Set([...(profile.earned ?? []), ...fresh]);
   const skins = Object.keys(SKINS).map((id) => {
     const status = year ? skinStatus(id, year) : { unlocked: id === 'plain' };
     const bought = owned.has(`skin:${id}`);
-    return { id, ...status, unlocked: status.unlocked || bought, bought };
+    // kept: 올해 조건은 아직이지만 예전에 해금해서 계속 가진 스킨
+    const kept = earned.has(id) && !status.unlocked;
+    return { id, ...status, unlocked: status.unlocked || bought || earned.has(id), bought, kept };
   });
   const ownedThemes = [...owned].filter((item) => item.startsWith('theme:')).map((item) => item.slice(6));
   sendJson(res, 200, { loggedIn: true, login, equipped: profile.skin, theme: profile.theme, ownedThemes, activityChecked: Boolean(year), skins });
 }
 
-async function equipSkin(res, login, owned, skin) {
+async function equipSkin(res, login, profile, skin) {
   if (!Object.hasOwn(SKINS, skin ?? '')) {
     sendJson(res, 400, { error: '없는 스킨이에요.' });
     return;
   }
-  // 해금 확인: 기본 쿠키와 산 스킨은 언제나 가능, 나머지는 올해 활동을 확인할 수 있어야 한다.
-  if (skin !== 'plain' && !owned.has(`skin:${skin}`)) {
+  // 해금 확인: 기본 쿠키, 산 스킨, 예전에 해금한 스킨은 언제나 가능. 나머지는 올해 활동을 확인할 수 있어야 한다.
+  if (!hasSkin(skin, { year: null, profile })) {
     const year = await fetchYearActivity({ login, date: todayIn() });
     if (!year) {
       sendJson(res, 503, { error: 'GitHub 활동을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.' });

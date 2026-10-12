@@ -2,7 +2,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { skinStatus, progressText, UNLOCK_RULES } from '../src/unlocks.js';
+import { skinStatus, progressText, UNLOCK_RULES, hasSkin, newlyEarned } from '../src/unlocks.js';
 import { summarizeYear, fetchYearActivity, clearYearMemory, startOfYear } from '../src/github.js';
 import { SKINS } from '../src/skins.js';
 
@@ -83,4 +83,25 @@ test('올해 활동을 GitHub에서 가져오고, 실패하면 null', async () =
   clearYearMemory();
   assert.equal(await fetchYearActivity({ ...base, fetchImpl: async () => ({ ok: false }) }), null);
   assert.equal(await fetchYearActivity({ ...base, token: '' }), null);
+});
+
+// ---------- 한 번 해금한 스킨은 계속 (v2.2) ----------
+
+test('예전에 해금했거나 산 스킨은 올해 조건과 상관없이 쓸 수 있다', () => {
+  const profile = { earned: ['cat'], owned: ['skin:matcha'] };
+  assert.equal(hasSkin('cat', { year: YEAR, profile }), true); // 올해 커밋 37/100이지만 예전에 해금
+  assert.equal(hasSkin('matcha', { year: YEAR, profile }), true); // 상점에서 삼
+  assert.equal(hasSkin('rabbit', { year: YEAR, profile }), false);
+  assert.equal(hasSkin('choco', { year: YEAR, profile }), true); // 올해 업적
+});
+
+test('활동을 확인하지 못하면 기록된 스킨만 쓸 수 있다', () => {
+  assert.equal(hasSkin('rabbit', { year: null, profile: { earned: [] } }), false);
+  assert.equal(hasSkin('cat', { year: null, profile: { earned: ['cat'] } }), true);
+  assert.equal(hasSkin('plain', { year: null, profile: null }), true);
+});
+
+test('올해 새로 해금한 스킨만 기록 대상이다', () => {
+  assert.deepEqual(newlyEarned({ year: YEAR, profile: { earned: ['dog'] } }).sort(), ['choco', 'pumpkin', 'santa']);
+  assert.deepEqual(newlyEarned({ year: null, profile: { earned: [] } }), []);
 });

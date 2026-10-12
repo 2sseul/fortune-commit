@@ -1,7 +1,7 @@
 // /api/shop: 쿠키 상점 (v2.2)
 //   GET  → { items: [{ id, kind, name, price }], loggedIn, login?, wallet?, owned?, unlocked?, equipped?, theme?, todayOpen? }
 //          wallet: { fromContributions, fromAttendance, earned, spent, balance, attendance, attendedToday }
-//          unlocked: 올해 업적으로 이미 해금한 스킨 (상점에 보여주지 않고, 살 수도 없다)
+//          unlocked: 업적으로 이미 해금한 스킨 (올해 또는 예전 기록. 상점에 보여주지 않고, 살 수도 없다)
 //   POST { action: 'attend' } → 오늘 쿠키가 열렸으면(오늘 활동 1개 이상) 출석 +30, 하루 한 번
 //   POST { action: 'buy', item: 'skin:cat' } → 포인트로 산다
 // 포인트 = 올해 기여 × 10 + 올해 출석 × 30 − 올해 쓴 포인트 (src/shop.js)
@@ -12,22 +12,23 @@ import { getProfile, getWalletRecord, addAttendance, buyItem } from '../src/stor
 import { fetchActivity, fetchYearActivity } from '../src/github.js';
 import { todayIn } from '../src/pick.js';
 import { catalog, findItem, wallet, POINTS_PER_ATTENDANCE, SKIN_PRICES } from '../src/shop.js';
-import { skinStatus } from '../src/unlocks.js';
+import { hasSkin } from '../src/unlocks.js';
 import { sendJson, readJson, isSameOrigin } from '../src/http.js';
 
 // 올해 활동과 지갑 기록으로 지갑을 계산한다. 확인할 수 없으면 null.
-//   unlocked: 파는 스킨 중 올해 업적으로 이미 해금한 것
+//   unlocked: 파는 스킨 중 업적으로 이미 해금한 것 (올해 또는 예전에 해금한 기록)
 async function loadWallet(login, date) {
-  const [year, record] = await Promise.all([
+  const [year, record, profile] = await Promise.all([
     fetchYearActivity({ login, date }),
     getWalletRecord(login, { year: date.slice(0, 4), date }),
+    getProfile(login),
   ]);
   if (!year || !record) return null;
   return {
     ...wallet({ contributions: year.total, attendance: record.attendance, spent: record.spent }),
     attendance: record.attendance,
     attendedToday: record.attendedToday,
-    unlocked: Object.keys(SKIN_PRICES).filter((id) => skinStatus(id, year).unlocked),
+    unlocked: Object.keys(SKIN_PRICES).filter((id) => hasSkin(id, { year, profile: { earned: profile?.earned ?? [] } })),
   };
 }
 
@@ -104,7 +105,7 @@ export default async function handler(req, res) {
       return;
     }
     if (item.kind === 'skin' && before.unlocked.includes(item.name)) {
-      sendJson(res, 409, { error: '올해 업적으로 이미 해금한 쿠키예요. 도감에서 바로 장착할 수 있어요.' });
+      sendJson(res, 409, { error: '업적으로 이미 해금한 쿠키예요. 도감에서 바로 장착할 수 있어요.' });
       return;
     }
     const result = await buyItem(login, { year: date.slice(0, 4), itemId: item.id, price: item.price, earned: before.earned });
