@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>쿠키 상점 · fortune-commit</title>
+  <meta name="description" content="커밋으로 모은 포인트로 쿠키 스킨과 디저트 터미널 테마를 사는 상점">
+  <link rel="stylesheet" href="/site.css">
+  <style>
+    /* 쿠키 상점 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
+    .page { padding: 56px 0 96px; }
+    .notice { margin: 0 0 24px; padding: 14px 18px; background: #fde8e8; border: 1px solid #f3b9b9; border-radius: 12px; color: #8a1c1c; }
+
+    /* 지갑 */
+    .wallet {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 48px;
+      padding: 24px 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .wallet .coin { width: 84px; image-rendering: pixelated; }
+    .wallet .balance { margin: 0; font-family: var(--title); font-size: clamp(34px, 5vw, 48px); line-height: 1.1; color: var(--caramel); }
+    .wallet .balance small { font-size: 0.5em; color: var(--brown-soft); }
+    .wallet .how { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--brown-soft); font-size: 14px; }
+    .wallet .how b { color: var(--brown); }
+    .attend { max-width: 240px; padding: 12px 16px; border-radius: 16px; background: var(--dough); font-size: 14px; text-align: center; }
+    .attend strong { display: block; font-family: var(--title); font-weight: 400; font-size: 18px; color: var(--brown); }
+    .attend.done { background: #e4f3e1; }
+    .attend.ready { background: #fff1c9; }
+    .attend a { color: var(--caramel-dark); font-weight: 700; }
+    .login-card { max-width: 560px; margin: 0 auto 48px; padding: 32px; text-align: center; background: var(--paper); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+    .login-card h2 { margin: 0 0 6px; font-family: var(--title); font-weight: 400; font-size: 26px; }
+    .login-card p { margin: 0 0 20px; color: var(--brown-soft); }
+
+    /* 진열 칸 */
+    .shelf-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 0 0 18px; }
+    .shelf-title h2 { margin: 0; font-family: var(--title); font-weight: 400; font-size: clamp(26px, 3.6vw, 34px); }
+    .shelf-title p { margin: 0; color: var(--brown-soft); font-size: 14px; }
+    .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 20px; margin-bottom: 56px; }
+    .items.themes { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+    .item { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; scroll-margin-top: 90px; }
+    .item.owned { border-color: #b9dcb2; }
+    .item.using { border: 2px solid var(--caramel); box-shadow: var(--shadow); }
+    .item .badge { position: absolute; top: 12px; right: 12px; z-index: 1; padding: 2px 10px; background: var(--caramel); color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .item .badge.mine { background: #5b9a4f; }
+    .item .art { display: grid; place-items: center; height: 130px; margin-bottom: 4px; background: var(--dough); border-radius: 14px; }
+    .item .art img { width: 112px; image-rendering: pixelated; }
+    .item .preview { display: block; width: 100%; height: auto; border-radius: 10px; }
+    .item h3 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 20px; }
+    .item .desc { margin: 0; font-size: 13px; color: var(--brown-soft); }
+    .item .price { font-family: var(--title); font-size: 20px; color: var(--caramel-dark); }
+    .item .btn { margin-top: auto; }
+    .item .actions { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .item .btn[disabled] { background: transparent; color: var(--brown-soft); border-color: var(--line); cursor: default; transform: none; }
+    .item .btn.confirm { background: var(--berry); border-color: var(--berry); }
+    .note { margin: -36px 0 56px; color: var(--brown-soft); font-size: 14px; }
+    .note a { color: var(--caramel-dark); font-weight: 700; }
+
+    /* 산 뒤 잠깐 뜨는 알림 */
+    .toast { position: fixed; left: 50%; bottom: 28px; z-index: 30; padding: 12px 22px; background: var(--chocolate); color: #fff; border-radius: 999px; box-shadow: var(--shadow); font-weight: 700; transform: translate(-50%, 120px); transition: transform 0.25s ease; }
+    .toast.show { transform: translate(-50%, 0); }
+
+    @media (max-width: 720px) {
+      .wallet { grid-template-columns: auto minmax(0, 1fr); }
+      .attend { grid-column: 1 / -1; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <img class="pixel" src="/api/cookie?mode=still" alt="" width="40" height="36">
+        <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
+      </a>
+      <nav class="site-nav" aria-label="메뉴">
+        <a class="wide" href="/#story">이야기</a>
+        <a class="wide" href="/skins.html">진열대</a>
+        <a class="wide" href="/shop.html" aria-current="page">상점</a>
+        <a class="wide" href="/collection.html">내 도감</a>
+        <span id="account-slot"></span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <span class="eyebrow">Cookie Shop</span>
+      <h1 class="page-title">쿠키 상점</h1>
+      <p class="page-lead">커밋할수록 포인트가 쌓여요. 모은 포인트로 쿠키 스킨과 디저트 터미널 테마를 사서 내 위젯에 올려 보세요. 산 물건은 해가 바뀌어도 계속 내 거예요.</p>
+
+      <div id="notice"></div>
+      <div id="top"></div>
+
+      <div class="shelf-title">
+        <h2>쿠키 스킨</h2>
+        <p>업적을 못 채웠어도 포인트로 데려올 수 있어요</p>
+      </div>
+      <div class="items" id="skins"></div>
+      <p class="note">황금·호박·눈사람·사슴·산타 쿠키는 팔지 않아요. 업적으로만 받을 수 있는 특별한 쿠키예요. → <a href="/collection.html">내 도감에서 보기</a></p>
+
+      <div class="shelf-title">
+        <h2>디저트 터미널 테마</h2>
+        <p>장착하면 README의 다크/라이트 설정 대신 이 색으로 보여요</p>
+      </div>
+      <div class="items themes" id="themes"></div>
+    </div>
+  </main>
+
+  <p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span class="brand-name">fortune-commit</span>
+      <span>모든 쿠키 그림은 오리지널이에요</span>
+      <a class="spacer" href="/">메인</a>
+      <a href="/collection.html">내 도감</a>
+      <a href="https://github.com/2sseul/fortune-commit">GitHub</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { setupHeader } from '/site.js';
+
+    // 상품 이름과 설명 (가격은 서버의 src/shop.js에서 받아 온다)
+    const NAMES = {
+      'skin:choco': ['초코 쿠키', '달콤하고 꾸준한 맛'],
+      'skin:cat': ['고양이 쿠키', '새침하지만 다정한 친구'],
+      'skin:dog': ['강아지 쿠키', 'PR만 보면 꼬리를 흔들어요'],
+      'skin:rabbit': ['토끼 쿠키', '코드 리뷰를 좋아하는 귀 밝은 친구'],
+      'skin:matcha': ['말차 쿠키', '쌉싸름하고 깊은 장인의 맛'],
+      'theme:vanilla': ['바닐라 크림', '부드러운 크림색 바탕'],
+      'theme:strawberry': ['딸기우유', '분홍빛 달콤한 터미널'],
+      'theme:mintchoco': ['민트초코', '초콜릿 바탕에 민트 글씨'],
+      'theme:blueberry': ['블루베리 요거트', '보랏빛 상큼한 터미널'],
+      'theme:darkchoco': ['다크 초콜릿', '진한 초콜릿에 캐러멜 글씨'],
+    };
+    const ERRORS = {
+      state: '로그인 확인에 실패했어요. 다시 로그인해 주세요.',
+      login: 'GitHub 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.',
+    };
+
+    let shop = { items: [], loggedIn: false };
+    let me = { loggedIn: false };
+    let confirming = null; // 지금 "정말 살까요?"를 묻고 있는 상품
+
+    const won = (n) => `${n.toLocaleString('ko-KR')}P`;
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+    function toast(text) {
+      const box = document.getElementById('toast');
+      box.textContent = text;
+      box.classList.add('show');
+      setTimeout(() => box.classList.remove('show'), 2600);
+    }
+
+    async function post(url, body) {
+      const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error ?? '잠시 후 다시 시도해 주세요.');
+      return result;
+    }
+
+    // ---------- 위쪽: 지갑 ----------
+    function renderTop() {
+      const top = document.getElementById('top');
+      top.replaceChildren();
+      if (!shop.loggedIn) {
+        const card = el('div', 'login-card');
+        const login = el('a', 'btn', 'GitHub로 로그인하고 포인트 보기');
+        login.href = '/api/auth/login?next=/shop.html';
+        card.append(
+          el('h2', '', '내 포인트가 얼마나 쌓였을까요?'),
+          el('p', '', '올해 기여 1개에 10점, 커밋한 날 쿠키를 열면 30점이 쌓여요.'),
+          login,
+        );
+        top.append(card);
+        return;
+      }
+      const w = shop.wallet;
+      const box = el('section', 'wallet');
+      box.setAttribute('aria-label', '내 포인트');
+      const coin = el('img', 'coin');
+      coin.src = '/api/cookie?skin=gold&mode=still';
+      coin.alt = '';
+
+      const info = el('div');
+      if (!w) {
+        info.append(el('p', 'balance', '—'), el('p', 'how', 'GitHub 활동을 확인하지 못했어요. 잠시 후 새로고침해 주세요.'));
+      } else {
+        const balance = el('p', 'balance', won(w.balance));
+        balance.append(' ', el('small', '', '모은 포인트'));
+        const how = el('ul', 'how');
+        const line = (label, value) => { const li = el('li'); li.append(`${label} `, el('b', '', value)); return li; };
+        how.append(
+          line('올해 기여', `${(w.fromContributions / 10).toLocaleString('ko-KR')}개 × 10 = ${won(w.fromContributions)}`),
+          line('출석', `${w.attendance}일 × 30 = ${won(w.fromAttendance)}`),
+          line('쓴 포인트', `−${won(w.spent)}`),
+        );
+        info.append(balance, how);
+      }
+
+      const attend = el('div', 'attend');
+      if (w?.attendedToday) {
+        attend.classList.add('done');
+        attend.append(el('strong', '', '오늘 출석 완료 ✓'), '내일 또 커밋하고 쿠키를 열어 주세요');
+      } else if (shop.todayOpen) {
+        attend.classList.add('ready');
+        const link = el('a', '', '메인에서 쿠키 열기 →');
+        link.href = '/#scene';
+        attend.append(el('strong', '', '출석 +30 받을 수 있어요!'), link);
+      } else {
+        attend.append(el('strong', '', '오늘 출석 +30'), '오늘 커밋하고 메인에서 쿠키를 열면 받아요');
+      }
+      box.append(coin, info, attend);
+      top.append(box);
+    }
+
+    // ---------- 상품 칸 ----------
+    function renderItems() {
+      const owned = new Set(shop.owned ?? []);
+      const unlockedThisYear = new Set((me.skins ?? []).filter((s) => s.unlocked && !s.bought).map((s) => s.id));
+      const balance = shop.wallet?.balance ?? 0;
+      const lists = { skin: document.getElementById('skins'), theme: document.getElementById('themes') };
+      lists.skin.replaceChildren();
+      lists.theme.replaceChildren();
+
+      for (const item of shop.items) {
+        const [name, desc] = NAMES[item.id] ?? [item.name, ''];
+        const card = el('article', 'item');
+        card.id = item.id.replace(':', '-');
+        const isOwned = owned.has(item.id);
+        const isUsing = item.kind === 'skin' ? shop.equipped === item.name : shop.theme === item.name;
+        if (isOwned) card.classList.add('owned');
+        if (isOwned && isUsing) {
+          card.classList.add('using');
+          card.append(el('span', 'badge', '장착 중'));
+        } else if (isOwned) {
+          card.append(el('span', 'badge mine', '내 거'));
+        }
+
+        if (item.kind === 'skin') {
+          const art = el('div', 'art');
+          const img = el('img');
+          img.src = `/api/cookie?skin=${item.name}&mode=still`;
+          img.alt = '';
+          img.loading = 'lazy';
+          art.append(img);
+          card.append(art);
+        } else {
+          const img = el('img', 'preview');
+          img.src = `/api?${new URLSearchParams({ theme: item.name, preview: 'open', skin: shop.equipped ?? 'plain' })}`;
+          img.alt = `${name} 테마 미리보기`;
+          img.loading = 'lazy';
+          card.append(img);
+        }
+        card.append(el('h3', '', name), el('p', 'desc', desc));
+        if (item.kind === 'skin' && !isOwned && unlockedThisYear.has(item.name)) {
+          card.append(el('p', 'desc', '✨ 올해 업적으로 해금됐어요. 사 두면 내년에도 계속 가져요.'));
+        }
+
+        const actions = el('div', 'actions');
+        if (!isOwned) actions.append(el('span', 'price', won(item.price)));
+        actions.append(actionButton(item, { isOwned, isUsing, balance }));
+        card.append(actions);
+        lists[item.kind].append(card);
+      }
+
+      // 테마를 장착했으면 기본(다크/라이트)으로 돌아가는 버튼
+      if (shop.theme) {
+        const reset = el('button', 'btn small ghost', '기본 테마(README 설정)로 돌아가기');
+        reset.type = 'button';
+        reset.addEventListener('click', () => equip({ kind: 'theme', name: null }, reset));
+        const card = el('article', 'item');
+        card.append(el('h3', '', '다크 / 라이트'), el('p', 'desc', 'README에 적힌 theme= 설정을 따라요.'), reset);
+        lists.theme.append(card);
+      }
+    }
+
+    function actionButton(item, { isOwned, isUsing, balance }) {
+      const button = el('button', 'btn small');
+      button.type = 'button';
+      if (!shop.loggedIn) {
+        const login = el('a', 'btn small ghost', '로그인하고 사기');
+        login.href = '/api/auth/login?next=/shop.html';
+        return login;
+      }
+      if (isOwned) {
+        button.textContent = isUsing ? '올라가 있어요' : '장착하기';
+        button.disabled = isUsing;
+        button.addEventListener('click', () => equip(item, button));
+        return button;
+      }
+      if (!shop.wallet) {
+        button.textContent = '포인트 확인 중이에요';
+        button.disabled = true;
+        return button;
+      }
+      if (balance < item.price) {
+        button.textContent = `${won(item.price - balance)} 더 모아야 해요`;
+        button.disabled = true;
+        return button;
+      }
+      // 두 번 눌러야 산다: "사기" → "정말 살까요?"
+      if (confirming === item.id) {
+        button.classList.add('confirm');
+        button.textContent = `정말 살까요? (${won(item.price)})`;
+        button.addEventListener('click', () => buy(item, button));
+      } else {
+        button.textContent = '사기';
+        button.addEventListener('click', () => { confirming = item.id; renderItems(); });
+      }
+      return button;
+    }
+
+    async function buy(item, button) {
+      button.disabled = true;
+      button.textContent = '사는 중…';
+      try {
+        await post('/api/shop', { action: 'buy', item: item.id });
+        confirming = null;
+        toast(`🎉 ${NAMES[item.id]?.[0] ?? item.name}을(를) 샀어요! '장착하기'를 누르면 위젯에 올라가요.`);
+        await load();
+      } catch (error) {
+        confirming = null;
+        button.textContent = error.message;
+        setTimeout(renderItems, 2200);
+      }
+    }
+
+    async function equip(item, button) {
+      button.disabled = true;
+      button.textContent = '올리는 중…';
+      try {
+        await post('/api/me', item.kind === 'skin' ? { skin: item.name } : { theme: item.name });
+        toast(item.name ? '장착했어요! 프로필 위젯에는 몇 분 안에 반영돼요.' : '기본 테마로 돌아갔어요.');
+        await load();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = error.message;
+      }
+    }
+
+    async function load() {
+      try {
+        shop = await (await fetch('/api/shop', { cache: 'no-store' })).json();
+      } catch {
+        shop = { items: [], loggedIn: false };
+        document.getElementById('notice').replaceChildren(el('p', 'notice', '상점 문을 열지 못했어요. 잠시 후 새로고침해 주세요.'));
+      }
+      renderTop();
+      renderItems();
+      // 올해 업적으로 해금한 스킨은 도감 정보에서 알 수 있다. (조금 늦게 와도 다시 그린다)
+      if (shop.loggedIn) {
+        fetch('/api/me', { cache: 'no-store' }).then((r) => r.json()).then((data) => { me = data; renderItems(); }).catch(() => {});
+      }
+    }
+
+    const error = new URLSearchParams(location.search).get('login_error');
+    if (error && ERRORS[error]) {
+      document.getElementById('notice').replaceChildren(el('p', 'notice', ERRORS[error]));
+    }
+    setupHeader();
+    load().then(() => {
+      if (location.hash) document.getElementById(location.hash.slice(1).replace(':', '-'))?.scrollIntoView({ block: 'center' });
+    });
+  </script>
+</body>
+</html>

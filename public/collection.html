@@ -71,8 +71,9 @@
         <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
       </a>
       <nav class="site-nav" aria-label="메뉴">
-        <a class="wide" href="/#recipe">레시피</a>
+        <a class="wide" href="/#story">이야기</a>
         <a class="wide" href="/skins.html">진열대</a>
+        <a class="wide" href="/shop.html">상점</a>
         <a class="wide" href="/collection.html" aria-current="page">내 도감</a>
         <span id="account-slot"></span>
       </nav>
@@ -118,6 +119,8 @@
       deer: { name: '사슴 쿠키', rule: '12월에 기여 30개' },
       santa: { name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
     };
+    // 상점에서 파는 스킨과 가격 (src/shop.js와 같은 내용)
+    const SALE = { choco: 500, cat: 1200, dog: 1200, rabbit: 1200, matcha: 1500 };
     const ERRORS = {
       state: '로그인 확인에 실패했어요. 다시 로그인해 주세요.',
       login: 'GitHub 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.',
@@ -158,7 +161,7 @@
         card.append(
           img,
           el('h2', '', '내 쿠키 상자를 열어 볼까요?'),
-          el('p', '', 'GitHub 아이디만 확인해요. 저장소나 비공개 정보에는 접근하지 않고, 저장하는 건 아이디와 장착한 쿠키뿐이에요.'),
+          el('p', '', 'GitHub 아이디만 확인해요. 저장소나 비공개 정보에는 접근하지 않고, 저장하는 건 아이디와 장착한 쿠키, 상점 포인트 기록뿐이에요.'),
           login,
         );
         top.append(card);
@@ -218,7 +221,7 @@
         img.alt = '';
         img.loading = 'lazy';
         art.append(img);
-        box.append(art, el('h3', '', info.name), el('p', 'rule', info.rule));
+        box.append(art, el('h3', '', info.name), el('p', 'rule', skin.bought ? `${info.rule} · 상점에서 산 쿠키 🛍️` : info.rule));
 
         if (me.loggedIn && !skin.unlocked && skin.goal) {
           const bar = el('div', 'bar');
@@ -226,6 +229,11 @@
           fill.style.width = `${Math.round((skin.current / skin.goal) * 100)}%`;
           bar.append(fill);
           box.append(bar, el('p', 'progress', `${skin.current} / ${skin.goal} ${skin.unit}`));
+          if (SALE[skin.id]) {
+            const shop = el('a', 'btn small ghost', `상점에서 ${SALE[skin.id].toLocaleString('ko-KR')}P에 데려오기`);
+            shop.href = `/shop.html#skin-${skin.id}`;
+            box.append(shop);
+          }
         }
         if (me.loggedIn && skin.unlocked) {
           const isEquipped = me.equipped === skin.id;

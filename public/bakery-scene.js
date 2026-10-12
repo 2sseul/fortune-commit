@@ -22,7 +22,7 @@ const CHATTER = [
   '반죽은 매일 하는 게 제일 맛있대요.',
 ];
 
-export function setupScene({ skins, getFortune }) {
+export function setupScene({ skins, getFortune, onOpen }) {
   const scene = document.getElementById('scene');
   const mascot = document.getElementById('mascot');
   const bubble = document.getElementById('bubble');
@@ -181,6 +181,7 @@ export function setupScene({ skins, getFortune }) {
       bounce();
       say(opened ? '같은 날엔 몇 번을 열어도 같은 운세예요.' : '짜잔! 오늘의 운세가 나왔어요!');
       opened = true;
+      onOpen?.(fortune, api);
     }, 550);
     setTimeout(() => {
       showSlip({
@@ -192,7 +193,17 @@ export function setupScene({ skins, getFortune }) {
     }, 1150);
   });
 
+  // 접시 위에 포인트가 폴짝 떠오른다. (출석 보상)
+  function points(text) {
+    const pop = document.createElement('span');
+    pop.className = 'points-pop';
+    pop.textContent = text;
+    spot.append(pop);
+    setTimeout(() => pop.remove(), 1800);
+  }
+
   // 처음 들어오면 반죽이가 인사한다.
   setTimeout(() => say(CHATTER[0], 3600), 700);
-  return { say };
+  const api = { say, points };
+  return api;
 }

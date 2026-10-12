@@ -9,7 +9,8 @@
 //   user  : GitHub 아이디. 아이디 + 날짜로 그날의 운세가 정해진다. (없으면 공통 운세, 잠금 없음)
 //   lang  : ko(기본) 또는 en
 //   tz    : 하루가 바뀌는 기준 시간대. 기본은 Asia/Seoul (예: UTC, America/New_York)
-//   theme : dark(기본) 또는 light
+//   theme : dark(기본) 또는 light. 위젯 주인이 상점에서 산 테마를 장착했으면 그 테마가 우선한다. (v2.2)
+//           디저트 테마(vanilla, strawberry, mintchoco, blueberry, darkchoco)는 preview와 함께일 때만 주소로 볼 수 있다.
 //   width : 위젯 너비 400 ~ 800 (기본 495)
 //   radius : 모서리 둥글기 0 ~ 30 (기본 10)
 //   hide_border : true면 테두리 선을 숨긴다
@@ -27,7 +28,6 @@ import { resolveWidget } from '../src/widget-data.js';
 export default async function handler(req, res) {
   // 주소 뒤의 옵션을 읽는다.
   const { searchParams } = new URL(req.url, 'http://localhost');
-  const theme = getTheme(searchParams.get('theme'));
   const style = parseStyleOptions(searchParams);
 
   // 오늘의 운세·잠금·스킨 정하기 (사이트 첫 화면의 큰 쿠키와 같은 규칙, src/widget-data.js)
@@ -39,6 +39,9 @@ export default async function handler(req, res) {
     preview: searchParams.get('preview'),
   });
   const en = widget.lang === 'en';
+  const theme = widget.theme
+    ? getTheme(widget.theme, { allowShop: true })
+    : getTheme(searchParams.get('theme'), { allowShop: Boolean(searchParams.get('preview')) });
 
   const svg = widget.locked
     ? renderClosedCard({

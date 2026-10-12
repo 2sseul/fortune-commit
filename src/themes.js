@@ -44,7 +44,44 @@ export const themes = {
   },
 };
 
+// 쿠키 상점에서 파는 디저트 테마 (v2.2). 상점에서 사서 장착해야 위젯에 나온다.
+// 밝은 바탕 테마는 쪽지 종이를 조금 진하게 한다. (light 테마와 같은 이유)
+export const shopThemes = {
+  vanilla: { // 바닐라 크림
+    window: '#FFF8EC', titlebar: '#F3E6CF', border: '#E3CFAE', titleText: '#9C8463',
+    text: '#4A3727', prompt: '#C98A2E', fortune: '#8A5A1F', key: '#B5651D',
+    operator: '#A08C72', value: '#D9822B', cursor: '#4A3727',
+    cookie: { ...cookie, P: '#F1DDB0' },
+  },
+  strawberry: { // 딸기우유
+    window: '#FFF0F4', titlebar: '#FBDCE5', border: '#F2BACA', titleText: '#B9798B',
+    text: '#5A2E3A', prompt: '#E0567A', fortune: '#C2335B', key: '#D2648A',
+    operator: '#B9798B', value: '#E06C5A', cursor: '#5A2E3A',
+    cookie: { ...cookie, P: '#F6E2C0' },
+  },
+  mintchoco: { // 민트초코
+    window: '#2B1D18', titlebar: '#3A2820', border: '#4E3A2F', titleText: '#A9D9C9',
+    text: '#E9FFF7', prompt: '#6FE0C0', fortune: '#9EF0D8', key: '#6FE0C0',
+    operator: '#8C7466', value: '#F6C9A8', cursor: '#9EF0D8',
+    cookie,
+  },
+  blueberry: { // 블루베리 요거트
+    window: '#F4F2FF', titlebar: '#E3DEFA', border: '#CBC3F0', titleText: '#7E74B8',
+    text: '#2F2A55', prompt: '#6C5CE7', fortune: '#5546C9', key: '#7B6FD6',
+    operator: '#8E86B8', value: '#C05A9A', cursor: '#2F2A55',
+    cookie: { ...cookie, P: '#F1DDB0' },
+  },
+  darkchoco: { // 다크 초콜릿
+    window: '#1E1410', titlebar: '#2A1C16', border: '#3D2A20', titleText: '#A48A78',
+    text: '#F3E3D3', prompt: '#E0A060', fortune: '#F5D08A', key: '#E7B98E',
+    operator: '#8E7262', value: '#F28C5A', cursor: '#F3E3D3',
+    cookie,
+  },
+};
+
 // 테마 이름을 받아 테마 객체를 돌려준다. 모르는 이름이면 다크 테마를 쓴다.
-export function getTheme(name) {
-  return themes[name] ?? themes.dark;
+// 디저트 테마는 산 사람이 장착했을 때와 미리보기(allowShop)에서만 쓴다.
+export function getTheme(name, { allowShop = false } = {}) {
+  if (allowShop && Object.hasOwn(shopThemes, name)) return shopThemes[name];
+  return Object.hasOwn(themes, name) ? themes[name] : themes.dark;
 }

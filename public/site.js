@@ -38,7 +38,7 @@ export async function setupHeader() {
 
   const menu = document.createElement('ul');
   menu.hidden = true;
-  for (const [label, href] of [['내 도감', '/collection.html'], ['스킨 진열대', '/skins.html'], ['로그아웃', '/api/auth/logout']]) {
+  for (const [label, href] of [['내 도감', '/collection.html'], ['쿠키 상점', '/shop.html'], ['스킨 진열대', '/skins.html'], ['로그아웃', '/api/auth/logout']]) {
     const li = document.createElement('li');
     const a = document.createElement('a');
     a.href = href;

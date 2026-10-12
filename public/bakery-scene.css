@@ -84,6 +84,10 @@
 .wiggle { animation: wiggle 0.5s; }
 @keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
 
+/* 출석 포인트 (+30P)가 접시 위로 떠오른다 */
+.points-pop { position: absolute; left: 50%; top: -2cqw; padding: 0.3cqw 1.2cqw; background: #f5c21b; color: #5c3310; border: 0.25cqw solid #5c3310; border-radius: 999px; font-family: 'Jua', sans-serif; font-size: max(12px, 2cqw); white-space: nowrap; pointer-events: none; animation: points-up 1.8s ease-out forwards; z-index: 4; }
+@keyframes points-up { 0% { transform: translate(-50%, 1cqw) scale(0.6); opacity: 0; } 20% { transform: translate(-50%, -1cqw) scale(1.1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(-50%, -6cqw) scale(1); opacity: 0; } }
+
 /* ---------- 커피 김 (그림 속 커피잔 위) ---------- */
 .steam-px { position: absolute; left: 88.6%; top: 50%; display: flex; gap: 0.6cqw; pointer-events: none; }
 .steam-px img { width: 0.9cqw; opacity: 0; image-rendering: pixelated; animation: steam-up 3s ease-in-out infinite; filter: brightness(1.6) saturate(0.2); }
