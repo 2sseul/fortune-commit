@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="452" viewBox="130 48 340 452">
+<style>
+  .body, .eyes, .arm, .part { transform-box: fill-box; }
+  .body { transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
+  .eyes { transform-origin: center; animation: blink 4.8s infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.08); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  .body { animation: breathe 3s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.025, 0.975); } }
+  .hat { transform-box: fill-box; transform-origin: 50% 100%; animation: hat 3s ease-in-out infinite; }
+  @keyframes hat { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-4deg); } 60% { transform: rotate(3deg); } }
+  .pupils { animation: look 6s ease-in-out infinite; }
+  @keyframes look { 0%, 20%, 100% { transform: translate(0, 0); } 30%, 45% { transform: translate(-7px, -2px); } 55%, 75% { transform: translate(7px, -2px); } }
+  .plate { transform-box: fill-box; transform-origin: center; animation: plate 3s ease-in-out infinite 0.4s; }
+  @keyframes plate { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  .hop { transform-box: fill-box; transform-origin: 50% 100%; animation: hop 3s ease-in-out infinite 1.2s; }
+  @keyframes hop { 0%, 55%, 100% { transform: translateY(0) rotate(0); } 68% { transform: translateY(-16px) rotate(-10deg); } 80% { transform: translateY(0) rotate(3deg); } 86% { transform: scale(1.06, 0.94); } }
+</style>
+
+  <ellipse cx="300" cy="490" rx="150" ry="16" fill="#000" opacity="0.08"/>
+  <g class="body">
+    <path d="M150 360c0-110 66-170 150-170s150 60 150 170c0 80-60 126-150 126S150 440 150 360z" fill="#FFE2B0"/>
+    <path d="M150 360c0 80 60 126 150 126s150-46 150-126c0 30-50 96-150 96s-150-66-150-96z" fill="#F3C988"/>
+    <g class="hat">
+      <rect x="214" y="168" width="172" height="44" rx="16" fill="#FFFFFF"/>
+      <rect x="214" y="196" width="172" height="16" rx="8" fill="#EDE4D6"/>
+      <circle cx="232" cy="140" r="42" fill="#FFFFFF"/>
+      <circle cx="300" cy="112" r="54" fill="#FFFFFF"/>
+      <circle cx="368" cy="140" r="42" fill="#FFFFFF"/>
+      <path d="M200 150c6 20 22 30 40 30h120c18 0 34-10 40-30 0 26-18 40-40 40H240c-22 0-40-14-40-40z" fill="#EDE4D6"/>
+    </g>
+    <g class="eyes" style="animation-delay:3.2s">
+      <ellipse cx="256" cy="292" rx="30" ry="36" fill="#FFFFFF"/>
+      <ellipse cx="344" cy="292" rx="30" ry="36" fill="#FFFFFF"/>
+      <g class="pupils">
+        <ellipse cx="262" cy="300" rx="16" ry="20" fill="#4B3621"/>
+        <ellipse cx="338" cy="300" rx="16" ry="20" fill="#4B3621"/>
+        <circle cx="268" cy="292" r="6" fill="#FFFFFF"/>
+        <circle cx="344" cy="292" r="6" fill="#FFFFFF"/>
+      </g>
+    </g>
+    <ellipse cx="214" cy="340" rx="20" ry="12" fill="#FFB3C0"/>
+    <ellipse cx="386" cy="340" rx="20" ry="12" fill="#FFB3C0"/>
+    <path d="M272 344q28 34 56 0z" fill="#6B3D17"/>
+    <path d="M286 356q14 10 28 0q-6-8-14-8t-14 8z" fill="#FF5C7A"/>
+    <g class="plate">
+      <ellipse cx="300" cy="420" rx="96" ry="22" fill="#FFFFFF"/>
+      <ellipse cx="300" cy="426" rx="96" ry="18" fill="#E9E2D8"/>
+      <ellipse cx="300" cy="418" rx="72" ry="13" fill="#FFFFFF"/>
+      <ellipse cx="200" cy="418" rx="26" ry="20" fill="#FFE2B0"/>
+      <ellipse cx="400" cy="418" rx="26" ry="20" fill="#FFE2B0"/>
+      <g class="hop"><svg x="268" y="350" width="64" height="72" viewBox="-10 -50 260 290">
+  <defs>
+    <clipPath id="dough-cf"><path d="M120 12 C78 10 30 40 14 84 C2 118 12 160 42 188 C64 208 96 220 124 216 C140 214 146 204 144 194 C142 168 136 144 128 114 C120 84 112 58 114 36 C115 24 118 16 120 12 Z"/></clipPath>
+    <clipPath id="dough-cb"><path d="M120 12 C154 16 196 48 212 88 C222 112 222 138 210 152 C196 166 168 166 146 156 C130 132 116 106 108 80 C102 58 104 32 120 12 Z"/></clipPath>
+  </defs>
+  
+  <g id="dough-back">
+    <path d="M120 12 C154 16 196 48 212 88 C222 112 222 138 210 152 C196 166 168 166 146 156 C130 132 116 106 108 80 C102 58 104 32 120 12 Z" fill="#E39A30"/>
+    <g clip-path="url(#dough-cb)">
+      <path d="M100 150 C140 176 190 170 232 130 L232 240 L100 240 Z" fill="#C97D1E"/>
+      
+    </g>
+  </g>
+  <path id="dough-fold" d="M128 118 C136 140 142 160 146 158 C152 152 150 140 146 132 Z" fill="#9E5A14"/>
+  
+  <g id="dough-front">
+    <path d="M120 12 C78 10 30 40 14 84 C2 118 12 160 42 188 C64 208 96 220 124 216 C140 214 146 204 144 194 C142 168 136 144 128 114 C120 84 112 58 114 36 C115 24 118 16 120 12 Z" fill="#F5B041"/>
+    <g clip-path="url(#dough-cf)">
+      <path d="M0 150 C40 196 110 206 160 170 L160 240 L0 240 Z" fill="#E0912A"/>
+      
+    </g>
+    <path d="M44 74 C56 52 78 38 98 34" stroke="#FFD98A" stroke-width="12" stroke-linecap="round" fill="none"/>
+  </g>
+  
+</svg></g>
+    </g>
+  </g>
+</svg>

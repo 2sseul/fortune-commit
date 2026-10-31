@@ -1,13 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="160" height="240" viewBox="0 0 160 240">
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="240" viewBox="-6 0 172 240">
+<style>
+  .body, .eyes, .arm, .part { transform-box: fill-box; }
+  .body { transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
+  .eyes { transform-origin: center; animation: blink 4.8s infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes blink { 0%, 91%, 97%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.08); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  .arm { transform-box: view-box; animation: cheer 1.2s ease-in-out infinite; }
+  .arm.l { transform-origin: 28px 160px; }
+  .arm.r { transform-origin: 132px 160px; animation-delay: 0.6s; }
+  @keyframes cheer { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-22deg); } }
+  .arm.r { animation-name: cheer-r; }
+  @keyframes cheer-r { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(22deg); } }
+  .body { animation-duration: 1.2s; }
+</style>
+
   <ellipse cx="80" cy="230" rx="56" ry="8" fill="#000" opacity="0.08"/>
+  <g class="body">
+  <path class="arm l" d="M28 160 L6 140" stroke="#E6EEF5" stroke-width="12" stroke-linecap="round"/><path class="arm r" d="M132 160 L154 138" stroke="#E6EEF5" stroke-width="12" stroke-linecap="round"/>
   <path d="M28 70 L80 30 L132 70 L132 220 Q132 228 124 228 L36 228 Q28 228 28 220 Z" fill="#E6EEF5"/>
   <path d="M28 70 L80 30 L132 70 L132 214 Q132 222 124 222 L36 222 Q28 222 28 214 Z" fill="#FFFFFF"/>
   <path d="M28 70 L80 30 L80 48 L28 86 Z" fill="#E6EEF5"/>
   <rect x="64" y="12" width="32" height="24" rx="4" fill="#4FB8F5"/>
   <rect x="28" y="150" width="104" height="44" fill="#4FB8F5"/>
   <rect x="28" y="186" width="104" height="8" fill="#2B93CF"/>
-  <ellipse cx="58" cy="112" rx="11" ry="12.649999999999999" fill="#FFFFFF"/><ellipse cx="102" cy="112" rx="11" ry="12.649999999999999" fill="#FFFFFF"/><ellipse cx="61" cy="116" rx="6.050000000000001" ry="7.15" fill="#3B2A1F"/><ellipse cx="105" cy="116" rx="6.050000000000001" ry="7.15" fill="#3B2A1F"/><circle cx="64" cy="112" r="2.42" fill="#FFFFFF"/><circle cx="108" cy="112" r="2.42" fill="#FFFFFF"/>
+  <g class="eyes" style="animation-delay:2.6s"><ellipse cx="58" cy="112" rx="11" ry="12.649999999999999" fill="#FFFFFF"/><ellipse cx="102" cy="112" rx="11" ry="12.649999999999999" fill="#FFFFFF"/><ellipse cx="61" cy="116" rx="6.050000000000001" ry="7.15" fill="#3B2A1F"/><ellipse cx="105" cy="116" rx="6.050000000000001" ry="7.15" fill="#3B2A1F"/><circle cx="64" cy="112" r="2.42" fill="#FFFFFF"/><circle cx="108" cy="112" r="2.42" fill="#FFFFFF"/></g>
   <ellipse cx="50" cy="132" rx="9" ry="5" fill="#FFB3C0"/><ellipse cx="110" cy="132" rx="9" ry="5" fill="#FFB3C0"/>
   <path d="M72 130 Q80 138 88 130" stroke="#3B2A1F" stroke-width="4" stroke-linecap="round" fill="none"/>
-  <path d="M28 160 L6 140" stroke="#E6EEF5" stroke-width="12" stroke-linecap="round"/><path d="M132 160 L154 138" stroke="#E6EEF5" stroke-width="12" stroke-linecap="round"/>
+  </g>
 </svg>

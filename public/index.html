@@ -7,7 +7,7 @@
   <meta name="description" content="오늘 커밋한 개발자에게만 열리는 GitHub README 포춘쿠키 위젯">
   <link rel="icon" href="/cookies/plain.svg">
   <link rel="modulepreload" href="/site.js">
-  <link rel="preload" as="image" href="/img/illust/hero-cast.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="/img/illust/dough.svg" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&family=Nunito:wght@800;900&family=JetBrains+Mono&display=swap">
@@ -17,7 +17,15 @@
 
     /* ---------- 첫 화면: 캐릭터 장면 + 제목 ---------- */
     .hero .wrap { display: grid; grid-template-columns: minmax(0, 640px) minmax(0, 1fr); gap: 48px; align-items: center; padding-top: 48px; padding-bottom: 64px; }
-    .hero-art { width: 100%; height: auto; display: block; }
+    /* 첫 화면 장면: 부품을 Figma 위치(%)에 겹쳐 놓는다 */
+    .scene { position: relative; width: 100%; aspect-ratio: 640 / 520; }
+    .scene > * { position: absolute; margin: 0; height: auto; }
+    .scene .blob { aspect-ratio: 620 / 460; }
+    .scene img { display: block; transform: translate(calc(var(--mx, 0) * var(--k, 0) * 1px), calc(var(--my, 0) * var(--k, 0) * 1px)); transition: transform 0.4s ease-out; }
+    .scene .depth-1 { --k: 6; } .scene .depth-2 { --k: 10; } .scene .depth-3 { --k: 14; } .scene .depth-4 { --k: 22; }
+    .hero { overflow-x: clip; } /* 노트북 팔·말풍선이 좁은 화면에서 가로로 넘치지 않게 */
+    @media (max-width: 760px) { .bubble { max-width: 50%; white-space: normal !important; text-wrap: balance; text-align: center; padding: 8px 12px !important; border-radius: 14px !important; } }
+    .bubble { width: auto; padding: 14px 20px; border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 18px; background: var(--paper); font: 400 clamp(11px, 2.4vw, 16px)/1.3 var(--body); color: var(--text); white-space: nowrap; transform-origin: 20% 100%; }
     .hero-text { display: grid; gap: 24px; }
     .hero-text .lead { font-size: clamp(15px, 1.8vw, 17px); color: var(--text-2); }
     .hero-buttons { display: grid; gap: 16px; max-width: 520px; }
@@ -33,7 +41,22 @@
     /* ---------- 이야기: 캐릭터 3단계 카드 ---------- */
     .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
     .step { display: grid; gap: 16px; align-content: start; }
-    .step img { width: 100%; height: auto; aspect-ratio: 340 / 220; border-radius: var(--r-md); display: block; }
+    /* 이야기 무대: Figma Stage(340×220)의 부품을 같은 위치(%)에 */
+    .story-stage { position: relative; aspect-ratio: 340 / 220; border-radius: var(--r-md); background: var(--bg); overflow: hidden; }
+    .story-stage .char { position: absolute; height: auto; }
+    .chip { position: absolute; top: 12px; left: 12px; z-index: 2; display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: var(--r-pill); background: var(--caramel); color: #FFF3E2; font: 12px/1 var(--mono); }
+    .chip.clock { display: grid; }
+    .chip.clock span { grid-area: 1 / 1; animation: tick 4s steps(1) infinite; }
+    .chip.clock span + span { animation-delay: -2s; }
+    @keyframes tick { 0% { opacity: 1; } 50% { opacity: 0; } }
+    .caret { display: inline-block; width: 6px; height: 12px; margin-left: 3px; background: #FFF3E2; animation: caret 1s steps(1) infinite; }
+    @keyframes caret { 50% { opacity: 0; } }
+    .commit-dot { position: absolute; left: var(--x); top: 38%; width: 10px; height: 10px; border-radius: 50%; background: var(--mint); opacity: 0; animation: commit 2.7s ease-out infinite var(--delay); }
+    @keyframes commit { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-70px) scale(1.1); opacity: 0; } }
+    .story-slip { position: absolute; z-index: 1; padding: 10px 14px; border-radius: 16px; background: #fff; box-shadow: 0 2px 0 rgb(0 0 0 / 0.06); font: 700 clamp(12px, 1.5vw, 17px)/1.3 var(--note); color: var(--text); white-space: nowrap; transform: rotate(-4deg); transform-origin: 0 100%; animation: slip-out 4.5s cubic-bezier(0.2, 0.8, 0.3, 1.2) infinite; }
+    @keyframes slip-out { 0%, 8% { transform: translate(-30%, 90%) rotate(-4deg) scale(0.2); opacity: 0; } 30%, 85% { transform: rotate(-4deg); opacity: 1; } 100% { transform: rotate(-4deg); opacity: 0; } }
+    .story-stage .crack { transform-origin: 50% 90%; animation: crack 4.5s ease-in-out infinite; }
+    @keyframes crack { 0%, 100% { transform: rotate(0); } 4% { transform: rotate(-7deg); } 8% { transform: rotate(6deg); } 12% { transform: rotate(-3deg); } 16% { transform: rotate(0); } }
     .step h3 { display: flex; align-items: center; gap: 10px; }
     .step h3 b { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--caramel); color: #fff; font: 900 14px/1 var(--number); }
     @media (max-width: 860px) { .steps { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
@@ -159,8 +182,16 @@
     @media (max-width: 760px) { .cta-cards { grid-template-columns: minmax(0, 1fr); gap: 12px; } .cta-cards .card { padding: 20px; } }
 
     /* ---------- 움직임 (메인) ---------- */
-    .hero-art { animation: float 5s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .scene .float { cursor: pointer; animation: drift var(--d) ease-in-out infinite var(--delay); }
+    @keyframes drift { 0%, 100% { rotate: var(--r); translate: 0 0; } 50% { rotate: calc(var(--r) + 10deg); translate: 0 -14px; } }
+    .scene .float.spin { animation: spin 0.7s cubic-bezier(0.2, 0.8, 0.3, 1); }
+    @keyframes spin { from { rotate: var(--r); } to { rotate: calc(var(--r) + 360deg); } }
+    .scene .spark { animation: twinkle 2.2s ease-in-out infinite var(--delay); }
+    @keyframes twinkle { 0%, 100% { scale: 0.55; rotate: 0deg; opacity: 0.6; } 50% { scale: 1.15; rotate: 45deg; opacity: 1; } }
+    .bubble { animation: bubble-in 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.4) 0.4s backwards, bubble-bob 3.4s ease-in-out 1s infinite; }
+    @keyframes bubble-in { from { scale: 0.4; opacity: 0; } }
+    @keyframes bubble-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+    .bubble.swap { animation: bubble-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.4); }
     .streak-card .flame { transform-origin: 50% 90%; animation: flicker 1.6s ease-in-out infinite; }
     @keyframes flicker { 0%, 100% { transform: scale(1) rotate(0); } 30% { transform: scale(1.06, 0.96) rotate(-3deg); } 60% { transform: scale(0.97, 1.05) rotate(2deg); } }
     .heat i { transition: transform 0.3s; }
@@ -197,7 +228,21 @@
     <!-- 첫 화면 (Figma Hero) -->
     <section class="hero">
       <div class="wrap">
-        <img class="hero-art" fetchpriority="high" src="/img/illust/hero-cast.webp" width="640" height="508" alt="요리사 모자를 쓴 반죽, 오븐, 노트북, 우유갑 캐릭터가 포춘쿠키를 들고 모여 있는 그림">
+        <div class="hero-art scene" id="scene" role="img" aria-label="요리사 모자를 쓴 반죽이, 오븐이, 노트북 커밋이, 우유가 포춘쿠키를 들고 모여 있는 그림">
+          <!-- Figma 'Illustration · Cast'(640×520)의 부품을 같은 위치에 놓고 하나씩 움직인다. 캐릭터 SVG 안에도 움직임이 들어 있다. -->
+          <svg class="blob" viewBox="0 0 620 460" style="left:1.56%;top:7.69%;width:96.88%" aria-hidden="true"><path transform="translate(3 10)" fill="#FFE7B0" d="M307.1 0C447.1 0 577.1 50 603.1 160C629.1 270 573.1 380 453.1 420C333.1 460 153.1 460 63.1 400C-26.9 340-2.9 290 27.1 180C57.1 70 167.1 0 307.1 0Z"/></svg>
+          <img class="char depth-1" src="/img/illust/oven.svg" alt="" style="left:4.69%;top:36.54%;width:33.12%;--r:0deg">
+          <img class="char depth-1" src="/img/illust/laptop.svg" alt="" style="left:67.19%;top:42.69%;width:33.91%;--r:0deg">
+          <img class="char depth-2" src="/img/illust/dough.svg" alt="" style="left:25.78%;top:21.15%;width:45.94%;--r:0deg">
+          <img class="char depth-3" src="/img/illust/milk.svg" alt="" style="left:72.81%;top:69.23%;width:16.88%;--r:0deg">
+          <img class="float depth-4" src="/cookies/javascript.svg" alt="" style="left:9.38%;top:11.54%;width:8.91%;--r:12deg;--d:5.2s;--delay:0s">
+          <img class="float depth-4" src="/cookies/cat.svg" alt="" style="left:87.50%;top:1.92%;width:9.84%;--r:-10deg;--d:6s;--delay:-1.5s">
+          <img class="float depth-4" src="/cookies/grass.svg" alt="" style="left:51.56%;top:1.92%;width:7.81%;--r:0deg;--d:4.6s;--delay:-3s">
+          <img class="float depth-4" src="/cookies/gacha-strawberry.svg" alt="" style="left:0.00%;top:80.77%;width:8.44%;--r:8deg;--d:5.6s;--delay:-2s">
+          <img class="float depth-4" src="/cookies/owl.svg" alt="" style="left:92.19%;top:57.69%;width:7.34%;--r:-14deg;--d:4.8s;--delay:-0.8s">
+          <svg class="spark" viewBox="0 0 30 30" style="left:31.25%;top:11.54%;width:4.69%;--delay:0s" aria-hidden="true"><path d="M15 0C15.75 11.25 18.75 14.25 30 15C18.75 15.75 15.75 18.75 15 30C14.25 18.75 11.25 15.75 0 15C11.25 14.25 14.25 11.25 15 0Z" fill="#FF9F1A"/></svg><svg class="spark" viewBox="0 0 30 30" style="left:71.88%;top:28.85%;width:3.75%;--delay:-0.7s" aria-hidden="true"><path d="M15 0C15.75 11.25 18.75 14.25 30 15C18.75 15.75 15.75 18.75 15 30C14.25 18.75 11.25 15.75 0 15C11.25 14.25 14.25 11.25 15 0Z" fill="#FFD43B"/></svg><svg class="spark" viewBox="0 0 30 30" style="left:20.31%;top:63.46%;width:3.12%;--delay:-1.4s" aria-hidden="true"><path d="M15 0C15.75 11.25 18.75 14.25 30 15C18.75 15.75 15.75 18.75 15 30C14.25 18.75 11.25 15.75 0 15C11.25 14.25 14.25 11.25 15 0Z" fill="#4FB8F5"/></svg>
+          <p class="bubble" id="bubble" style="left:46.88%;top:18.46%">오늘 커밋했다면 쿠키를 열어 봐요!</p>
+        </div>
         <div class="hero-text">
           <div class="stats" id="hero-stats"></div>
           <h1 class="display lines"><span>오늘 커밋해야</span><span>열리는 포춘쿠키</span></h1>
@@ -221,17 +266,28 @@
         </div>
         <div class="steps">
           <article class="card step">
-            <img src="/img/illust/story-1.webp" width="340" height="220" alt="0시를 가리키는 시계 앞에서 오븐이 새 쿠키를 굽는 그림">
+            <div class="story-stage" style="--bg:#FFD43B" role="img" aria-label="0시가 되자 오븐이가 새 쿠키를 굽는 그림">
+              <span class="chip clock"><span>23:59</span><span>00:00</span></span>
+              <img class="char" src="/img/illust/oven.svg" alt="" style="left:25.59%;top:15.45%;width:48.82%">
+            </div>
             <h3 class="h3"><b>1</b>매일 0시, 새 쿠키</h3>
             <p class="small lines"><span>한국 시간 0시가 되면</span><span>오븐이가 새 쿠키를 구워요.</span><span>그날 쿠키는 닫힌 채로 기다려요.</span></p>
           </article>
           <article class="card step">
-            <img src="/img/illust/story-2.webp" width="340" height="220" alt="노트북이 git push를 하는 그림">
+            <div class="story-stage" style="--bg:#DDF4FF" role="img" aria-label="노트북 커밋이가 git push를 하는 그림">
+              <span class="chip">git push<i class="caret"></i></span>
+              <img class="char" src="/img/illust/laptop.svg" alt="" style="left:21.47%;top:11.82%;width:57.35%">
+              <i class="commit-dot" style="--x:48%;--delay:0s"></i><i class="commit-dot" style="--x:56%;--delay:0.9s"></i><i class="commit-dot" style="--x:42%;--delay:1.8s"></i>
+            </div>
             <h3 class="h3"><b>2</b>커밋 하나면 충분해요</h3>
             <p class="small lines"><span>push, PR, 이슈, 리뷰 중</span><span>하나만 해도 커밋이가 알려 줘요.</span><span>비공개 저장소도 곧 돼요.</span></p>
           </article>
           <article class="card step">
-            <img src="/img/illust/story-3.webp" width="340" height="220" alt="갈라진 포춘쿠키에서 운세 쪽지가 나오는 그림">
+            <div class="story-stage" style="--bg:#FFD9DF" role="img" aria-label="갈라진 포춘쿠키에서 운세 쪽지가 나오는 그림">
+              <span class="chip">오늘의 운세</span>
+              <p class="story-slip" style="left:28.53%;top:13.64%;width:66.76%">오늘 PR이 바로 승인될 거예요</p>
+              <img class="char crack" src="/cookies/plain-open.svg" alt="" style="left:18.53%;top:24.55%;width:39.41%">
+            </div>
             <h3 class="h3"><b>3</b>쿠키가 갈라져요</h3>
             <p class="small lines"><span>쿠키가 갈라지며</span><span>오늘의 운세와 행운 아이템이 나와요.</span><span>위젯에서도 똑같이 열려요.</span></p>
           </article>
@@ -428,6 +484,9 @@
       }
       daily = await dailyPromise;
       if (daily?.loggedIn) {
+        // 로그인했으면 '사이트에서 쿠키 열기' 퀘스트로 오늘 열었는지 안다. 아직 커밋 전이면 말풍선이 알려 준다.
+        if (daily.quests?.find((q) => q.id === 'open')?.done) markOpened();
+        else if (!daily.todayDone) say('오늘 커밋하면 쿠키가 열려요!');
         setHeaderStats({ streak: daily.streak, balance: daily.wallet?.balance });
         document.getElementById('hero-stats').replaceChildren(
           statChip('/img/icons/flame.svg', String(daily.streak), '일 연속'),
@@ -507,7 +566,52 @@
     }
     setInterval(updateReset, 60_000);
 
+    // ---------- 첫 화면 장면 움직임 ----------
+    const scene = document.getElementById('scene');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // 마우스를 움직이면 가까운 부품일수록 많이 따라 움직인다 (PC만)
+    if (!reduced && window.matchMedia('(pointer: fine)').matches) {
+      const hero = scene.closest('.hero');
+      hero.addEventListener('pointermove', (event) => {
+        const r = scene.getBoundingClientRect();
+        scene.style.setProperty('--mx', ((event.clientX - r.left) / r.width - 0.5).toFixed(3));
+        scene.style.setProperty('--my', ((event.clientY - r.top) / r.height - 0.5).toFixed(3));
+      });
+      hero.addEventListener('pointerleave', () => { scene.style.setProperty('--mx', 0); scene.style.setProperty('--my', 0); });
+    }
+    // 떠다니는 쿠키를 누르면 한 바퀴
+    for (const cookie of scene.querySelectorAll('.float')) {
+      cookie.addEventListener('click', () => {
+        cookie.classList.remove('spin');
+        void cookie.offsetWidth;
+        cookie.classList.add('spin');
+        cookie.addEventListener('animationend', () => cookie.classList.remove('spin'), { once: true });
+      });
+    }
+    function say(text) {
+      const bubble = document.getElementById('bubble');
+      if (bubble.textContent === text) return;
+      bubble.textContent = text;
+      bubble.classList.remove('swap');
+      void bubble.offsetWidth;
+      bubble.classList.add('swap');
+    }
+
     // ---------- 오늘의 쿠키 열기 ----------
+    // 오늘 이미 열었으면 버튼이 '오늘의 운세 확인하기'로 바뀌고, 누르면 쿠키를 다시 깨지 않고 바로 운세를 보여준다.
+    //   열었는지: 로그인했으면 오늘 출석(사이트에서 쿠키 열기 퀘스트), 아니면 이 브라우저에 남긴 기록
+    const seoulToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
+    const OPENED_KEY = `fc-opened-${seoulToday}`;
+    const readOpened = () => { try { return localStorage.getItem(OPENED_KEY) === '1'; } catch { return false; } };
+    let opened = readOpened();
+    function markOpened() {
+      opened = true;
+      try { localStorage.setItem(OPENED_KEY, '1'); } catch { /* 저장 못 해도 괜찮다 */ }
+      document.getElementById('open-cookie').textContent = '오늘의 운세 확인하기';
+      say('오늘의 운세가 기다리고 있어요!');
+    }
+    if (opened) markOpened();
+
     const dialog = document.getElementById('fortune-dialog');
     let fortunePromise = null;
     const getFortune = () => (fortunePromise ??= fetch('/api/fortune', { cache: 'no-store' }).then((r) => r.json()).catch(() => { fortunePromise = null; return null; }));
@@ -515,6 +619,7 @@
       dialog.showModal();
       const fortune = await getFortune();
       if (fortune?.skin) document.getElementById('fortune-img').src = cookieSrc(fortune.skin);
+      if (opened && fortune && !fortune.locked) reveal(fortune, { again: true });
     });
     document.getElementById('fortune-close').addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
@@ -524,15 +629,21 @@
       button.classList.add('shake');
       const [fortune] = await Promise.all([getFortune(), new Promise((r) => setTimeout(r, 1000))]);
       button.classList.remove('shake');
-      const result = document.getElementById('fortune-result');
       const hint = document.getElementById('fortune-hint');
       if (!fortune) { hint.textContent = '운세를 불러오지 못했어요. 잠시 후 다시 눌러 주세요.'; return; }
       if (fortune.locked) {
         hint.replaceChildren(el('span', { class: 'lines' }, el('span', { text: '아직 쿠키가 닫혀 있어요.' }), el('span', { text: '오늘 커밋하면 갈라져요!' })));
         return;
       }
-      button.classList.add('opened');
-      hint.hidden = true;
+      reveal(fortune);
+    });
+
+    // 운세 보여주기 (again: 오늘 이미 연 쿠키를 다시 볼 때는 흔들기 없이 바로)
+    async function reveal(fortune, { again = false } = {}) {
+      document.getElementById('fortune-cookie').classList.add('opened');
+      document.getElementById('fortune-title').textContent = again ? '오늘의 운세' : '오늘의 쿠키';
+      document.getElementById('fortune-hint').hidden = true;
+      const result = document.getElementById('fortune-result');
       const lucky = el('div', { class: 'lucky' }, ...fortune.lucky.map(({ key, value }) => el('div', {}, el('b', { text: key }), ` = "${value}"`)));
       result.replaceChildren(
         el('div', { style: 'display:flex;gap:8px;justify-content:center;margin-bottom:12px' },
@@ -541,6 +652,8 @@
         fortuneSlip(fortune.fortune, fortune.grade?.id === 'legend' ? 'legend' : ''),
         el('div', { style: 'height:12px' }), lucky);
       result.hidden = false;
+      if (again) return;
+      markOpened();
       // 출석: 로그인한 사람이 오늘 열린 쿠키를 열면 하루 한 번 +30
       if (fortune.user) {
         const { ok, data } = await postJson('/api/shop', { action: 'attend' });
@@ -549,7 +662,7 @@
           setHeaderStats({ streak: data.streak, balance: data.wallet.balance });
         }
       }
-    });
+    }
 
     // ---------- 포장하기 ----------
     const PACKAGES = [
