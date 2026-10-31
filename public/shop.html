@@ -191,7 +191,7 @@
   </dialog>
 
   <script type="module">
-    import { setupHeader, setHeaderStats, loadCatalog, cookieSrc, el, progressBar, postJson, toast, renderSidePanel } from '/site.js';
+    import { setupHeader, setHeaderStats, loadCatalog, cookieSrc, el, progressBar, postJson, toast, renderSidePanel, fortuneSlip } from '/site.js';
 
     // 상품 이름과 한 줄 설명 (가격은 서버의 src/shop.js에서 받아 온다)
     const THEME_NAMES = { vanilla: '바닐라 크림', strawberry: '딸기우유', mintchoco: '민트초코', blueberry: '블루베리 요거트', darkchoco: '다크 초콜릿' };
@@ -314,7 +314,7 @@
       confirming = null;
       if (!ok) { toast(data.error ?? '잠시 후 다시 시도해 주세요.'); renderAll(); return; }
       Object.assign(shop, data);
-      if (item.id === 'item:ai_fortune') showSheet('AI 점쟁이의 오늘 운세', [el('p', { class: 'slip', style: 'font:700 21px/1.4 var(--note);padding:16px;border:2px dashed #E5D3FF;border-radius:14px;background:var(--purple-tint);margin-bottom:16px', text: data.fortune }), el('p', { class: 'small', style: 'text-align:center;margin-bottom:16px', text: '오늘 위젯과 운세 일기에도 이 운세가 나와요.' })]);
+      if (item.id === 'item:ai_fortune') showSheet('AI 점쟁이의 오늘 운세', [Object.assign(fortuneSlip(data.fortune), { style: 'font:700 21px/1.4 var(--note);padding:16px;border:2px dashed #E5D3FF;border-radius:14px;background:var(--purple-tint);margin-bottom:16px;text-align:center' }), el('p', { class: 'small', style: 'text-align:center;margin-bottom:16px', text: '오늘 위젯과 운세 일기에도 이 운세가 나와요.' })]);
       else toast(item.kind === 'item' ? `${ITEM_NAME(item.name)}을(를) 샀어요!` : `${item.kind === 'skin' ? label(item.name) : THEME_NAMES[item.name]}을(를) 샀어요! 장착해 보세요`);
       renderAll();
     }

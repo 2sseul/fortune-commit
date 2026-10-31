@@ -92,6 +92,9 @@ h1, h2, h3, p { margin: 0; }
 .eyebrow { font: 700 13px/1 var(--body); letter-spacing: 0.18em; text-transform: uppercase; color: var(--caramel-dark); }
 .num { font-family: var(--number); font-weight: 900; }
 .lines span { display: block; } /* 문장마다 줄 바꾸기 */
+/* 운세 쪽지: 문장마다 한 줄, 한 문장이 길어 넘치면 줄 길이를 고르게 나눈다 (단어 하나만 다음 줄로 떨어지지 않게) */
+.slip.lines span { text-wrap: balance; }
+.slip.lines span + span { margin-top: 2px; }
 /* PC 문구와 휴대폰 문구가 다를 때 (Figma 모바일 프레임에서 좁은 화면용으로 줄을 다시 나눈 문구) */
 .m-only { display: none !important; }
 @media (max-width: 760px) { .pc-only { display: none !important; } .m-only { display: block !important; } }

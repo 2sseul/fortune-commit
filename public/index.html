@@ -380,7 +380,7 @@
   </dialog>
 
   <script type="module">
-    import { setupHeader, setHeaderStats, statChip, copyText, loadCatalog, cookieSrc, el, progressBar, postJson, toast, setupReveal } from '/site.js';
+    import { setupHeader, setHeaderStats, statChip, copyText, loadCatalog, cookieSrc, el, progressBar, postJson, toast, setupReveal, fortuneSlip } from '/site.js';
 
     // 섹션이 화면에 들어올 때 하나씩 나타나기
     setupReveal('.section-head, .steps > *, .daily-cards > *, .takeout-text, .widgets > *, .news, .gacha-teaser, .cta-cards > *');
@@ -538,7 +538,7 @@
         el('div', { style: 'display:flex;gap:8px;justify-content:center;margin-bottom:12px' },
           fortune.grade ? el('span', { class: `tag ${fortune.grade.id === 'legend' ? 'caramel' : ''}`, text: fortune.grade.label }) : null,
           fortune.ai ? el('span', { class: 'tag purple', text: 'AI 점쟁이' }) : null),
-        el('p', { class: `slip ${fortune.grade?.id === 'legend' ? 'legend' : ''}`.trim(), text: fortune.fortune }),
+        fortuneSlip(fortune.fortune, fortune.grade?.id === 'legend' ? 'legend' : ''),
         el('div', { style: 'height:12px' }), lucky);
       result.hidden = false;
       // 출석: 로그인한 사람이 오늘 열린 쿠키를 열면 하루 한 번 +30

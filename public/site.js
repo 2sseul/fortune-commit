@@ -185,6 +185,18 @@ export const cookieSrc = (id) => `/cookies/${id}.svg`;
 // 분류 탭에 쓰는 이름 (catalog의 category → 화면 이름)
 export const CATEGORY_LABEL = { 기존: '기존', 활동: '활동', 시즌: '시즌', 언어: '언어', 밈: '개발자 밈', 특별: '특별', 뽑기: '뽑기' };
 
+// 운세 쪽지 문구를 문장마다 한 줄씩 나눈다. (문장 중간에서 줄이 바뀌지 않게)
+//   '요즘 리듬이 좋아요. 오늘 쓰는 코드도 술술 써질 거예요.' → ['요즘 리듬이 좋아요.', '오늘 쓰는 코드도 술술 써질 거예요.']
+//   한 문장이 쪽지보다 길면 그 안에서는 단어 단위로 줄이 바뀐다. (site.css의 word-break: keep-all)
+export function sentenceLines(text) {
+  // 문장 끝 부호(. ! ? ~) 다음에 띄어쓰기가 올 때만 나눈다. ('v1.2', '3.14'는 나누지 않는다)
+  const lines = String(text ?? '').split(/(?<=[.!?~。]["'”’)]?)\s+/);
+  return lines.map((line) => line.trim()).filter(Boolean).map((line) => el('span', { text: line }));
+}
+export function fortuneSlip(text, extraClass = '') {
+  return el('p', { class: `slip lines ${extraClass}`.trim() }, ...sentenceLines(text));
+}
+
 // 진행 막대
 export function progressBar(current, goal, text, extraClass = '') {
   const ratio = goal > 0 ? Math.min(1, current / goal) : 1;

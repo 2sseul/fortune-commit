@@ -83,7 +83,7 @@
   <footer id="footer"></footer>
 
   <script type="module">
-    import { setupHeader, setHeaderStats, el, statChip } from '/site.js';
+    import { setupHeader, setHeaderStats, el, statChip, fortuneSlip } from '/site.js';
 
     const GRADE = { legend: '전설', great: '대길', good: '길', fair: '중길', small: '소길', bad: '흉' };
     let data = null;
@@ -139,7 +139,7 @@
       const head = el('div', { style: 'display:flex;gap:8px;align-items:center;flex-wrap:wrap' }, el('h2', { class: 'h3', text: fmt(date) }),
         grade ? el('span', { class: `tag ${grade === 'legend' ? 'caramel' : ''}`.trim(), text: GRADE[grade] }) : null,
         entry?.ai ? el('span', { class: 'tag purple', text: 'AI 점쟁이' }) : null);
-      if (entry) box.replaceChildren(head, el('p', { class: `slip ${grade === 'legend' ? 'legend' : ''}`.trim(), text: entry.fortune }), el('p', { class: 'small', text: `그날 기여 ${data.days[date] ?? 0}개` }));
+      if (entry) box.replaceChildren(head, fortuneSlip(entry.fortune, grade === 'legend' ? 'legend' : ''), el('p', { class: 'small', text: `그날 기여 ${data.days[date] ?? 0}개` }));
       else if (opened) box.replaceChildren(head, el('p', { class: 'small lines' }, el('span', { text: `그날 기여 ${data.days[date]}개로 쿠키가 열렸어요.` }), el('span', { text: '사이트에서 운세를 본 날부터 문장이 남아요.' })));
       else if (new Set(data.frozen).has(date)) box.replaceChildren(head, el('p', { class: 'small', text: '냉동 쿠키가 이날의 연속 기록을 지켜 줬어요.' }));
       else box.replaceChildren(head, el('p', { class: 'small', text: date === data.today ? '오늘은 아직 쿠키가 닫혀 있어요. 커밋하면 열려요!' : '이날은 쿠키가 열리지 않았어요.' }));
