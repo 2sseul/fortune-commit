@@ -10,6 +10,10 @@
 | :---: | :---: | :---: |
 | ![닫힌 쿠키](https://fortune-commit.vercel.app/api?preview=locked&theme=dark) | ![열린 쿠키](https://fortune-commit.vercel.app/api?preview=open&theme=dark&skin=python) | ![왕관 쿠키](https://fortune-commit.vercel.app/api?preview=open&theme=light&skin=gacha-crown) |
 
+**넓게 (`width=full`)** — 운세는 한 줄로, 오른쪽 아래에는 장착한 쿠키의 미니 픽셀이 돌아다녀요.
+
+![넓은 위젯](https://fortune-commit.vercel.app/api?preview=open&theme=dark&skin=python&width=full)
+
 ---
 
 ## 1. 제작한 것 소개
@@ -120,7 +124,7 @@ README에 붙인 포춘쿠키는 매일 밤 0시에 닫히고, 그날 커밋을 
 | --- | --- |
 | `theme` | `dark`(기본) · `light` |
 | `lang` | `ko`(기본) · `en` |
-| `width` | `495`(기본·최소) ~ `1000`, `full`이면 README 끝까지 (`<img width="100%">`와 함께). 넓어지면 글자 크기는 그대로, 터미널 창만 넓어지고 쿠키·운세가 가운데로 옮겨가요 |
+| `width` | `495`(기본·최소) ~ `1000`, `full`이면 README 끝까지 (`<img width="100%">`와 함께). 넓어지면 쿠키·글자는 그대로 왼쪽에, 운세는 한 줄로 길게 쓰고, 620px부터는 장착한 쿠키의 미니 픽셀이 오른쪽 아래를 통통 튀어다녀요 |
 | `skin` | 쿠키 이름 (해금했거나 산 쿠키만). 도감에서 장착하면 README를 고치지 않아도 바뀌고, GitHub 이미지 캐시도 바로 비워서 곧장 반영돼요 |
 | `tz` · `radius` · `hide_border` | 하루가 바뀌는 시간대, 모서리, 테두리 |
 

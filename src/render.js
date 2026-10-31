@@ -117,12 +117,39 @@ function renderLuckyLine(t, { x, y, key, value, order }) {
     + '</text>';
 }
 
-// 넓은 위젯(v3): 글자·쿠키 크기는 그대로 두고 터미널 창만 넓힌다.
-//   쿠키와 운세 묶음은 기본 너비(495)에서처럼 배치한 뒤, 넓어진 창의 가운데로 옮긴다.
-//   (명령어 줄과 마지막 프롬프트는 터미널처럼 왼쪽에 그대로)
-const BASE_WIDTH = 495;
-const shiftFor = (width) => Math.max(0, Math.round((width - BASE_WIDTH) / 2));
+// 넓은 위젯(v3): 쿠키·글자는 기본처럼 왼쪽에, 운세는 넓어진 만큼 한 줄로 길게 쓴다.
+//   너비가 MINI_FROM 이상이면 오른쪽 아래 빈 곳에 장착한 쿠키의 미니 픽셀이 통통 튀며 왔다 갔다 한다.
+const MINI_FROM = 620; // 미니 쿠키가 나오는 최소 너비
+const MINI_PIXEL = 1.5; // 미니 쿠키 한 칸 크기 (큰 쿠키의 절반)
+const MINI_HOP = 12; // 튀어 오르는 높이
 const svgSize = (width, height) => `width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"`;
+
+// 오른쪽 아래를 돌아다니는 미니 쿠키. 바닥(floorY) 위에서 x0 ~ x1 사이를 왔다 갔다 하며 통통 튄다.
+//   바깥 g: 위치, roam: 좌우 이동, hop: 튀기(쿠키), shadow: 튀는 높이에 맞춰 줄었다 커지는 그림자
+function renderMini({ t, skin, state, x0, x1, floorY }) {
+  const box = cookieBox(MINI_PIXEL, skin);
+  const travel = Math.max(0, Math.round(x1 - x0 - box.width));
+  const cookieY = floorY - box.height + box.top;
+  return `
+  <!-- 미니 쿠키 (넓은 위젯) -->
+  <g transform="translate(${x0} 0)">
+    <g class="mini-roam" style="--travel:${travel}px">
+      <ellipse class="mini-shadow" cx="${box.width / 2}" cy="${floorY + 2}" rx="${box.width * 0.36}" ry="3" fill="${t.text}" opacity="0.18"/>
+      <g class="mini-hop">${renderPixelCookie({ colors: t.cookie, pixel: MINI_PIXEL, x: 0, y: cookieY, state, skin })
+        // 큰 쿠키의 '갈라지기' 움직임(cookie-open 등)이 미니 쿠키에 걸리지 않게 이름을 바꾼다
+        .replace(/class="cookie cookie-(open|closed)"/, 'class="mini-cookie"')}</g>
+    </g>
+  </g>`;
+}
+const MINI_STYLE = `
+    .mini-roam { animation: mini-roam 7s ease-in-out infinite; }
+    @keyframes mini-roam { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(var(--travel)); } }
+    .mini-hop { transform-box: fill-box; transform-origin: 50% 100%; animation: mini-hop 0.7s cubic-bezier(0.3, 0, 0.6, 1) infinite; }
+    @keyframes mini-hop { 0%, 100% { transform: translateY(0) scale(1.08, 0.92); } 15% { transform: translateY(0) scale(1, 1); } 50% { transform: translateY(-${MINI_HOP}px) scale(0.96, 1.04); } 85% { transform: translateY(0) scale(1, 1); } }
+    .mini-shadow { transform-box: fill-box; transform-origin: center; animation: mini-shadow 0.7s cubic-bezier(0.3, 0, 0.6, 1) infinite; }
+    @keyframes mini-shadow { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.6); opacity: 0.08; } }
+    @media (prefers-reduced-motion: reduce) { .mini-roam, .mini-hop, .mini-shadow { animation: none !important; } }`;
+const miniHeight = (skin) => cookieBox(MINI_PIXEL, skin).height + MINI_HOP;
 
 // 위젯 전체 SVG 문자열을 만든다.
 // theme: getTheme()으로 얻은 테마 객체
@@ -140,13 +167,13 @@ export function renderWidget({
   skin = null,
 }) {
   const { width } = style;
-  const dx = shiftFor(width); // 넓은 창에서 쿠키·글자 묶음을 가운데로 옮기는 거리
+  const mini = width >= MINI_FROM; // 넓은 위젯이면 미니 쿠키
   const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
-  const cookieX = PAD + 4 + dx;
+  const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18; // 쿠키 오른쪽에 글자를 둔다.
 
-  // 운세 문구를 쿠키 오른쪽 공간에 맞게 줄바꿈한다. ('> ' 표시만큼 폭을 빼 둔다)
-  const fortuneLines = wrapText(fortune, Math.min(width, BASE_WIDTH) + dx - textX - PAD - textWidth('> ')); // 줄 길이는 기본 너비 기준
+  // 운세 문구를 쿠키 오른쪽 공간에 맞게 줄바꿈한다. ('> ' 표시만큼 폭을 빼 둔다) 넓은 위젯은 넓어진 만큼 한 줄로 길게
+  const fortuneLines = wrapText(fortune, width - textX - PAD - textWidth('> '));
 
   // 세로 위치 계산: 타이틀바 → 명령어 줄 → [쿠키 | 운세 + 행운 아이템] → 마지막 프롬프트
   // 쿠키와 글자 묶음 중 더 높은 쪽에 맞춰 가운데 정렬한다.
@@ -158,7 +185,9 @@ export function renderWidget({
   const cookieY = contentTop + (contentHeight - cookie.height) / 2 + cookie.top;
   const firstLineY = contentTop + (contentHeight - textBlockHeight) / 2 + 15; // 15 = 글자 윗부분 높이
   const luckyStartY = firstLineY + fortuneLines.length * LINE + 8;
-  const lastPromptY = contentTop + contentHeight + LINE + 4;
+  // 미니 쿠키가 있으면 마지막 프롬프트 줄을 그만큼 내려서, 미니 쿠키가 행운 아이템 줄과 겹치지 않게 한다.
+  const miniRoom = mini ? Math.max(0, miniHeight(skin) - LINE) : 0;
+  const lastPromptY = contentTop + contentHeight + LINE + 4 + miniRoom;
   const height = lastPromptY + PAD;
 
   // 첫 줄에만 '> '를 붙이고, 다음 줄은 글자 위치를 맞추려고 공백 두 칸으로 들여쓴다.
@@ -171,7 +200,7 @@ export function renderWidget({
   const lastOrder = lucky.length + 1;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(width, height)} role="img" aria-label="${escapeXml(`${label}: ${fortune}`)}">
-  <style>${STYLE}
+  <style>${STYLE}${mini ? MINI_STYLE : ''}
   </style>
   ${renderWindow(t, { ...style, width, height, title: 'fortune-commit — zsh' })}
 
@@ -179,6 +208,7 @@ export function renderWidget({
   <text x="${PAD}" y="${commandY}" class="mono">
     <tspan fill="${t.prompt}" class="bold">$</tspan><tspan fill="${t.text}"> ${escapeXml(command)}</tspan>
   </text>
+  ${mini ? renderMini({ t, skin, state: 'open', x0: Math.max(textX, width - 300), x1: width - PAD, floorY: lastPromptY + 4 }) : ''}
 
   <!-- 같은 자리에 안 열린 쿠키와 열린 쿠키를 겹쳐 두고, 애니메이션으로 바꿔 보여준다 -->
   ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed', skin })}
@@ -208,9 +238,9 @@ export function renderClosedCard({
   skin = null,
 }) {
   const { width } = style;
-  const dx = shiftFor(width); // 넓은 창에서 쿠키·글자 묶음을 가운데로 옮기는 거리
+  const mini = width >= MINI_FROM; // 넓은 위젯이면 미니 쿠키
   const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
-  const cookieX = PAD + 4 + dx;
+  const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18;
 
   const commandY = TITLEBAR + PAD + 12;
@@ -219,6 +249,9 @@ export function renderClosedCard({
   // 쿠키 가운데 높이에 안내 문구(+ 아래 한 줄)를 둔다.
   const hintY = boxTop + cookie.height / 2 + (detail ? -6 : 5);
   const height = boxTop + cookie.height + PAD;
+
+  // 미니 쿠키 자리: 안내 문구 아래 오른쪽 빈 곳 (창 아래 여백 위에 바닥)
+  const miniSvg = mini ? renderMini({ t, skin, state: 'closed', x0: Math.max(textX + 260, width - 300), x1: width - PAD, floorY: height - PAD + 4 }) : '';
 
   return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(width, height)} role="img" aria-label="${escapeXml(label)}">
   <style>
@@ -244,6 +277,7 @@ export function renderClosedCard({
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; }
     }
+    ${mini ? MINI_STYLE : ''}
   </style>
   ${renderWindow(t, { ...style, width, height, title: 'fortune-commit — zsh' })}
 
@@ -253,6 +287,7 @@ export function renderClosedCard({
   </text>
 
   ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed', skin })}
+  ${miniSvg}
 
   <!-- 안내 문구와 깜빡이는 커서 -->
   <!-- 커서를 문구와 같은 <text> 안에 넣어서, 글자 폭과 상관없이 항상 문구 바로 뒤에 붙게 한다 -->

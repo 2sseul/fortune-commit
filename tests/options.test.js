@@ -29,13 +29,18 @@ test('소수는 반올림한다', () => {
   assert.equal(parse('width=500.6').width, 501);
 });
 
-test('넓은 위젯: 글자 크기는 그대로, 창만 넓어지고 쿠키·글자 묶음이 가운데로 옮겨간다', async () => {
-  const { renderWidget } = await import('../src/render.js');
+test('넓은 위젯: 왼쪽 정렬 그대로, 운세는 한 줄로 길게, 620px부터 미니 쿠키가 돌아다닌다', async () => {
+  const { renderWidget, renderClosedCard } = await import('../src/render.js');
   const { themes } = await import('../src/themes.js');
-  const svg = (width) => renderWidget({ theme: themes.dark, command: 'fortune --today', fortune: '오늘 쓴 코드는 레거시가 되어도 사랑받을 거예요.', lucky: [], style: { width, radius: 10, hideBorder: false } });
-  const height = (w) => Number(svg(w).match(/height="(\d+)"/)[1]);
-  assert.match(svg(840), /width="840" height="\d+" viewBox="0 0 840 /); // 늘리지 않는다
-  assert.equal(height(840), height(495)); // 줄바꿈도 같아서 높이가 같다
-  const cookieX = (w) => Number(svg(w).match(/<g transform="translate\(([\d.]+) /)[1]);
-  assert.equal(cookieX(840) - cookieX(495), Math.round((840 - 495) / 2)); // 가운데로 옮겨감
+  const fortune = '오늘 쓴 코드는 레거시가 되어도 사랑받을 거예요.';
+  const svg = (width) => renderWidget({ theme: themes.dark, command: 'fortune --today', fortune, lucky: [], style: { width, radius: 10, hideBorder: false } });
+  const lines = (w) => (svg(w).match(/<tspan x="\d+" y="\d+">/g) ?? []).length;
+  assert.equal(lines(495), 2); // 기본: 두 줄
+  assert.equal(lines(840), 1); // 넓으면 한 줄
+  const cookieX = Number(svg(495).match(/<g transform="translate\(([\d.]+) /)[1]); // 기본 너비의 큰 쿠키 위치
+  assert.ok(svg(840).includes(`<g transform="translate(${cookieX} `)); // 넓어도 큰 쿠키는 왼쪽 그대로
+  assert.ok(!svg(495).includes('mini-roam'));
+  assert.ok(svg(700).includes('mini-roam'));
+  const closed = renderClosedCard({ theme: themes.light, command: 'fortune --today', hint: '오늘 커밋하면 열려요', label: 'x', style: { width: 840, radius: 10, hideBorder: false } });
+  assert.ok(closed.includes('mini-roam') && closed.includes('@keyframes mini-hop'));
 });
