@@ -13,7 +13,7 @@ v3에서는 사이트 디자인을 Figma에서 먼저 확정하고 코드로 옮
 - 디자인 토큰은 `site.css`의 `:root` 변수다: `--cream`(바탕), `--paper`(카드), `--dough`, `--line`, `--brown`(글씨), `--brown-soft`, `--caramel`(포인트), `--caramel-dark`, `--chocolate`(버튼), `--berry`, `--shelf`, `--radius`, `--shadow`, 글꼴 `--title`(Jua), `--body`(Pretendard), `--mono`.
 - 공통 컴포넌트 클래스: `.wrap`, `.site-header`, `.btn`, `.section`, `.eyebrow`, `.slip`(운세 쪽지), `.tag`, `.shelf`·`.shelf-item`(진열대), `.price-tag`, `.code-box`, `.site-footer`, `.tabbar`(모바일 탭 막대), `.pixel`(픽셀 그림).
 - 모바일 기준은 `@media (max-width: 760px)`. 휴대폰에서는 아래 탭 막대로 이동한다.
-- 픽셀 그림은 `image-rendering: pixelated`로 확대한다. 장면은 배경 그림 위에 실제 쿠키(`/api/cookie?skin=...`)와 버튼을 얹는 방식이다. (메인 빵집이 예시: `public/bakery-scene.*`)
+- v3부터 사이트는 **따뜻한 일러스트** 스타일이다. (v2의 픽셀 빵집 그림 `public/bakery-scene.*`, `public/img/bakery-bg.webp`는 새 디자인으로 바뀌는 중) **쿠키 스킨만 픽셀**이고, `/api/cookie?skin=...` 이미지를 `.pixel`(`image-rendering: pixelated`)로 확대해 일러스트 위에 얹는다.
 
 ## 1. Figma 읽기
 
@@ -29,7 +29,7 @@ Figma MCP가 React·Tailwind 코드를 주더라도 그대로 붙이지 않는�
 
 - **토큰 먼저**: Figma 색·글꼴이 기존 변수와 같으면 변수를 쓴다. (`#d9822b` → `var(--caramel)`) 새 색은 `:root`에 이름을 붙여 추가하고 한국어 주석으로 어디에 쓰는지 적는다. 색 값을 페이지 안에 직접 적지 않는다.
 - **공통이면 site.css, 한 페이지만이면 그 페이지 `<style>`**: Figma에서 컴포넌트로 만든 것(카드, 버튼, 탭 막대, 쪽지)은 공통이다. 기존 클래스를 고쳐야 하면 다른 페이지가 깨지지 않는지 같이 확인한다.
-- **그림**: Figma에서 이미지를 내보내 `public/img/`에 넣는다. 사진 같은 큰 그림은 webp, 픽셀 그림은 png로 원래 픽셀 크기를 지켜서 넣고 CSS로 확대한다. (흐려지지 않게)
+- **그림**: Figma 일러스트는 SVG로 내보내 `public/img/`에 넣는다. (벡터라 어느 크기에서나 선명하고 가볍다) 너무 복잡해서 SVG가 무거우면(수백 KB 이상) webp로 내보낸다. 움직일 부분(조명, 김, 반죽이 눈)은 따로 레이어로 내보내 CSS로 움직인다.
 - **쿠키는 그림으로 박지 않는다**: Figma에 그려진 쿠키는 실제 `/api/cookie?skin=...` 이미지로 바꾼다. 그래야 스킨이 바뀌거나 새로 생겨도 화면이 따라간다.
 - **동작은 기존 것을 살린다**: 로그인 메뉴, 출석, 구매, 장착 같은 JS 동작과 API 호출은 그대로 두고 겉모습만 바꾼다. 화면 구조가 바뀌어 JS가 찾는 요소가 없어지지 않게 id·data 속성을 유지한다.
 - **접근성**: 버튼은 `<button>`, 그림에는 `alt`, 장식용 그림은 `alt=""`. 움직임은 `prefers-reduced-motion`에서 멈춘다.
