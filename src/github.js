@@ -96,10 +96,20 @@ function sumContributions(collection) {
 }
 
 // 저장소들의 주 언어 중 가장 많이 나온 것을 고른다. (같으면 최근에 손댄 저장소의 언어)
+// GitHub가 붙인 언어 이름을 쿠키·운세에서 쓰는 이름으로 맞춘다. (v3)
+//   노트북은 Python, Vue·Svelte는 JavaScript로 센다. HTML·CSS 같은 마크업·문서는 '쓴 언어'로 세지 않는다.
+const LANGUAGE_ALIAS = { 'Jupyter Notebook': 'Python', Vue: 'JavaScript', Svelte: 'JavaScript' };
+const NOT_LANGUAGES = new Set(['HTML', 'CSS', 'SCSS', 'Sass', 'Less', 'Markdown', 'MDX', 'TeX', 'Dockerfile', 'Makefile']);
+export function normalizeLanguage(name) {
+  if (!name || NOT_LANGUAGES.has(name)) return null;
+  return LANGUAGE_ALIAS[name] ?? name;
+}
+
+// 저장소 목록(최근 push한 순)에서 가장 많이 쓴 언어. 같으면 더 최근에 쓴 언어.
 export function mostUsedLanguage(repositories) {
   const counts = new Map();
   for (const repo of repositories ?? []) {
-    const name = repo?.primaryLanguage?.name;
+    const name = normalizeLanguage(repo?.primaryLanguage?.name);
     if (name) counts.set(name, (counts.get(name) ?? 0) + 1);
   }
   let best = null;
@@ -257,7 +267,8 @@ export function summarizeExtras(user, { login, from, timeZone } = {}) {
   const thisYear = (iso) => Boolean(iso) && Date.parse(iso) >= yearStart;
   const collection = user?.contributionsCollection;
   const extras = {
-    language: mostUsedLanguage(own),
+    // 주 언어는 올해 push한 저장소로 센다 ('올해 기여 100'과 같은 기간). 올해 push한 저장소가 없으면 전부로
+    language: mostUsedLanguage(own.some((repo) => thisYear(repo.pushedAt)) ? own.filter((repo) => thisYear(repo.pushedAt)) : own),
     merged: (collection?.pullRequestContributions?.nodes ?? []).filter((n) => n?.pullRequest?.merged).length,
     approvals: (collection?.pullRequestReviewContributions?.nodes ?? []).filter((n) => n?.pullRequestReview?.state === 'APPROVED').length,
     stars: own.reduce((sum, repo) => sum + (repo.stargazerCount ?? 0), 0),
@@ -361,7 +372,7 @@ export async function fetchYearActivity({
   const remembered = yearMemory.get(key);
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.year;
   // 다른 서버 함수가 방금 물어본 결과가 Redis에 있으면 그걸 쓴다. (GitHub 질의가 1~3초 걸려서)
-  const shared = await cacheGet(`year:${key.toLowerCase()}`);
+  const shared = await cacheGet(`year2:${key.toLowerCase()}`);
   if (shared) {
     yearMemory.set(key, { year: shared, expiresAt: now.getTime() + 5 * 60 * 1000 });
     return shared;
@@ -396,7 +407,7 @@ export async function fetchYearActivity({
   const year = { ...summarizeYear(user.contributionsCollection), ...(full ? summarizeExtras(user, { login, from: yearFrom, timeZone }) : {}) };
   // 기본 질의로만 받았으면 짧게 기억해서 곧 다시 v3 질의를 해 본다.
   yearMemory.set(key, { year, expiresAt: now.getTime() + (full ? YEAR_MEMORY_MS : 5 * 60 * 1000) });
-  await cacheSet(`year:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
+  await cacheSet(`year2:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
   return year;
 }
 

@@ -132,6 +132,9 @@ test('주 언어: 가장 많이 나온 언어, 같으면 최근 저장소의 언
   assert.equal(mostUsedLanguage(repos(['Go', 'Rust'])), 'Go');
   assert.equal(mostUsedLanguage(repos([null])), null);
   assert.equal(mostUsedLanguage(undefined), null);
+  // v3: 노트북은 Python, Vue는 JavaScript, HTML은 세지 않는다
+  assert.equal(mostUsedLanguage(repos(['Jupyter Notebook', 'HTML', 'HTML', 'Python'])), 'Python');
+  assert.equal(mostUsedLanguage(repos(['HTML', 'Vue', 'JavaScript', 'Java'])), 'JavaScript');
 });
 
 test('이벤트가 아직 안 올라와도, 내 저장소에 오늘 push했으면 열린다', async () => {
