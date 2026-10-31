@@ -118,7 +118,7 @@
       const { ok, data } = await postJson('/api/me', { skin: c.id });
       if (!ok) { toast(data.error ?? '저장하지 못했어요.'); button.disabled = false; button.textContent = '장착하기'; return; }
       me.equipped = data.equipped;
-      toast(`${c.label}를 위젯에 올렸어요!`);
+      toast(`${c.label}를 위젯에 올렸어요!` + (data.readmePurged ? ' README에도 바로 반영했어요.' : ' README에는 몇 분 안에 반영돼요.'));
       render();
       renderSide(); // 오른쪽 '장착 중인 쿠키'도 바로 바꾼다
     }

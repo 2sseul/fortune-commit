@@ -21,7 +21,7 @@ export async function resolveWidget({ user: rawUser, lang: rawLang, tz, skin: sk
 
   // 스킨: 주인이 도감에서 장착한 스킨 → 없으면 README의 skin= → 없으면 기본 쿠키
   //       (미리보기에서는 장착 설정을 보지 않고 주소의 skin=을 그대로 쓴다)
-  const profile = user && !isPreview ? await getProfile(user) : null;
+  const profile = user && !isPreview ? await getProfile(user, { fresh: true }) : null; // 장착은 언제나 최신으로
   const requestedSkin = getSkin(profile?.skin ?? skinParam);
   const owned = new Set(profile?.owned ?? []);
   // 테마: 상점에서 산 테마를 장착했으면 그 테마 (v2.2)
@@ -63,7 +63,9 @@ export async function resolveWidget({ user: rawUser, lang: rawLang, tz, skin: sk
   if (user && !isPreview) await markSince(user, date);
 
   // 캐시: 잠긴 화면은 5분, 열린 화면은 다음 자정까지(최대 1시간)
-  const cacheSeconds = locked ? LOCKED_CACHE_SECONDS : Math.max(60, Math.min(3600, secondsUntilMidnight(tz)));
+  // README(GitHub camo)가 저장해 두는 시간. 아이디가 있는 위젯은 장착을 바꾸면 빨리 보이도록 5분까지만 (v3.1)
+  const openSeconds = Math.max(60, Math.min(user && !isPreview ? 300 : 3600, secondsUntilMidnight(tz)));
+  const cacheSeconds = locked ? LOCKED_CACHE_SECONDS : openSeconds;
 
   return { user, lang, date, command, skin, theme, locked, fortune, ai: Boolean(aiFortune), grade, lucky, progressLine, cacheSeconds };
 }

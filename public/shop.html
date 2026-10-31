@@ -379,7 +379,7 @@
       const { ok, data } = await postJson('/api/me', { theme });
       if (!ok) { toast(data.error ?? '잠시 후 다시 시도해 주세요.'); button.disabled = false; return; }
       shop.theme = data.theme;
-      toast(theme ? '위젯 테마를 바꿨어요' : '기본 테마로 돌아갔어요');
+      toast((theme ? '위젯 테마를 바꿨어요.' : '기본 테마로 돌아갔어요.') + (data.readmePurged ? ' README에도 바로 반영했어요.' : ' README에는 몇 분 안에 반영돼요.'));
       renderAll();
     }
 

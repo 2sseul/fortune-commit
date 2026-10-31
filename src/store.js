@@ -64,14 +64,15 @@ const keys = {
 
 // 위젯이 자주 읽으므로, 서버 안에서 1분 동안 기억해 Redis 호출을 줄인다.
 const memory = new Map();
-const MEMORY_MS = 60 * 1000;
+const MEMORY_MS = 15 * 1000; // v3: 장착을 바꾸면 다른 서버 함수에도 빨리 보이게 60초 → 15초
 
 // 장착한 스킨·테마, 산 물건, 업적으로 해금했던 스킨을 한 번에 읽는다.
 //   { skin: 이름|null, theme: 이름|null, owned: ['skin:cat', ...], earned: ['cat', ...] }. 확인할 수 없으면 null.
-export async function getProfile(login, { now = Date.now() } = {}) {
+// fresh: 서버 기억을 건너뛰고 Redis에서 바로 읽는다 (README 위젯: 장착을 바꾸면 바로 보여야 해서)
+export async function getProfile(login, { now = Date.now(), fresh = false } = {}) {
   if (!login) return null;
   const remembered = memory.get(id(login));
-  if (remembered && remembered.expiresAt > now) return remembered.profile;
+  if (!fresh && remembered && remembered.expiresAt > now) return remembered.profile;
   try {
     const client = await getClient();
     if (!client) return null;

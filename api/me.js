@@ -12,6 +12,7 @@ import { COOKIES } from '../src/cookie-catalog.js';
 import { shopThemes } from '../src/themes.js';
 import { hasSkin } from '../src/unlocks.js';
 import { loadAccount } from '../src/account.js';
+import { purgeReadmeWidgets } from '../src/camo.js';
 import { sendJson, readJson, isSameOrigin } from '../src/http.js';
 
 export default async function handler(req, res) {
@@ -74,7 +75,9 @@ async function equipSkin(res, login, profile, skin) {
     sendJson(res, 503, { error: '저장하지 못했어요. 잠시 후 다시 시도해 주세요.' });
     return;
   }
-  sendJson(res, 200, { ok: true, equipped: skin });
+  // README 위젯 캐시도 바로 비운다 (GitHub camo PURGE, v3.1)
+  const readmePurged = await purgeReadmeWidgets(login);
+  sendJson(res, 200, { ok: true, equipped: skin, readmePurged });
 }
 
 async function equipTheme(res, login, owned, theme) {
@@ -92,5 +95,6 @@ async function equipTheme(res, login, owned, theme) {
     sendJson(res, 503, { error: '저장하지 못했어요. 잠시 후 다시 시도해 주세요.' });
     return;
   }
-  sendJson(res, 200, { ok: true, theme });
+  const readmePurged = await purgeReadmeWidgets(login);
+  sendJson(res, 200, { ok: true, theme, readmePurged });
 }

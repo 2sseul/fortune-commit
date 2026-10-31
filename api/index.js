@@ -68,6 +68,10 @@ export default async function handler(req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
   // GitHub는 README 이미지를 자체 서버(camo)에 캐시하는데, 이 시간이 지나면 새로 받아 간다.
-  res.setHeader('Cache-Control', `public, max-age=${widget.cacheSeconds}, s-maxage=${widget.cacheSeconds}`);
+  // 아이디가 있는 위젯은 Vercel 엣지에 저장하지 않는다: 장착을 바꾸고 camo를 비웠을 때(src/camo.js)
+  // camo가 다시 받아 가는 그림이 엣지에 남은 옛 그림이 되지 않게. (미리보기·공통 운세는 엣지에 저장해 빠르게)
+  const personal = Boolean(widget.user) && !searchParams.get('preview');
+  res.setHeader('Cache-Control', `public, max-age=${widget.cacheSeconds}${personal ? '' : `, s-maxage=${widget.cacheSeconds}`}`);
+  if (personal) res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
   res.end(svg);
 }

@@ -117,6 +117,17 @@ function renderLuckyLine(t, { x, y, key, value, order }) {
     + '</text>';
 }
 
+// 넓은 위젯(v3): 너비가 기본(495)보다 넓으면 쿠키와 글자도 같이 키운다. (최대 1.4배)
+//   그만큼 작은 '논리 너비'로 배치한 뒤 viewBox로 늘려서, 남는 폭은 운세 글줄이 쓰게 된다.
+//   예: 840(끝까지) → 1.4배, 논리 너비 600 / 700 → 1.4배, 논리 너비 500 / 495 → 그대로
+const BASE_WIDTH = 495;
+const MAX_SCALE = 1.4;
+function scaleFor(outerWidth) {
+  const scale = Math.min(MAX_SCALE, Math.max(1, outerWidth / BASE_WIDTH));
+  return { scale, width: Math.round(outerWidth / scale) };
+}
+const svgSize = (outerWidth, scale, width, height) => `width="${outerWidth}" height="${Math.round(height * scale)}" viewBox="0 0 ${width} ${height}"`;
+
 // 위젯 전체 SVG 문자열을 만든다.
 // theme: getTheme()으로 얻은 테마 객체
 // command: 프롬프트에 보일 명령어, fortune: 운세 문구, label: 화면 읽기 프로그램용 이름
@@ -132,7 +143,7 @@ export function renderWidget({
   style = { width: 495, radius: 10, hideBorder: false },
   skin = null,
 }) {
-  const { width } = style;
+  const { scale, width } = scaleFor(style.width);
   const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
   const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18; // 쿠키 오른쪽에 글자를 둔다.
@@ -162,10 +173,10 @@ export function renderWidget({
     .join('\n  ');
   const lastOrder = lucky.length + 1;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(`${label}: ${fortune}`)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(style.width, scale, width, height)} role="img" aria-label="${escapeXml(`${label}: ${fortune}`)}">
   <style>${STYLE}
   </style>
-  ${renderWindow(t, { ...style, height, title: 'fortune-commit — zsh' })}
+  ${renderWindow(t, { ...style, width, height, title: 'fortune-commit — zsh' })}
 
   <!-- 명령어 줄: $ fortune ... -->
   <text x="${PAD}" y="${commandY}" class="mono">
@@ -199,7 +210,7 @@ export function renderClosedCard({
   style = { width: 495, radius: 10, hideBorder: false },
   skin = null,
 }) {
-  const { width } = style;
+  const { scale, width } = scaleFor(style.width);
   const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
   const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18;
@@ -211,7 +222,7 @@ export function renderClosedCard({
   const hintY = boxTop + cookie.height / 2 + (detail ? -6 : 5);
   const height = boxTop + cookie.height + PAD;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(label)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(style.width, scale, width, height)} role="img" aria-label="${escapeXml(label)}">
   <style>
     .mono { font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace; font-size: 14px; }
     .small { font-size: 12px; }
@@ -236,7 +247,7 @@ export function renderClosedCard({
       * { animation: none !important; }
     }
   </style>
-  ${renderWindow(t, { ...style, height, title: 'fortune-commit — zsh' })}
+  ${renderWindow(t, { ...style, width, height, title: 'fortune-commit — zsh' })}
 
   <!-- 명령어 줄: $ fortune ... -->
   <text x="${PAD}" y="${commandY}" class="mono">
