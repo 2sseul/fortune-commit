@@ -81,6 +81,64 @@ SLIP = '''<g id="slip" transform="rotate(14 150 160)">
     <rect x="146" y="156" width="64" height="5" rx="2.5" fill="#F2504D"/>
   </g>'''
 ART['plain-open'] = cookie(P['plain'], mid=SLIP)
+
+# ---- v3 새 쿠키 후보 ----
+P.update({
+    'owl':    dict(base="#4A5A9C", shade="#3A4783", back="#3F4E8C", back_shade="#313D72", fold="#1F2650", hi="#8C9BD8"),
+    'sky':    dict(base="#7CCBF2", shade="#5AB2E0", back="#66BCE8", back_shade="#4DA2D2", fold="#2B76A3", hi="#C8EBFF"),
+    'merge':  dict(base="#F5B041", shade="#E0912A", hi="#FFD98A", back="#74401F", back_shade="#5C3016", fold="#3A1D0C"),
+    'fire':   dict(base="#FF6A3D", shade="#E84E26", back="#F05A30", back_shade="#D1421E", fold="#8C2410", hi="#FFB08A"),
+    'crab':   dict(base="#F26B3A", shade="#D9532A", back="#E15D30", back_shade="#C44822", fold="#7E2A0E", hi="#FFAE88"),
+    'python': dict(base="#3B78C2", shade="#2E62A3", hi="#8DB8EE", back="#FFD43B", back_shade="#E8B820", fold="#8E6A00"),
+    'coffee': dict(base="#E2B27A", shade="#CC965C", back="#D6A36A", back_shade="#BD8A50", fold="#7A4E22", hi="#F8DDB6"),
+    'burnt':  dict(base="#4A3328", shade="#38261D", back="#3E2B21", back_shade="#2E1F18", fold="#160D09", hi="#7A5A48"),
+    'rainbow':dict(base="#FFFFFF", shade="#F0F0F0", back="#F5F5F5", back_shade="#E6E6E6", fold="#9A86C8", hi="#FFFFFF"),
+    'sakura': dict(base="#FFC2D4", shade="#F5A3BC", back="#FAB2C8", back_shade="#EC93AE", fold="#B85A7A", hi="#FFE6EE"),
+    'melon':  dict(base="#FF5F6D", shade="#E84858", back="#F05262", back_shade="#D63D4E", fold="#8E1F2C", hi="#FFA3AC"),
+    'maple':  dict(base="#F28A2E", shade="#DB6F1A", back="#E57B22", back_shade="#C96214", fold="#83380A", hi="#FFC48A"),
+    'bug':    dict(base="#E8413C", shade="#CC2F2C", back="#D93733", back_shade="#BC2826", fold="#6E1210", hi="#FF8C86"),
+    'galaxy': dict(base="#5B3FA8", shade="#4A2F8F", back="#4F3599", back_shade="#3D2780", fold="#1E1245", hi="#9C85E8"),
+})
+DOTS = lambda pts, r, c: ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="{c}"/>' for x, y in pts)
+STRIPES = lambda colors, w: ''.join(f'<rect x="{-60 + i * w}" y="-40" width="{w}" height="340" transform="rotate(-24 120 120)" fill="{c}"/>' for i, c in enumerate(colors))
+
+ART.update({
+    # 올빼미: 남색 밤 쿠키 + 깃털 귀 + 초승달
+    'owl': cookie(P['owl'], under='<path d="M40 60 L36 6 L86 40 Z" fill="#4A5A9C"/><path d="M168 36 L208 0 L212 62 Z" fill="#3F4E8C"/>',
+                  over='<path d="M214 168 A22 22 0 1 1 196 136 A17 17 0 1 0 214 168 Z" fill="#FFD43B"/>' + SPARK(30, 196, 9, '#FFD43B')),
+    # 주말: 하늘색 + 머리 위 선글라스
+    'weekend': cookie(P['sky'], over='<ellipse cx="128" cy="34" rx="92" ry="20" transform="rotate(-8 128 34)" fill="#F2C766"/><ellipse cx="128" cy="40" rx="92" ry="12" transform="rotate(-8 128 40)" fill="#D9A93E"/><path d="M84 32 C84 0 106 -16 130 -16 C154 -16 172 -2 172 24 Z" fill="#F7D57E"/><path d="M84 26 C110 18 146 14 172 18 L172 28 C146 24 110 28 84 36 Z" fill="#FF5C7A"/>'),
+    # 머지: 앞은 기본, 뒤는 초코
+    'merge': cookie(P['merge'], over='<circle cx="198" cy="192" r="24" fill="#8E5BD8"/><path d="M190 180 v24 M190 186 c0 10 16 6 16 18" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="190" cy="178" r="4" fill="#FFFFFF"/><circle cx="206" cy="206" r="4" fill="#FFFFFF"/>'),
+    # 불꽃: 위에 불꽃
+    'streak': cookie(P['fire'], under='<path d="M108 30 C96 0 110 -26 128 -40 C126 -20 146 -12 148 6 C150 18 144 28 136 34 Z" fill="#FF9600"/><path d="M118 30 C114 12 120 -4 128 -12 C130 0 140 6 138 18 C136 26 130 30 126 32 Z" fill="#FFD43B"/>'),
+    # 게(Rust): 양옆 집게발
+    'crab': cookie(P['crab'], over='<g transform="translate(-4 -6) rotate(-14 22 88) scale(1 1)"><path d="M22 108 L38 132" stroke="#C44822" stroke-width="12" stroke-linecap="round"/><path d="M0 88 C-6 64 12 48 30 52 L22 74 L44 66 C52 86 42 108 22 112 C10 114 2 104 0 88 Z" fill="#C93A1E"/><path d="M22 112 C10 114 2 104 0 88 C8 100 20 104 34 102 C30 108 26 111 22 112 Z" fill="#C44822"/></g><g transform="translate(244 0) rotate(-14 22 88) scale(-1 1)"><path d="M22 108 L38 132" stroke="#B23E1C" stroke-width="12" stroke-linecap="round"/><path d="M0 88 C-6 64 12 48 30 52 L22 74 L44 66 C52 86 42 108 22 112 C10 114 2 104 0 88 Z" fill="#B5331A"/><path d="M22 112 C10 114 2 104 0 88 C8 100 20 104 34 102 C30 108 26 111 22 112 Z" fill="#B23E1C"/></g>'),
+    # 파이썬: 앞 파랑, 뒤 노랑
+    'python': cookie(P['python']),
+    # 커피(Java): 위쪽 커피 글레이즈 + 김
+    'coffee': cookie(P['coffee'], front_extra='<path d="M0 0 L160 0 L160 70 C130 92 110 70 90 88 C70 104 50 84 30 96 C14 104 4 92 0 86 Z" fill="#6B3D1E"/>', back_extra='<path d="M100 0 L240 0 L240 88 C220 98 204 84 186 94 C168 104 150 86 130 92 L100 92 Z" fill="#5A3218"/>',
+                    over='<path d="M92 -6 c-12 -14 10 -22 0 -38 M122 -6 c-12 -14 10 -22 0 -38" stroke="#D9CFC4" stroke-width="7" stroke-linecap="round" fill="none"/>'),
+    # 탄 쿠키: 까맣게 + 연기
+    'burnt': cookie(P['burnt'], front_extra=DOTS([(60, 120), (94, 150), (80, 90)], 6, '#1E140F'),
+                    over='<circle cx="100" cy="-6" r="16" fill="#9A9A9A" opacity="0.7"/><circle cx="122" cy="-22" r="20" fill="#B5B5B5" opacity="0.7"/><circle cx="150" cy="-12" r="14" fill="#9A9A9A" opacity="0.7"/>'),
+    # 무지개: 대각선 줄무늬
+    'rainbow': cookie(P['rainbow'], front_extra=STRIPES(['#FF5C7A', '#FF9F1A', '#FFD43B', '#4CC38A', '#4FB8F5', '#8E5BD8', '#FF5C7A'], 40) + '<path d="M0 150 C40 196 110 206 160 170 L160 240 L0 240 Z" fill="#000000" opacity="0.10"/>',
+                     back_extra=STRIPES(['#E8486A', '#E88A0C', '#E8BE28', '#36AA74', '#3AA0DB', '#7646C0', '#E8486A'], 40) + '<path d="M100 150 C140 176 190 170 232 130 L232 240 L100 240 Z" fill="#000000" opacity="0.10"/>'),
+    # 벚꽃: 분홍 + 꽃잎
+    'sakura': cookie(P['sakura'], over=''.join(f'<g transform="translate({x} {y}) rotate({r})"><ellipse cx="0" cy="-9" rx="7" ry="10" fill="#FFFFFF"/><ellipse cx="9" cy="-2" rx="7" ry="10" transform="rotate(72)" fill="#FFFFFF"/><ellipse cx="5" cy="8" rx="7" ry="10" transform="rotate(144)" fill="#FFFFFF"/><ellipse cx="-5" cy="8" rx="7" ry="10" transform="rotate(216)" fill="#FFFFFF"/><ellipse cx="-9" cy="-2" rx="7" ry="10" transform="rotate(288)" fill="#FFFFFF"/><circle r="4" fill="#FF8FB0"/></g>' for x, y, r in [(32, 30, 10), (210, 186, -20), (196, 26, 30)])),
+    # 수박: 빨강 + 초록 껍질 + 씨
+    'watermelon': cookie(P['melon'], front_extra='<path d="M0 140 C40 186 110 196 160 160 L160 240 L0 240 Z" fill="#FFFFFF" opacity="0.9"/><path d="M0 154 C40 200 110 210 160 174 L160 240 L0 240 Z" fill="#4CC38A"/><path d="M0 172 C40 214 110 222 160 190 L160 240 L0 240 Z" fill="#2F9C68"/>' + DOTS([(60, 110), (90, 80), (86, 136), (52, 70)], 5, '#3B1E14'),
+                         back_extra='<path d="M100 132 C140 166 190 158 232 116 L232 240 L100 240 Z" fill="#FFFFFF" opacity="0.9"/><path d="M100 144 C140 176 190 168 232 126 L232 240 L100 240 Z" fill="#36AA74"/><path d="M100 160 C140 188 190 182 232 142 L232 240 L100 240 Z" fill="#2A8A5C"/>' + DOTS([(168, 90), (186, 120)], 5, '#3B1E14')),
+    # 단풍: 주황 + 단풍잎
+    'maple': cookie(P['maple'], over='<path d="M200 150 l6 -16 l6 12 l12 -6 l-4 14 l14 4 l-12 8 l6 10 l-14 -2 l-2 14 l-8 -12 l-8 12 l-2 -14 l-14 2 l6 -10 l-12 -8 l14 -4 l-4 -14 l12 6 z" fill="#D93E2B"/><path d="M206 172 v22" stroke="#8E2A1A" stroke-width="4" stroke-linecap="round"/>'),
+    # 버그: 무당벌레 무늬 + 더듬이
+    'bug': cookie(P['bug'], under='<path d="M84 30 C76 8 62 -6 46 -10 M134 26 C144 4 160 -8 176 -10" stroke="#2D2D2D" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="44" cy="-12" r="8" fill="#2D2D2D"/><circle cx="178" cy="-12" r="8" fill="#2D2D2D"/>',
+                  front_extra=DOTS([(58, 90), (92, 130), (52, 150), (98, 70)], 11, '#2D2D2D'), back_extra=DOTS([(176, 90), (190, 130)], 10, '#2D2D2D')),
+    # 은하수: 보라 우주 + 별
+    'galaxy': cookie(P['galaxy'], front_extra=DOTS([(50, 110), (86, 150), (96, 90), (64, 170)], 2.5, '#FFFFFF') + '<ellipse cx="80" cy="120" rx="70" ry="22" transform="rotate(-30 80 120)" fill="#8E6BE8" opacity="0.45"/>',
+                     back_extra=DOTS([(170, 80), (186, 124), (160, 140)], 2.5, '#FFFFFF'), over=SPARK(30, 26, 14, '#FFD43B') + SPARK(212, 188, 10, '#FFFFFF')),
+})
 for name, svg in ART.items():
     open(f'{name}.svg', 'w').write(svg)
 print(len(ART), 'cookies')
