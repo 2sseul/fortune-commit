@@ -55,7 +55,7 @@ export function weekStamps({ days, today, todayDone, frozen = new Set() }) {
     let state = 'future';
     if (date === today) state = todayDone ? 'done' : 'today';
     else if (date < today) state = (days[date] ?? 0) > 0 ? 'done' : frozen.has(date) ? 'frozen' : 'missed';
-    return { date, label, state };
+    return { date, label, state, today: date === today };
   });
 }
 

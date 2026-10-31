@@ -6,6 +6,10 @@
   <title>운세 일기 · fortune-commit</title>
   <meta name="description" content="쿠키를 연 날마다 도장이 찍히는 운세 일기. 지난 날의 운세를 다시 볼 수 있어요.">
   <link rel="icon" href="/cookies/plain.svg">
+  <link rel="modulepreload" href="/site.js">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&family=Nunito:wght@800;900&family=JetBrains+Mono&display=swap">
   <link rel="stylesheet" href="/site.css">
   <style>
     /* 운세 일기 페이지 (v3.2) — Figma에는 아직 없는 화면이라, 같은 디자인 시스템(카드·도장·태그)으로 만들었다. */
@@ -158,7 +162,7 @@
         month = data.today.slice(0, 7);
         document.getElementById('layout').hidden = false;
         pick(data.today);
-        fetch('/api/daily', { cache: 'no-store' }).then((r) => r.json()).then((d) => setHeaderStats({ streak: d.streak, balance: d.wallet?.balance })).catch(() => {});
+        setHeaderStats({ streak: data.streak, balance: data.balance });
       }
     }
   </script>

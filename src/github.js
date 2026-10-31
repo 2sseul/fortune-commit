@@ -16,6 +16,7 @@
 
 import { secondsUntilMidnight, todayIn } from './pick.js';
 import { devActivity, devYear } from './dev-fixtures.js';
+import { cacheGet, cacheSet } from './store.js';
 
 // 로컬 개발 서버(FC_DEV=1)에서 토큰이 없으면 가짜 활동을 쓴다. (화면 확인용)
 const useDevData = (token) => !token && process.env.FC_DEV === '1';
@@ -359,6 +360,12 @@ export async function fetchYearActivity({
   const key = `${login}|${date}`;
   const remembered = yearMemory.get(key);
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.year;
+  // 다른 서버 함수가 방금 물어본 결과가 Redis에 있으면 그걸 쓴다. (GitHub 질의가 1~3초 걸려서)
+  const shared = await cacheGet(`year:${key.toLowerCase()}`);
+  if (shared) {
+    yearMemory.set(key, { year: shared, expiresAt: now.getTime() + 5 * 60 * 1000 });
+    return shared;
+  }
 
   const yearFrom = startOfYear(timeZone, now).toISOString();
   const variables = { login, from: yearFrom, to: now.toISOString() };
@@ -389,6 +396,7 @@ export async function fetchYearActivity({
   const year = { ...summarizeYear(user.contributionsCollection), ...(full ? summarizeExtras(user, { login, from: yearFrom, timeZone }) : {}) };
   // 기본 질의로만 받았으면 짧게 기억해서 곧 다시 v3 질의를 해 본다.
   yearMemory.set(key, { year, expiresAt: now.getTime() + (full ? YEAR_MEMORY_MS : 5 * 60 * 1000) });
+  await cacheSet(`year:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
   return year;
 }
 

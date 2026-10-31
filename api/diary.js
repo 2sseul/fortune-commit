@@ -21,6 +21,6 @@ export default async function handler(req, res) {
   const grades = Object.fromEntries(Object.entries(days).filter(([, n]) => n > 0).map(([date]) => [date, fortuneGrade(login, date)]));
   sendJson(res, 200, {
     loggedIn: true, login, today, days, grades, entries: entries ?? {}, frozen: [...frozen],
-    streak: account.daily.streak, bestStreak: account.daily.bestStreak,
+    streak: account.daily.streak, bestStreak: account.daily.bestStreak, balance: account.wallet?.balance ?? null,
   });
 }

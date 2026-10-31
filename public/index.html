@@ -6,6 +6,11 @@
   <title>fortune-commit · 커밋하면 열리는 포춘쿠키</title>
   <meta name="description" content="오늘 커밋한 개발자에게만 열리는 GitHub README 포춘쿠키 위젯">
   <link rel="icon" href="/cookies/plain.svg">
+  <link rel="modulepreload" href="/site.js">
+  <link rel="preload" as="image" href="/img/illust/hero-cast.webp" fetchpriority="high">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&family=Nunito:wght@800;900&family=JetBrains+Mono&display=swap">
   <link rel="stylesheet" href="/site.css">
   <style>
     /* 메인 페이지에만 쓰는 스타일 (Figma 🏠 Main · PC / 📱 Main · Mobile) */
@@ -35,10 +40,12 @@
 
     /* ---------- 매일 쌓이는 재미 ---------- */
     .daily-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
-    .daily-cards .card { padding: 24px; display: grid; align-content: start; gap: 16px; }
+    /* 세 카드 높이가 같을 때 안쪽이 위로 몰려 아래가 비지 않게: 세로로 나누어 배치하고 맨 아래 요소는 바닥에 붙인다 */
+    .daily-cards .card { padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .daily-cards .card > :last-child { margin-top: auto; }
     @media (max-width: 760px) { .daily-cards .card { padding: 16px; } }
     .demo-note { justify-self: start; }
-    .streak-card { text-align: center; justify-items: center; }
+    .streak-card { text-align: center; justify-content: space-between; }
     .streak-card .flame { width: 56px; height: 56px; }
     .streak-card .big { font: 900 clamp(72px, 9vw, 96px)/1 var(--number); color: var(--caramel); }
     .streak-card .caption { font: 700 17px/1.3 var(--body); color: var(--caramel); }
@@ -51,21 +58,28 @@
     .legend { display: flex; gap: 12px; justify-content: center; font-size: 12px; color: var(--text-2); }
     .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--mint); margin-right: 4px; vertical-align: -1px; }
     .legend i.now { background: var(--caramel); }
-    .diary-card { text-align: center; justify-items: center; }
-    .stamp-path { display: grid; gap: 10px; width: 100%; max-width: 220px; padding: 8px 0; }
-    .stamp { position: relative; width: 64px; height: 56px; border-radius: 50%; display: grid; place-items: center; }
+    .diary-card { text-align: center; }
+    .stamp-path { display: grid; gap: 4px; width: 100%; max-width: 220px; padding: 4px 0; flex: 1; align-content: center; }
+    .stamp { position: relative; width: 58px; height: 50px; border-radius: 50%; display: grid; place-items: center; }
     .stamp::before { content: ''; position: absolute; inset: 0 0 8px; border-radius: 50%; background: var(--c, #E5E5E5); box-shadow: 0 8px 0 var(--lip, #CFCFCF); }
     .stamp img { position: relative; width: 26px; height: 26px; margin-top: -8px; }
     .stamp.done { --c: var(--butter); --lip: #E0A800; }
-    .stamp.today { --c: var(--caramel); --lip: var(--lip-caramel); }
+    .stamp.today, .stamp.is-today { --c: var(--caramel); --lip: var(--lip-caramel); }
+    .stamp.is-today::after { content: ''; position: absolute; inset: -5px -5px 3px; border-radius: 50%; box-shadow: 0 0 0 3px rgb(255 159 26 / 0.35); animation: ring 1.8s ease-out infinite; }
+    @keyframes ring { from { transform: scale(0.9); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
     .stamp.frozen { --c: #BFE8FF; --lip: #7CC6EE; }
-    .stamp.missed, .stamp.future { --c: #E5E5E5; --lip: #CFCFCF; }
+    .stamp.future { --c: #E5E5E5; --lip: #CFCFCF; }
+    .stamp.missed { --c: #F4F4F4; --lip: #E2E2E2; }
+    .stamp.missed img { opacity: 0.55; }
     .stamp-path .stamp:nth-child(4n+1) { justify-self: start; margin-left: 12%; }
     .stamp-path .stamp:nth-child(4n+2) { justify-self: center; margin-left: 30%; }
     .stamp-path .stamp:nth-child(4n+3) { justify-self: end; margin-right: 6%; }
     .stamp-path .stamp:nth-child(4n) { justify-self: center; margin-left: 18%; }
     .stamp .day { position: absolute; left: calc(100% + 6px); top: 14px; font-size: 12px; color: var(--muted); white-space: nowrap; }
-    .quest-foot { display: flex; align-items: center; gap: 8px; padding-top: 16px; border-top: 2px solid var(--line); font: 700 14px/1.3 var(--body); color: var(--text-2); }
+    #quests { width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 16px; }
+    #quests .quest + .quest { margin-top: 0; }
+    .daily-cards h3 { align-self: stretch; }
+    .quest-foot { width: 100%; display: flex; align-items: center; gap: 8px; padding-top: 16px; border-top: 2px solid var(--line); font: 700 14px/1.3 var(--body); color: var(--text-2); }
     .quest-foot img { width: 22px; height: 22px; }
     @media (max-width: 960px) { .daily-cards { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
     @media (max-width: 960px) {
@@ -84,10 +98,11 @@
     .takeout .pills.round { background: var(--paper); border-radius: var(--r-pill); padding: 4px; margin: 0; justify-self: start; max-width: 100%; }
     .takeout .pills.round button { border: 0; min-height: 34px; }
     .widgets { display: grid; gap: 16px; }
-    .widgets figure { margin: 0; position: relative; }
+    .widgets figure { margin: 0; display: grid; gap: 8px; justify-items: start; }
     .widgets img { display: block; width: 100%; height: auto; border-radius: 12px; }
-    .widgets figcaption { position: absolute; top: 10px; left: 72px; }
-    @media (max-width: 760px) { .widgets figcaption { position: static; display: inline-block; margin-bottom: 8px; } .hero-text .lead { font-size: 14px; } }
+    /* '커밋 전/후' 표시는 터미널 위에 따로 둔다 (터미널 안에 겹치면 화면 폭에 따라 신호등 점과 겹쳤다) */
+    .widgets figcaption { order: -1; }
+    @media (max-width: 760px) { .hero-text .lead { font-size: 14px; } }
     @media (max-width: 960px) { .takeout .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
 
     /* ---------- 새 소식 ---------- */
@@ -135,6 +150,21 @@
     .cta-cards .card { display: grid; gap: 12px; justify-items: start; padding: 28px; }
     @media (max-width: 760px) { .cta-cards { grid-template-columns: minmax(0, 1fr); gap: 12px; } .cta-cards .card { padding: 20px; } }
 
+    /* ---------- 움직임 (메인) ---------- */
+    .hero-art { animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .streak-card .flame { transform-origin: 50% 90%; animation: flicker 1.6s ease-in-out infinite; }
+    @keyframes flicker { 0%, 100% { transform: scale(1) rotate(0); } 30% { transform: scale(1.06, 0.96) rotate(-3deg); } 60% { transform: scale(0.97, 1.05) rotate(2deg); } }
+    .heat i { transition: transform 0.3s; }
+    .in .heat i { animation: pop 0.35s ease-out backwards; animation-delay: calc(var(--i, 0) * 12ms); }
+    .in .stamp { animation: pop 0.4s cubic-bezier(0.2, 0.8, 0.3, 1.4) backwards; animation-delay: calc(var(--i, 0) * 70ms + 0.15s); }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } }
+    .gacha-teaser .intro img { animation: wiggle 4s ease-in-out infinite; transform-origin: 50% 80%; }
+    @keyframes wiggle { 0%, 70%, 100% { transform: rotate(0); } 75% { transform: rotate(-10deg); } 82% { transform: rotate(9deg); } 89% { transform: rotate(-5deg); } 95% { transform: rotate(3deg); } }
+    .open-cookie-btn { position: relative; overflow: hidden; }
+    .open-cookie-btn::after { content: ''; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.45), transparent); transform: skewX(-20deg); animation: shine 3.2s ease-in-out 1s infinite; }
+    @keyframes shine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+
     /* ---------- 오늘의 쿠키 (열기 창) ---------- */
     dialog.fortune { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 24px; color: var(--text); }
     dialog.fortune::backdrop { background: rgb(43 29 20 / 0.55); }
@@ -159,14 +189,14 @@
     <!-- 첫 화면 (Figma Hero) -->
     <section class="hero">
       <div class="wrap">
-        <img class="hero-art" src="/img/illust/hero-cast.webp" width="640" height="508" alt="요리사 모자를 쓴 반죽, 오븐, 노트북, 우유갑 캐릭터가 포춘쿠키를 들고 모여 있는 그림">
+        <img class="hero-art" fetchpriority="high" src="/img/illust/hero-cast.webp" width="640" height="508" alt="요리사 모자를 쓴 반죽, 오븐, 노트북, 우유갑 캐릭터가 포춘쿠키를 들고 모여 있는 그림">
         <div class="hero-text">
           <div class="stats" id="hero-stats"></div>
           <h1 class="display lines"><span>오늘 커밋해야</span><span>열리는 포춘쿠키</span></h1>
           <p class="lead lines pc-only"><span>매일 밤 0시, 오늘 커밋한 개발자에게만 쿠키가 열려요.</span><span>GitHub 프로필에 올려 두고 매일 운세를 받아 보세요.</span></p>
           <p class="lead lines m-only"><span>매일 밤 0시, 오늘 커밋한 개발자에게만</span><span>쿠키가 열려요. GitHub 프로필에 올려 두고</span><span>매일 운세를 받아 보세요.</span></p>
           <div class="hero-buttons">
-            <button class="btn block" type="button" id="open-cookie">오늘의 쿠키 열기</button>
+            <button class="btn block open-cookie-btn" type="button" id="open-cookie">오늘의 쿠키 열기</button>
             <a class="btn secondary block" id="hero-second" href="#takeout">내 프로필에 올리기</a>
           </div>
         </div>
@@ -224,8 +254,8 @@
             <p class="small lines" id="diary-note"><span>쿠키를 연 날마다 도장 쾅!</span><span>오늘 열면 도장이 하나 더 늘어요.</span></p>
             <a class="btn secondary small" href="/diary.html">일기 보러 가기</a>
           </article>
-          <article class="card">
-            <h3 class="h3">오늘의 퀘스트</h3>
+          <article class="card quests-card">
+            <h3 class="h3" style="text-align:left">오늘의 퀘스트</h3>
             <div id="quests"></div>
             <p class="quest-foot"><img src="/img/icons/calendar.svg" alt=""><span id="quest-reset">새 퀘스트까지</span></p>
           </article>
@@ -332,7 +362,10 @@
   </dialog>
 
   <script type="module">
-    import { setupHeader, setHeaderStats, statChip, copyText, loadCatalog, cookieSrc, el, progressBar, postJson, toast } from '/site.js';
+    import { setupHeader, setHeaderStats, statChip, copyText, loadCatalog, cookieSrc, el, progressBar, postJson, toast, setupReveal } from '/site.js';
+
+    // 섹션이 화면에 들어올 때 하나씩 나타나기
+    setupReveal('.section-head, .steps > *, .daily-cards > *, .takeout-text, .widgets > *, .news, .gacha-teaser, .cta-cards > *');
 
     const origin = window.location.origin;
     const SITE = `${origin}/`;
@@ -352,7 +385,7 @@
     // 로그인 전 예시 (Figma와 같은 숫자)
     const DEMO = {
       streak: 12, todayDone: false, openDays: 86,
-      week: ['done', 'done', 'done', 'today', 'future', 'future', 'future'].map((state, i) => ({ state, label: '월화수목금토일'[i] })),
+      week: ['done', 'done', 'done', 'today', 'future', 'future', 'future'].map((state, i) => ({ state, label: '월화수목금토일'[i], today: i === 3 })),
       quests: [
         { icon: 'flame', label: '오늘 커밋하기', current: 1, goal: 1, reward: 10, done: true },
         { icon: 'cookie', label: '사이트에서 쿠키 열기', current: 0, goal: 1, reward: 30 },
@@ -365,6 +398,8 @@
     let daily = null;
 
     // ---------- 위쪽 막대 + 첫 화면 숫자 ----------
+    // 로그인 확인과 매일 기록을 동시에 부른다. (차례로 부르면 그만큼 늦게 뜬다)
+    const dailyPromise = fetch('/api/daily', { cache: 'no-store' }).then((r) => r.json()).catch(() => null);
     setupHeader().then(async (result) => {
       me = result;
       if (me.loggedIn) document.getElementById('hero-second').textContent = '내 프로필에 올리기';
@@ -373,7 +408,7 @@
         second.textContent = '로그인하고 쿠키 모으기';
         second.href = `/api/auth/login?next=/`;
       }
-      try { daily = await (await fetch('/api/daily', { cache: 'no-store' })).json(); } catch { daily = null; }
+      daily = await dailyPromise;
       if (daily?.loggedIn) {
         setHeaderStats({ streak: daily.streak, balance: daily.wallet?.balance });
         document.getElementById('hero-stats').replaceChildren(
@@ -391,7 +426,7 @@
     // ---------- 매일 쌓이는 재미 ----------
     const ICON = { flame: '/img/icons/flame.svg', calendar: '/img/icons/calendar.svg', cookie: '/img/icons/point.svg' };
     function renderDaily(d, demo = false) {
-      document.getElementById('streak-number').textContent = d.streak;
+      countUp(document.getElementById('streak-number'), d.streak);
       const note = document.getElementById('streak-note');
       note.replaceChildren(
         el('span', { text: d.todayDone ? '오늘 쿠키도 열었어요. 내일 또 만나요!' : `오늘도 커밋하면 ${d.streak + 1}일이 돼요.` }),
@@ -401,16 +436,17 @@
       const heat = document.getElementById('heat');
       heat.replaceChildren(...'월화수목금토일'.split('').map((day) => el('span', { class: 'dow', text: day })));
       const cells = d.heat ?? Array.from({ length: 35 }, (_, i) => ({ level: i === 24 ? 0 : i > 24 ? -1 : [0, 1, 0, 1, 2, 0, 0, 0, 2, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3][i] ?? 1, today: i === 24 }));
-      for (const cell of cells) heat.append(el('i', { class: `${cell.level > 0 ? `l${cell.level}` : ''} ${cell.today ? 'now' : ''} ${cell.level < 0 ? 'future' : ''}`.trim(), title: cell.date ?? '' }));
+      cells.forEach((cell, i) => heat.append(el('i', { style: `--i:${i}`, class: `${cell.level > 0 ? `l${cell.level}` : ''} ${cell.today ? 'now' : ''} ${cell.level < 0 ? 'future' : ''}`.trim(), title: cell.date ?? '' })));
 
       // 운세 일기 도장 (이번 주, 미래가 위 → 지난날이 아래. 휴대폰에서는 한 줄)
       const stamps = document.getElementById('stamps');
       const narrow = window.matchMedia('(max-width: 960px)').matches;
       const week = narrow ? d.week : [...d.week].reverse();
-      stamps.replaceChildren(...week.map((day) => {
-        const icon = day.state === 'done' ? '/img/icons/point.svg' : day.state === 'today' ? '/img/icons/flame.svg' : day.state === 'frozen' ? '/cookies/item-freeze.svg' : '/img/icons/lock.svg';
-        const name = { done: '연 날', today: '오늘', frozen: '냉동 쿠키로 이은 날', missed: '못 연 날', future: '아직' }[day.state];
-        return el('span', { class: `stamp ${day.state}`, title: `${day.label}요일 · ${name}` }, el('img', { src: icon, alt: '' }), el('span', { class: 'day', text: day.label }), el('span', { class: 'visually-hidden', text: `${day.label}요일 ${name}` }));
+      stamps.replaceChildren(...week.map((day, i) => {
+        // 연 날 = 쿠키 동전, 오늘 = 불꽃(연 날이면 주황 + 반짝이는 테두리), 냉동 쿠키, 못 연 날 = 텅 빈 null 쿠키, 아직 = 자물쇠
+        const icon = day.today ? '/img/icons/flame.svg' : day.state === 'done' ? '/img/icons/point.svg' : day.state === 'frozen' ? '/cookies/item-freeze.svg' : day.state === 'missed' ? '/cookies/null.svg' : '/img/icons/lock.svg';
+        const name = day.today ? (day.state === 'done' ? '오늘 연 날' : '오늘') : { done: '연 날', frozen: '냉동 쿠키로 이은 날', missed: '못 연 날', future: '아직' }[day.state];
+        return el('span', { style: `--i:${i}`, class: `stamp ${day.state} ${day.today ? 'is-today' : ''}`, title: `${day.label}요일 · ${name}` }, el('img', { src: icon, alt: '' }), el('span', { class: 'day', text: day.label }), el('span', { class: 'visually-hidden', text: `${day.label}요일 ${name}` }));
       }));
       const opened = d.week.filter((w) => w.state === 'done').length;
       document.getElementById('diary-note').replaceChildren(el('span', { text: `이번 주에 도장 ${opened}개를 찍었어요.` }), el('span', { text: d.todayDone ? '오늘 도장도 찍었어요!' : '오늘 열면 도장이 하나 더 늘어요.' }));
@@ -428,6 +464,22 @@
       }));
       updateReset();
     }
+    // 연속 기록 숫자가 0부터 올라가는 움직임 (화면에 보일 때 한 번)
+    function countUp(node, target) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { node.textContent = target; return; }
+      node.textContent = '0';
+      const run = () => {
+        const start = performance.now();
+        const step = (t) => {
+          const p = Math.min(1, (t - start) / 900);
+          node.textContent = Math.round(target * (1 - (1 - p) ** 3));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+      new IntersectionObserver((entries, obs) => { if (entries[0].isIntersecting) { obs.disconnect(); run(); } }).observe(node);
+    }
+
     // 새 퀘스트까지 남은 시간 (한국 시간 0시)
     function updateReset() {
       const now = new Date();

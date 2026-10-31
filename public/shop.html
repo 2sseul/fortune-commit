@@ -6,6 +6,10 @@
   <title>쿠키 상점 · fortune-commit</title>
   <meta name="description" content="커밋으로 모은 포인트로 쿠키 스킨, 디저트 테마, 쿠키 뽑기, 아이템을 사는 상점">
   <link rel="icon" href="/cookies/plain.svg">
+  <link rel="modulepreload" href="/site.js">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&family=Nunito:wght@800;900&family=JetBrains+Mono&display=swap">
   <link rel="stylesheet" href="/site.css">
   <style>
     /* 쿠키 상점 페이지에만 쓰는 스타일 (Figma 🛒 Shop · PC / 📱 Shop · Mobile) */
@@ -430,15 +434,15 @@
     }, { rootMargin: '-40% 0px -55% 0px' });
     for (const id of ['skins', 'themes', 'gacha', 'items']) observer.observe(document.getElementById(id));
 
-    const [me, , data, daily] = await Promise.all([
+    // /api/shop 하나가 지갑·가진 것·퀘스트(daily)를 함께 준다. (GitHub 확인을 한 번만 하게)
+    const [me, , data] = await Promise.all([
       setupHeader(),
       loadCatalog().then((c) => { catalog = c; }),
       fetch('/api/shop', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({ items: [], loggedIn: false })),
-      fetch('/api/daily', { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
     ]);
     shop = data;
     renderAll();
-    if (me.loggedIn && daily?.loggedIn) renderSidePanel(document.getElementById('side'), { daily, equipped: shop.equipped, cookies: catalog.cookies });
+    if (me.loggedIn && shop.daily) renderSidePanel(document.getElementById('side'), { daily: shop.daily, equipped: shop.equipped, cookies: catalog.cookies });
     else renderSidePanel(document.getElementById('side'), { daily: null, equipped: undefined });
     if (!me.loggedIn) document.getElementById('side').hidden = true;
     if (location.hash) document.querySelector(location.hash)?.scrollIntoView();

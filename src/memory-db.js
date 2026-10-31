@@ -14,6 +14,7 @@ export function createMemoryDb() {
     async get(key) { const v = data.get(key); return v === undefined ? null : String(v); },
     async set(key, value, options = {}) {
       if (options.NX && data.has(key)) return null;
+      // EX(만료)는 개발용이라 무시한다.
       data.set(key, value);
       return 'OK';
     },

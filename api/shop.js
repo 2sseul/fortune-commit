@@ -24,6 +24,8 @@ function summary(account) {
     todayOpen: account.activity ? account.activity.today > 0 : null, // 오늘 쿠키가 열렸는지 (출석 가능 여부)
     streak: account.daily.streak,
     rewards: account.rewards,
+    daily: account.daily, // 오른쪽 패널(퀘스트)용: /api/daily를 따로 부르지 않게 (v3, 속도)
+    next: account.next,
   };
 }
 

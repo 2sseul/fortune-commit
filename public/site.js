@@ -39,6 +39,26 @@ function navLinks(className, short) {
   return nav;
 }
 
+// 화면에 들어올 때 나타나는 움직임: selector에 맞는 요소들에 .reveal을 붙이고, 보이면 .in을 붙인다.
+//   같은 묶음 안의 형제들은 순서대로 조금씩 늦게 나타난다. (움직임 줄이기 설정이면 바로 보인다)
+export function setupReveal(selector) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('js');
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('in');
+      observer.unobserve(entry.target);
+    }
+  }, { rootMargin: '0px 0px -8% 0px' });
+  for (const node of document.querySelectorAll(selector)) {
+    const index = [...node.parentElement.children].indexOf(node);
+    node.style.setProperty('--delay', `${Math.min(index, 6) * 0.07}s`);
+    node.classList.add('reveal');
+    observer.observe(node);
+  }
+}
+
 function renderChrome() {
   const header = document.getElementById('topnav');
   if (header && !header.dataset.ready) {

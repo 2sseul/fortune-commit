@@ -48,6 +48,7 @@ export default async function handler(req, res) {
   sendJson(res, 200, {
     loggedIn: true, login, equipped: profile.skin, theme: profile.theme, ownedThemes, activityChecked: Boolean(account.year),
     skins: account.cookies, next: account.next, wallet: account.wallet, streak: account.daily.streak,
+    daily: account.daily, // 오른쪽 패널(퀘스트)용: /api/daily를 따로 부르지 않게 (v3, 속도)
   });
 }
 

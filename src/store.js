@@ -14,6 +14,7 @@
 //        diary:아이디:연도   운세 일기: 날짜 → { fortune, grade } (쿠키를 연 날)
 //        since:아이디        위젯·사이트에서 처음 본 날 (레트로 쿠키)
 //        ai:아이디:날짜      AI 점쟁이가 쓴 그날의 운세, ai-count:날짜: 그날 전체 생성 수
+//        cache:...           잠깐 기억해 두는 계산 결과 (올해 활동 등, 만료 시간이 있다)
 // Redis 주소는 Vercel에 연결한 DB가 넣어 주는 환경변수 REDIS_URL을 쓴다.
 // DB에 문제가 있어도 위젯이 깨지지 않도록, 읽기에 실패하면 null을 돌려준다.
 
@@ -414,5 +415,27 @@ export async function releaseAiSlot(date, db) {
     if (client) await client.decrBy(keys.aiCount(date), 1);
   } catch {
     // 다음 날이면 어차피 새로 센다.
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 잠깐 기억해 두기 (v3): 서버 함수가 여러 개 떠 있어도 같은 결과를 나눠 쓰게 Redis에 둔다.
+export async function cacheGet(key, db) {
+  try {
+    const client = db ?? await getClient();
+    if (!client) return null;
+    const raw = await client.get(`cache:${key}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function cacheSet(key, value, seconds, db) {
+  try {
+    const client = db ?? await getClient();
+    if (client) await client.set(`cache:${key}`, JSON.stringify(value), { EX: seconds });
+  } catch {
+    // 기억하지 못해도 다음에 다시 계산하면 된다.
   }
 }
