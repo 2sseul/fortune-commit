@@ -70,8 +70,16 @@ export default async function handler(req, res) {
   // GitHub는 README 이미지를 자체 서버(camo)에 캐시하는데, 이 시간이 지나면 새로 받아 간다.
   // 아이디가 있는 위젯은 Vercel 엣지에 저장하지 않는다: 장착을 바꾸고 camo를 비웠을 때(src/camo.js)
   // camo가 다시 받아 가는 그림이 엣지에 남은 옛 그림이 되지 않게. (미리보기·공통 운세는 엣지에 저장해 빠르게)
+  // 아이디가 있는 위젯은 저장하지 말고 매번 새로 받게 한다. (v3.1 테스트 후 변경)
+  //   max-age=300이었을 때 camo는 PURGE로 비웠지만, 브라우저가 그 5분 동안 옛 그림을 보여줘서
+  //   일반 새로고침으로는 장착이 안 바뀌었다(강력 새로고침만 됨). GitHub 활동은 서버에 저장돼 있어 매번 받아도 0.3초대.
   const personal = Boolean(widget.user) && !searchParams.get('preview');
-  res.setHeader('Cache-Control', `public, max-age=${widget.cacheSeconds}${personal ? '' : `, s-maxage=${widget.cacheSeconds}`}`);
-  if (personal) res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+  if (personal) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Expires', '0');
+    res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+  } else {
+    res.setHeader('Cache-Control', `public, max-age=${widget.cacheSeconds}, s-maxage=${widget.cacheSeconds}`);
+  }
   res.end(svg);
 }
