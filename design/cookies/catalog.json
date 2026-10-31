@@ -173,7 +173,7 @@
    "id": "crab",
    "label": "Rust 쿠키",
    "category": "언어",
-   "unlock": "올해 Rust 저장소에 커밋 50개",
+   "unlock": "Rust 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/crab.svg",
    "pixel": "design/cookies/pixel/crab.json"
@@ -182,7 +182,7 @@
    "id": "python",
    "label": "Python 쿠키",
    "category": "언어",
-   "unlock": "올해 Python 저장소에 커밋 50개",
+   "unlock": "Python 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/python.svg",
    "pixel": "design/cookies/pixel/python.json"
@@ -191,7 +191,7 @@
    "id": "coffee",
    "label": "Java 쿠키",
    "category": "언어",
-   "unlock": "올해 Java 저장소에 커밋 50개",
+   "unlock": "Java 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/coffee.svg",
    "pixel": "design/cookies/pixel/coffee.json"
@@ -200,7 +200,7 @@
    "id": "javascript",
    "label": "JavaScript 쿠키",
    "category": "언어",
-   "unlock": "올해 JavaScript 저장소에 커밋 50개",
+   "unlock": "JavaScript 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/javascript.svg",
    "pixel": "design/cookies/pixel/javascript.json"
@@ -209,7 +209,7 @@
    "id": "typescript",
    "label": "TypeScript 쿠키",
    "category": "언어",
-   "unlock": "올해 TypeScript 저장소에 커밋 50개",
+   "unlock": "TypeScript 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/typescript.svg",
    "pixel": "design/cookies/pixel/typescript.json"
@@ -218,7 +218,7 @@
    "id": "go",
    "label": "Go 쿠키",
    "category": "언어",
-   "unlock": "올해 Go 저장소에 커밋 50개",
+   "unlock": "Go 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/go.svg",
    "pixel": "design/cookies/pixel/go.json"
@@ -227,7 +227,7 @@
    "id": "kotlin",
    "label": "Kotlin 쿠키",
    "category": "언어",
-   "unlock": "올해 Kotlin 저장소에 커밋 50개",
+   "unlock": "Kotlin 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/kotlin.svg",
    "pixel": "design/cookies/pixel/kotlin.json"
@@ -236,7 +236,7 @@
    "id": "swift",
    "label": "Swift 쿠키",
    "category": "언어",
-   "unlock": "올해 Swift 저장소에 커밋 50개",
+   "unlock": "Swift 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/swift.svg",
    "pixel": "design/cookies/pixel/swift.json"
@@ -245,7 +245,7 @@
    "id": "cpp",
    "label": "C++ 쿠키",
    "category": "언어",
-   "unlock": "올해 C++ 저장소에 커밋 50개",
+   "unlock": "C++ 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/cpp.svg",
    "pixel": "design/cookies/pixel/cpp.json"
@@ -254,7 +254,7 @@
    "id": "csharp",
    "label": "C# 쿠키",
    "category": "언어",
-   "unlock": "올해 C# 저장소에 커밋 50개",
+   "unlock": "C# 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/csharp.svg",
    "pixel": "design/cookies/pixel/csharp.json"
@@ -263,7 +263,7 @@
    "id": "ruby",
    "label": "Ruby 쿠키",
    "category": "언어",
-   "unlock": "올해 Ruby 저장소에 커밋 50개",
+   "unlock": "Ruby 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/ruby.svg",
    "pixel": "design/cookies/pixel/ruby.json"
@@ -272,7 +272,7 @@
    "id": "php",
    "label": "PHP 쿠키",
    "category": "언어",
-   "unlock": "올해 PHP 저장소에 커밋 50개",
+   "unlock": "PHP 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/php.svg",
    "pixel": "design/cookies/pixel/php.json"
@@ -281,7 +281,7 @@
    "id": "dart",
    "label": "Dart 쿠키",
    "category": "언어",
-   "unlock": "올해 Dart 저장소에 커밋 50개",
+   "unlock": "Dart 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/dart.svg",
    "pixel": "design/cookies/pixel/dart.json"
@@ -290,7 +290,7 @@
    "id": "shell",
    "label": "Shell 쿠키",
    "category": "언어",
-   "unlock": "올해 Shell 저장소에 커밋 50개",
+   "unlock": "Shell 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/shell.svg",
    "pixel": "design/cookies/pixel/shell.json"
@@ -299,7 +299,7 @@
    "id": "haskell",
    "label": "Haskell 쿠키",
    "category": "언어",
-   "unlock": "올해 Haskell 저장소에 커밋 50개",
+   "unlock": "Haskell 저장소에 커밋 50개",
    "data": "now",
    "vector": "design/cookies/haskell.svg",
    "pixel": "design/cookies/pixel/haskell.json"

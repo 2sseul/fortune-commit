@@ -10,10 +10,13 @@
 import { COOKIES } from './cookie-catalog.js';
 import { fortuneGrade } from './pick.js';
 
-const month = (m) => (y) => y.months[m] ?? 0;
-const onDay = (mmdd) => (y) => Math.min(1, Object.entries(y.days).find(([date]) => date.endsWith(mmdd))?.[1] ?? 0);
+// 조건에 '올해'가 붙은 쿠키는 올해 숫자로, 나머지는 가입한 날부터 전체 숫자로 센다. (v3, 11-01)
+//   (올해 숫자가 따로 없으면 — 예전 형식이나 테스트 — 같은 값을 쓴다)
+const yr = (y) => y.thisYear ?? y;
+const month = (m) => (y) => y.months[m] ?? 0; // 시즌 쿠키: 어느 한 해의 그 달
+const onDay = (mmdd) => (y) => (Object.entries(y.days).some(([date, count]) => date.endsWith(mmdd) && count > 0) ? 1 : 0); // 어느 해든 그날
 
-// 언어 쿠키: 올해 그 언어 저장소에 커밋 50개 (v3, 여러 언어를 모두 열 수 있다)
+// 언어 쿠키: 그 언어 저장소에 커밋 50개 — 가입한 날부터 전체 (v3, 여러 언어를 모두 열 수 있다)
 //   예전 규칙(주 언어 하나 + 기여 100)은 언어 쿠키를 하나만 열 수 있어서 바꿨다.
 export const LANGUAGE_COOKIES = {
   crab: 'Rust', python: 'Python', coffee: 'Java', javascript: 'JavaScript', typescript: 'TypeScript',
@@ -25,12 +28,12 @@ const language = (name) => ({ goal: LANGUAGE_GOAL, unit: `${name} commits`, meas
 
 export const UNLOCK_RULES = {
   plain: { goal: 0, unit: '', measure: () => 0 },
-  choco: { goal: 50, unit: 'contributions', measure: (y) => y.total },
-  matcha: { goal: 150, unit: 'contributions', measure: (y) => y.total },
-  gold: { goal: 7, unit: 'day streak', measure: (y) => y.streak },
-  cat: { goal: 100, unit: 'commits', measure: (y) => y.commits },
-  dog: { goal: 10, unit: 'PRs', measure: (y) => y.prs },
-  rabbit: { goal: 10, unit: 'reviews', measure: (y) => y.reviews },
+  choco: { goal: 50, unit: 'contributions', measure: (y) => yr(y).total },
+  matcha: { goal: 150, unit: 'contributions', measure: (y) => yr(y).total },
+  gold: { goal: 7, unit: 'day streak', measure: (y) => yr(y).streak },
+  cat: { goal: 100, unit: 'commits', measure: (y) => yr(y).commits },
+  dog: { goal: 10, unit: 'PRs', measure: (y) => yr(y).prs },
+  rabbit: { goal: 10, unit: 'reviews', measure: (y) => yr(y).reviews },
   pumpkin: { goal: 10, unit: 'in October', measure: month(10) },
   snowman: { goal: 10, unit: 'in December', measure: month(12) },
   deer: { goal: 30, unit: 'in December', measure: month(12) },
@@ -49,7 +52,7 @@ export const UNLOCK_RULES = {
   // v3 언어 쿠키
   ...Object.fromEntries(Object.entries(LANGUAGE_COOKIES).map(([id, name]) => [id, language(name)])),
   // v3 개발자 밈 쿠키
-  grass: { goal: 365, unit: 'contributions', measure: (y) => y.total },
+  grass: { goal: 365, unit: 'contributions', measure: (y) => yr(y).total },
   lgtm: { goal: 30, unit: 'approvals', measure: (y) => y.approvals ?? 0 },
   star: { goal: 10, unit: 'stars', measure: (y) => y.stars ?? 0 },
   fork: { goal: 5, unit: 'forks', measure: (y) => y.forks ?? 0 },
@@ -58,7 +61,7 @@ export const UNLOCK_RULES = {
   null: { goal: 30, unit: 'empty days', measure: (y) => y.emptyDays ?? 0 },
   duck: { goal: 50, unit: 'issue comments', measure: (y) => y.issueComments ?? 0 },
   infinite: { goal: 100, unit: 'day streak', measure: (y) => Math.max(y.streak, y.bestStreak ?? 0) },
-  semicolon: { goal: 1000, unit: 'contributions', measure: (y) => y.total },
+  semicolon: { goal: 1000, unit: 'contributions', measure: (y) => yr(y).total },
   stackoverflow: { goal: 20, unit: 'in one day', measure: (y) => y.bestDay ?? 0 },
   legacy: { goal: 1, unit: 'legacy repo', measure: (y) => y.legacy ?? 0 },
   darkmode: { goal: 30, unit: 'commits after 10pm', measure: (y) => y.night ?? 0 },
@@ -80,7 +83,8 @@ export const GACHA_COOKIES = COOKIES.filter((cookie) => cookie.category === '뽑
 export function withSiteStats(year, { login, date, bestStreak = 0, since = null }) {
   if (!year) return year;
   const days = Object.entries(year.days).filter(([day]) => day <= date);
-  const emptyDays = days.filter(([, count]) => count === 0).length;
+  // null 쿠키(빈 날 30일)는 운세 일기와 같은 올해 기준 (전체로 세면 누구나 바로 열린다)
+  const emptyDays = days.filter(([day, count]) => count === 0 && day >= `${date.slice(0, 4)}-01-01`).length;
   const legendDays = login ? days.filter(([day, count]) => count > 0 && fortuneGrade(login, day) === 'legend').length : 0;
   const widgetDays = since ? Math.floor((Date.parse(date) - Date.parse(since)) / 86400000) : 0;
   return { ...year, emptyDays, legendDays, bestStreak, widgetDays };
@@ -88,8 +92,8 @@ export function withSiteStats(year, { login, date, bestStreak = 0, since = null 
 
 // 올해 12월 25일의 기여 수
 function christmasCount(year) {
-  const christmas = Object.keys(year.days).find((date) => date.endsWith('-12-25'));
-  return christmas ? year.days[christmas] : 0;
+  // 어느 해든 12월 25일에 기여가 있으면
+  return Math.max(0, ...Object.entries(year.days).filter(([date]) => date.endsWith('-12-25')).map(([, count]) => count));
 }
 
 // 스킨의 해금 상태를 돌려준다.

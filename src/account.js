@@ -81,7 +81,7 @@ export async function loadAccount(login, date) {
   }
 
   const wallet = record && year
-    ? { ...makeWallet({ contributions: year.total, attendance: record.attendance, spent: record.spent, bonus: record.bonus + granted }),
+    ? { ...makeWallet({ contributions: year.yearTotal ?? year.total, attendance: record.attendance, spent: record.spent, bonus: record.bonus + granted }),
       attendance: record.attendance, attendedToday: record.attendedToday, crumbs: record.crumbs, tickets: record.tickets, freezes: freezeInfo.freezes.length }
     : null;
 
@@ -98,7 +98,7 @@ export async function loadAccount(login, date) {
     daily: {
       streak: streak.current,
       bestStreak,
-      openDays: Object.values(days).filter((n) => n > 0).length + (streak.todayDone && !(days[date] > 0) ? 1 : 0), // 올해 쿠키를 연 날
+      openDays: Object.entries(days).filter(([d, n]) => n > 0 && d.startsWith(yearKey)).length + (streak.todayDone && !(days[date] > 0) ? 1 : 0), // 올해 쿠키를 연 날
       since: since ?? date,
       todayDone: streak.todayDone,
       freezes: freezeInfo.freezes.length,

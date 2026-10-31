@@ -27,6 +27,7 @@ export function devYear(date) {
   const total = Object.values(days).reduce((a, b) => a + b, 0);
   return {
     total, commits: Math.round(total * 0.8), prs: 12, reviews: 3, streak: 12, months, days,
+    yearTotal: total, thisYear: { total, commits: Math.round(total * 0.8), prs: 12, reviews: 3, streak: 12 },
     weekendDays: 40, bestDay: 9, fullMonths: 0,
     language: 'JavaScript', languageCommits: { JavaScript: 180, Python: 34, Java: 52 }, merged: 8, approvals: 4, stars: 6, forks: 1, newRepos: 2, legacy: 0, docker: 0,
     issueComments: 20, closedIssues: 4, late: 3, night: 12, friday: 0, fixes: 7,

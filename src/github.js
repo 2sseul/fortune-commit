@@ -199,26 +199,24 @@ export function clearActivityMemory() {
 }
 
 // ---------------------------------------------------------------------------
-// v2: 스킨 해금에 쓰는 "올해 활동" (v3에서 쿠키 65종에 맞게 늘림)
-//   total     : 올해 기여 수 (잔디 수)
-//   commits   : 올해 커밋 수, prs: 올해 PR 수, reviews: 올해 코드 리뷰 수
-//   streak    : 올해 가장 길게 이어진 연속 기여 일수
-//   months    : 월별 기여 수 { 1: 3, 10: 12, ... }
-//   days      : 날짜별 기여 수 { '2026-12-25': 2, ... }
-//   (v3) language   : 내 공개 저장소에서 가장 많이 쓴 언어
-//        merged     : 올해 머지된 내 PR 수 (최근 100개 중), approvals: 올해 승인한 리뷰 수 (최근 100개 중)
-//        stars      : 내 공개 저장소 별 합계, forks: 올해 포크한 저장소 수, newRepos: 올해 만든 저장소 수
-//        legacy     : 만든 지 1년 넘었는데 올해 push한 저장소 수, docker: Dockerfile이 있고 올해 push한 저장소 수
-//        issueComments : 이슈 댓글 수 (전체), closedIssues : 내가 연 이슈 중 닫힌 것 (전체)
-//        languageCommits : 올해 언어별 커밋 수 { JavaScript: 120, Python: 12 } (커밋한 저장소의 대표 언어로 센다, 남의 저장소 포함)
-//        late / night / friday / fixes : 올해 커밋 중 새벽(0~5시)·밤(22시~)·금요일 저녁(18시~) 커밋 수, 메시지에 fix가 들어간 커밋 수
+// v2: 스킨 해금에 쓰는 "올해 활동" → v3: **가입한 날부터 지금까지 전체 활동** (사용자 결정 11-01)
+//   GitHub 기여 질의는 한 번에 1년까지만 물을 수 있어서, 가입한 해부터 올해까지 해마다 나눠 동시에 묻고 더한다.
+//   total     : 전체 기여 수 (잔디 수), yearTotal: 올해 기여 수 (포인트는 해마다 새로 시작하므로 이걸 쓴다)
+//   thisYear  : 올해만의 { total, commits, prs, reviews, streak } — 조건에 '올해'가 붙은 쿠키용
+//   commits / prs / reviews : 전체 커밋·PR·코드 리뷰 수
+//   streak    : 지금까지 가장 길게 이어진 연속 기여 일수 (해가 바뀌어도 이어서 센다)
+//   months    : 월별 기여 수 — 한 해 기준으로 가장 많았던 해의 값 { 10: 12, ... } (시즌 쿠키는 '어느 한 해'에 채우면 된다)
+//   days      : 날짜별 기여 수 { '2026-12-25': 2, ... } (전체 기간)
+//   (v3) merged / approvals : 머지된 내 PR 수, 승인한 리뷰 수 (해마다 최근 100개까지 보고 더한다)
+//        languageCommits : 언어별 커밋 수 { JavaScript: 120, Python: 12 } (커밋한 저장소의 대표 언어, 남의 저장소 포함)
+//        stars / forks / newRepos / legacy / docker : 내 공개 저장소 기준 (최근 push한 30개)
+//        issueComments / closedIssues : 이슈 댓글 수, 내가 연 이슈 중 닫힌 것 (전체)
+//        late / night / friday / fixes : 새벽(0~5시)·밤(22시~)·금요일 저녁(18시~) 커밋, 메시지에 fix가 들어간 커밋 수
 //          (최근 push한 저장소 30개에서 저장소마다 최근 커밋 40개를 본다. 한 번 해금하면 기록되므로 표본으로 충분하다)
 // 날짜별 기여는 GitHub 잔디(contributionCalendar)의 날짜를 그대로 쓴다.
 
-const YEAR_QUERY = `
-  query ($login: String!, $from: DateTime!, $to: DateTime!, $since: GitTimestamp!) {
-    user(login: $login) {
-      contributionsCollection(from: $from, to: $to) {
+// 해마다 묻는 기여 숫자 (올해·지난해 모두)
+const YEAR_FIELDS = `
         totalCommitContributions
         totalPullRequestContributions
         totalPullRequestReviewContributions
@@ -231,7 +229,14 @@ const YEAR_QUERY = `
         commitContributionsByRepository(maxRepositories: 100) {
           repository { primaryLanguage { name } }
           contributions { totalCount }
-        }
+        }`;
+
+// 올해 + 가입한 날 + 저장소·이슈·커밋 시각 (한 번만)
+const YEAR_QUERY = `
+  query ($login: String!, $from: DateTime!, $to: DateTime!) {
+    user(login: $login) {
+      createdAt
+      contributionsCollection(from: $from, to: $to) {${YEAR_FIELDS}
       }
       issueComments { totalCount }
       closedIssues: issues(states: CLOSED) { totalCount }
@@ -241,17 +246,27 @@ const YEAR_QUERY = `
           primaryLanguage { name }
           dockerfile: object(expression: "HEAD:Dockerfile") { id }
           defaultBranchRef { target { ... on Commit {
-            history(first: 40, since: $since) { nodes { committedDate message author { user { login } } } }
+            history(first: 40) { nodes { committedDate message author { user { login } } } }
           } } }
         }
       }
     }
   }`;
 
-// v2의 기본 질의 (기여 달력·커밋·PR·리뷰만). v3 질의가 실패하면 이걸로 다시 물어서, 예전 쿠키 해금은 언제나 계산되게 한다.
+// 지난해 하나 (기여 숫자만)
+const PAST_YEAR_QUERY = `
+  query ($login: String!, $from: DateTime!, $to: DateTime!) {
+    user(login: $login) {
+      contributionsCollection(from: $from, to: $to) {${YEAR_FIELDS}
+      }
+    }
+  }`;
+
+// v2의 기본 질의 (기여 달력·커밋·PR·리뷰만). 올해 질의가 실패하면 이걸로 다시 물어서, 예전 쿠키 해금은 언제나 계산되게 한다.
 const BASIC_YEAR_QUERY = `
   query ($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
+      createdAt
       contributionsCollection(from: $from, to: $to) {
         totalCommitContributions
         totalPullRequestContributions
@@ -282,23 +297,16 @@ export function languageCommits(byRepository) {
 }
 
 // 저장소·커밋 정보로 v3 쿠키에 쓰는 숫자를 센다. (user가 없으면 모두 0)
-export function summarizeExtras(user, { login, from, timeZone } = {}) {
+export function summarizeExtras(user, { login, timeZone } = {}) {
   const repos = user?.repositories?.nodes?.filter(Boolean) ?? [];
   const own = repos.filter((repo) => !repo.isFork);
-  const yearStart = from ? Date.parse(from) : 0;
-  const thisYear = (iso) => Boolean(iso) && Date.parse(iso) >= yearStart;
-  const collection = user?.contributionsCollection;
   const extras = {
-    // 주 언어는 올해 push한 저장소로 센다 ('올해 기여 100'과 같은 기간). 올해 push한 저장소가 없으면 전부로
-    language: mostUsedLanguage(own.some((repo) => thisYear(repo.pushedAt)) ? own.filter((repo) => thisYear(repo.pushedAt)) : own),
-    merged: (collection?.pullRequestContributions?.nodes ?? []).filter((n) => n?.pullRequest?.merged).length,
-    approvals: (collection?.pullRequestReviewContributions?.nodes ?? []).filter((n) => n?.pullRequestReview?.state === 'APPROVED').length,
+    language: mostUsedLanguage(own), // 운세 문구의 {lang}용 (언어 쿠키는 languageCommits로)
     stars: own.reduce((sum, repo) => sum + (repo.stargazerCount ?? 0), 0),
-    forks: repos.filter((repo) => repo.isFork && thisYear(repo.createdAt)).length,
-    newRepos: own.filter((repo) => thisYear(repo.createdAt)).length,
-    legacy: own.filter((repo) => thisYear(repo.pushedAt) && Date.parse(repo.pushedAt) - Date.parse(repo.createdAt) > 365 * DAY_MS).length,
-    docker: own.filter((repo) => repo.dockerfile && thisYear(repo.pushedAt)).length,
-    languageCommits: languageCommits(collection?.commitContributionsByRepository),
+    forks: repos.filter((repo) => repo.isFork).length,
+    newRepos: own.length,
+    legacy: own.filter((repo) => repo.pushedAt && Date.parse(repo.pushedAt) - Date.parse(repo.createdAt) > 365 * DAY_MS).length,
+    docker: own.filter((repo) => repo.dockerfile).length,
     issueComments: user?.issueComments?.totalCount ?? 0,
     closedIssues: user?.closedIssues?.totalCount ?? 0,
     late: 0,
@@ -309,7 +317,7 @@ export function summarizeExtras(user, { login, from, timeZone } = {}) {
   const me = (login ?? '').toLowerCase();
   for (const repo of repos) {
     for (const commit of repo.defaultBranchRef?.target?.history?.nodes ?? []) {
-      if (!commit || commit.author?.user?.login?.toLowerCase() !== me || !thisYear(commit.committedDate)) continue;
+      if (!commit || commit.author?.user?.login?.toLowerCase() !== me) continue;
       const { weekday, hour } = localTime(commit.committedDate, timeZone);
       if (hour < 5) extras.late += 1;
       if (hour >= 22) extras.night += 1;
@@ -379,7 +387,61 @@ export function summarizeYear(collection) {
   };
 }
 
-// 위젯 주인의 올해 활동을 돌려준다. 확인할 수 없으면 null.
+// 해마다의 기여 기록(contributionsCollection 목록, 첫 번째가 올해)을 전체 활동 하나로 합친다. (v3)
+export function summarizeLifetime(collections) {
+  const [current] = collections;
+  const allDays = collections.flatMap((c) => c.contributionCalendar.weeks.flatMap((week) => week.contributionDays));
+  // 달력 하나로 합쳐 연속 기록·주말·최대 기여를 다시 센다. (같은 날이 두 해에 걸쳐 나오면 하나만)
+  const merged = summarizeYear({ ...current, contributionCalendar: { totalContributions: 0, weeks: [{ contributionDays: [...new Map(allDays.map((d) => [d.date, d])).values()] }] } });
+  // 시즌 쿠키용 월별 기여는 '가장 많았던 한 해'의 값
+  const months = {};
+  for (const c of collections) {
+    for (const [month, count] of Object.entries(summarizeYear(c).months)) months[month] = Math.max(months[month] ?? 0, count);
+  }
+  const sum = (pick) => collections.reduce((total, c) => total + (pick(c) ?? 0), 0);
+  const languages = {};
+  for (const c of collections) {
+    for (const [name, count] of Object.entries(languageCommits(c.commitContributionsByRepository))) languages[name] = (languages[name] ?? 0) + count;
+  }
+  return {
+    ...merged,
+    months,
+    total: sum((c) => c.contributionCalendar.totalContributions),
+    yearTotal: current.contributionCalendar.totalContributions,
+    commits: sum((c) => c.totalCommitContributions),
+    prs: sum((c) => c.totalPullRequestContributions),
+    reviews: sum((c) => c.totalPullRequestReviewContributions),
+    merged: sum((c) => c.pullRequestContributions?.nodes?.filter((n) => n?.pullRequest?.merged).length),
+    approvals: sum((c) => c.pullRequestReviewContributions?.nodes?.filter((n) => n?.pullRequestReview?.state === 'APPROVED').length),
+    languageCommits: languages,
+    years: collections.length,
+    // 조건에 '올해'가 붙은 쿠키(초코·말차·황금·고양이·강아지·토끼·잔디·세미콜론)는 이 숫자로 센다.
+    thisYear: {
+      total: current.contributionCalendar.totalContributions,
+      commits: current.totalCommitContributions,
+      prs: current.totalPullRequestContributions,
+      reviews: current.totalPullRequestReviewContributions,
+      streak: summarizeYear(current).streak,
+    },
+  };
+}
+
+// 가입한 해부터 작년까지, 해마다의 [시작, 끝] (기준 시간대의 1월 1일 0시)
+export function pastYearRanges(createdAt, yearFrom) {
+  if (!createdAt) return [];
+  const ranges = [];
+  let end = new Date(yearFrom);
+  const created = Date.parse(createdAt);
+  while (end.getTime() > created) {
+    const start = new Date(end);
+    start.setUTCFullYear(start.getUTCFullYear() - 1);
+    ranges.push([new Date(Math.max(start.getTime(), created)).toISOString(), new Date(end.getTime() - 1000).toISOString()]);
+    end = start;
+  }
+  return ranges;
+}
+
+// 위젯 주인의 전체 활동(가입한 날부터 지금까지)을 돌려준다. 확인할 수 없으면 null.
 export async function fetchYearActivity({
   login,
   timeZone,
@@ -395,7 +457,7 @@ export async function fetchYearActivity({
   const remembered = yearMemory.get(key);
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.year;
   // 다른 서버 함수가 방금 물어본 결과가 Redis에 있으면 그걸 쓴다. (GitHub 질의가 1~3초 걸려서)
-  const shared = await cacheGet(`year3:${key.toLowerCase()}`);
+  const shared = await cacheGet(`life1:${key.toLowerCase()}`);
   if (shared) {
     yearMemory.set(key, { year: shared, expiresAt: now.getTime() + 5 * 60 * 1000 });
     return shared;
@@ -421,16 +483,21 @@ export async function fetchYearActivity({
     }
   };
 
-  // v3 질의(저장소·커밋까지)를 먼저, 실패하면 v2 기본 질의로 다시 (예전 쿠키 해금은 언제나 계산되게)
-  let user = await ask(YEAR_QUERY, { ...variables, since: yearFrom }, 6000); // v3: 저장소·커밋까지 보느라 조금 더 기다린다
+  // 올해 질의(저장소·커밋·가입한 날까지)를 먼저, 실패하면 v2 기본 질의로 다시 (예전 쿠키 해금은 언제나 계산되게)
+  let user = await ask(YEAR_QUERY, variables, 6000);
   const full = Boolean(user);
   if (!user) user = await ask(BASIC_YEAR_QUERY, variables, 3000);
   if (!user) return null;
 
-  const year = { ...summarizeYear(user.contributionsCollection), ...(full ? summarizeExtras(user, { login, from: yearFrom, timeZone }) : {}) };
+  // 지난해들 (가입한 해까지): 동시에 묻고, 실패한 해는 빼고 더한다.
+  const past = await Promise.all(pastYearRanges(user.createdAt, yearFrom)
+    .map(([from, to]) => ask(PAST_YEAR_QUERY, { login, from, to }, 6000).then((u) => u?.contributionsCollection ?? null)));
+  const collections = [user.contributionsCollection, ...past.filter(Boolean)];
+
+  const year = { ...summarizeLifetime(collections), ...(full ? summarizeExtras(user, { login, timeZone }) : {}), since: user.createdAt ?? null };
   // 기본 질의로만 받았으면 짧게 기억해서 곧 다시 v3 질의를 해 본다.
   yearMemory.set(key, { year, expiresAt: now.getTime() + (full ? YEAR_MEMORY_MS : 5 * 60 * 1000) });
-  await cacheSet(`year3:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
+  await cacheSet(`life1:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
   return year;
 }
 

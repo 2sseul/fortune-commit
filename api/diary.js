@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   }
   const today = todayIn();
   const [account, entries, { frozen }] = await Promise.all([loadAccount(login, today), getDiary(login, today.slice(0, 4)), getFreezes(login)]);
-  const days = Object.fromEntries(Object.entries(account.year?.days ?? {}).filter(([date]) => date <= today));
+  const days = Object.fromEntries(Object.entries(account.year?.days ?? {}).filter(([date]) => date <= today && date.startsWith(today.slice(0, 4)))); // 일기는 올해
   // 등급은 아이디 + 날짜로 정해지므로, 기록이 없는 날도 쿠키를 연 날이면 등급을 보여줄 수 있다.
   const grades = Object.fromEntries(Object.entries(days).filter(([, n]) => n > 0).map(([date]) => [date, fortuneGrade(login, date)]));
   sendJson(res, 200, {

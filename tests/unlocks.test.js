@@ -151,3 +151,63 @@ test('v3 질의가 실패하면 기본 질의로 다시 물어 예전 쿠키 해
   assert.equal(year.total, 2);
   assert.equal(year.stars, undefined); // v3 숫자는 없음 → 새 쿠키는 0으로 계산(잠김)
 });
+
+// ---------- v3: 가입한 날부터 전체 활동 + '올해' 쿠키는 올해만 ----------
+import { summarizeLifetime, pastYearRanges } from '../src/github.js';
+
+const collection = (days, extra = {}) => ({
+  totalCommitContributions: extra.commits ?? 0,
+  totalPullRequestContributions: extra.prs ?? 0,
+  totalPullRequestReviewContributions: 0,
+  contributionCalendar: { totalContributions: days.reduce((t, [, n]) => t + n, 0), weeks: [{ contributionDays: days.map(([date, contributionCount]) => ({ date, contributionCount })) }] },
+  commitContributionsByRepository: extra.repos ?? [],
+});
+
+test('여러 해를 합친다: 전체 합계, 해를 넘는 연속 기록, 시즌은 가장 많았던 한 해', () => {
+  const thisYear = collection([['2026-01-01', 2], ['2026-01-02', 1], ['2026-10-05', 3]], { commits: 5, repos: [{ repository: { primaryLanguage: { name: 'Python' } }, contributions: { totalCount: 30 } }] });
+  const lastYear = collection([['2025-10-01', 6], ['2025-10-02', 6], ['2025-12-30', 1], ['2025-12-31', 1]], { commits: 40, repos: [{ repository: { primaryLanguage: { name: 'Python' } }, contributions: { totalCount: 25 } }] });
+  const life = summarizeLifetime([thisYear, lastYear]);
+  assert.equal(life.total, 20);
+  assert.equal(life.yearTotal, 6);
+  assert.equal(life.commits, 45);
+  assert.equal(life.thisYear.commits, 5);
+  assert.equal(life.streak, 4); // 2025-12-30 ~ 2026-01-02
+  assert.equal(life.months[10], 12); // 2025년 10월(12)이 2026년 10월(3)보다 많다
+  assert.equal(life.languageCommits.Python, 55);
+});
+
+test("조건에 '올해'가 붙은 쿠키는 올해 숫자로, 나머지는 전체로 센다", () => {
+  const year = { ...YEAR, total: 2000, commits: 500, thisYear: { total: 40, commits: 10, prs: 1, reviews: 0, streak: 2 }, languageCommits: { Go: 80 } };
+  assert.equal(skinStatus('choco', year).unlocked, false); // 올해 기여 50개: 올해 40
+  assert.equal(skinStatus('cat', year).current, 10); // 올해 커밋
+  assert.equal(skinStatus('go', year).unlocked, true); // 언어 쿠키: 전체 커밋
+});
+
+test('가입한 해부터 작년까지 해마다 범위를 만든다', () => {
+  const ranges = pastYearRanges('2024-06-15T00:00:00Z', '2025-12-31T15:00:00.000Z');
+  assert.equal(ranges.length, 2);
+  assert.equal(ranges[0][0], '2024-12-31T15:00:00.000Z'); // 2025년
+  assert.equal(ranges[1][0], '2024-06-15T00:00:00.000Z'); // 2024년은 가입한 날부터
+  assert.deepEqual(pastYearRanges(null, '2025-12-31T15:00:00.000Z'), []);
+});
+
+test('지난해들도 물어서 더한다 (실패한 해는 빼고)', async () => {
+  clearYearMemory();
+  const day = (date, n) => ({ date, contributionCount: n });
+  const body = (days, createdAt) => ({ data: { user: { ...(createdAt ? { createdAt } : {}), contributionsCollection: {
+    totalCommitContributions: 1, totalPullRequestContributions: 0, totalPullRequestReviewContributions: 0,
+    contributionCalendar: { totalContributions: days.reduce((t, d) => t + d.contributionCount, 0), weeks: [{ contributionDays: days }] },
+  } } } });
+  const fetchImpl = async (url, options) => {
+    const { query, variables } = JSON.parse(options.body);
+    if (query.includes('createdAt')) return { ok: true, json: async () => body([day('2026-03-01', 2)], '2024-05-01T00:00:00Z') };
+    if (variables.from.startsWith('2024-12')) return { ok: true, json: async () => body([day('2025-03-01', 5)]) }; // 2025년
+    return { ok: false }; // 2024년은 실패
+  };
+  const quiet = console.error; console.error = () => {};
+  const year = await fetchYearActivity({ login: 'old-timer', date: '2026-03-02', token: 't', fetchImpl, now: new Date('2026-03-02T03:00:00Z') });
+  console.error = quiet;
+  assert.equal(year.total, 7);
+  assert.equal(year.yearTotal, 2);
+  assert.equal(year.years, 2);
+});
