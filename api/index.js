@@ -11,7 +11,7 @@
 //   tz    : 하루가 바뀌는 기준 시간대. 기본은 Asia/Seoul (예: UTC, America/New_York)
 //   theme : dark(기본) 또는 light. 위젯 주인이 상점에서 산 테마를 장착했으면 그 테마가 우선한다. (v2.2)
 //           디저트 테마(vanilla, strawberry, mintchoco, blueberry, darkchoco)는 preview와 함께일 때만 주소로 볼 수 있다.
-//   width : 위젯 너비 400 ~ 800 (기본 495)
+//   width : 위젯 너비 495 ~ 1000 (기본 495). full이면 README 칸 끝까지 (840으로 그리고 README에서 width="100%"로 늘린다, v3)
 //   radius : 모서리 둥글기 0 ~ 30 (기본 10)
 //   hide_border : true면 테두리 선을 숨긴다
 //   skin  : 쿠키 스킨 이름 (plain, choco, matcha, gold, cat, dog, rabbit, pumpkin, snowman, deer, santa).

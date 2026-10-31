@@ -20,8 +20,9 @@ test('숫자가 아닌 값은 기본값으로 바꾼다', () => {
 });
 
 test('범위를 벗어난 값은 가장 가까운 허용값으로 맞춘다', () => {
-  assert.deepEqual(parse('width=9999&radius=-5'), { width: 800, radius: 0, hideBorder: false });
-  assert.equal(parse('width=10').width, 400);
+  assert.deepEqual(parse('width=9999&radius=-5'), { width: 1000, radius: 0, hideBorder: false });
+  assert.equal(parse('width=10').width, 495); // v3: 기본 크기가 최소
+  assert.equal(parse('width=full').width, 840); // v3: README 칸 끝까지
 });
 
 test('소수는 반올림한다', () => {

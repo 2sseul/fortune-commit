@@ -103,6 +103,7 @@
       me.equipped = data.equipped;
       toast(`${c.label}를 위젯에 올렸어요!`);
       render();
+      renderSide(); // 오른쪽 '장착 중인 쿠키'도 바로 바꾼다
     }
 
     // ---------- 그리기 ----------
@@ -158,6 +159,12 @@
       }
     }
 
+    // 오른쪽 패널: 퀘스트, 장착 중인 쿠키, 곧 해금될 쿠키 (장착을 바꾸면 다시 그린다)
+    function renderSide() {
+      renderSidePanel(document.getElementById('side'), { daily: me.daily, equipped: me.equipped, next: me.next, cookies: catalog.cookies, showNext: true });
+      if (me.next?.length) document.querySelector('#side .card:last-child')?.classList.add('soon');
+    }
+
     // 로그인 전: 안내 카드 + 모든 쿠키의 해금 조건
     function renderLoggedOut() {
       document.getElementById('top').replaceChildren(el('div', { class: 'card pad-lg login-card' },
@@ -180,8 +187,7 @@
       if (!me.activityChecked) document.getElementById('top').replaceChildren(el('p', { class: 'notice', text: 'GitHub 활동을 확인하지 못해서 진행 상황이 0으로 보일 수 있어요. 잠시 후 새로고침해 주세요.' }));
       setHeaderStats({ streak: me.streak, balance: me.wallet?.balance });
       render();
-      renderSidePanel(document.getElementById('side'), { daily, equipped: me.equipped, next: me.next, cookies: catalog.cookies, showNext: true });
-      if (me.next?.length) document.querySelector('#side .card:last-child')?.classList.add('soon');
+      renderSide();
     }
     if (location.hash) document.querySelector(location.hash)?.scrollIntoView({ block: 'center' });
   </script>
