@@ -145,7 +145,6 @@
     .oven-stage:has(.pulls) { height: auto; min-height: 260px; }
     .pull { background: var(--paper); }
     .pull.legend-pull { box-shadow: 0 0 0 3px #FFE07A, 0 0 18px #FFC800; }
-    .rarity-call { margin: 0 0 4px; font: 400 22px/1 var(--title); color: var(--glow); text-shadow: 0 2px 0 rgb(0 0 0 / 0.08); animation: jackpot 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.5); }
     .open-btn { min-width: 200px; font-size: 18px; letter-spacing: 0.1em; animation: nudge 1.4s ease-in-out infinite; }
     @keyframes nudge { 0%, 100% { scale: 1; } 50% { scale: 1.06; } }
     @media (prefers-reduced-motion: reduce) { .oven-stage .puff { display: none; } }
@@ -451,8 +450,7 @@
         stage.classList.add('done');
         const fresh = data.results.filter((r) => !r.duplicate).length;
         document.getElementById('sheet-title').textContent = fresh ? `짜잔! 새 쿠키 ${fresh}개` : '부스러기를 모았어요';
-        const note = document.getElementById('show-note');
-        note.replaceWith(el('p', { class: 'rarity-call', style: `--glow:${RARITY_COLOR[best.rarity]}`, text: best.rarity === '전설' ? '✦ 전설 등장! ✦' : best.rarity === '에픽' ? '에픽!' : `${best.rarity} 쿠키` }));
+        document.getElementById('show-note').remove();
         openButton.remove();
         closeButton.hidden = false;
         closeButton.focus();
