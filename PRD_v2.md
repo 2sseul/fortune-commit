@@ -179,9 +179,9 @@ v3에서는 이 네 가지를 고치고, **새 업적·쿠키 굽기·팀 위젯
 - **운세 등급·특별 운세**: 아이디 + 날짜 해시로 결정 (난수 없음, v1 원칙 유지)
 - **운세 일기**: 운세는 아이디 + 날짜로 다시 계산할 수 있지만, 문구 목록이 바뀌면 과거 운세가 달라지므로 쿠키가 열린 날 그날의 운세 번호·등급을 저장한다.
 - **연속 기록**: GitHub 기여 달력(날짜별 기여 수) + 오늘 활동 + 냉동 쿠키 사용 기록으로 계산
-- **AI 점쟁이**: Claude API(`claude-haiku-5-5`), 환경변수 `ANTHROPIC_API_KEY`, 하루 전체 생성 횟수 상한, 결과는 Redis에 하루 보관
+- **AI 점쟁이**: ~~Claude API(`claude-haiku-5-5`), 환경변수 `ANTHROPIC_API_KEY`~~ → (11-01 수정) OpenAI Chat Completions API(기본 `gpt-4o-mini`, `OPENAI_MODEL`로 변경 가능), 환경변수 `OPENAI_API_KEY`, 하루 전체 생성 횟수 상한, 결과는 Redis에 하루 보관
 - **새 Redis 키 (초안)**: `diary:아이디:연-월`(날짜 → 운세 번호·등급), `freeze:아이디`(냉동 쿠키 수), `freezeUsed:아이디:연도`(쓴 날 집합), `streakBonus:아이디`(받은 보너스), `oven:아이디`(굽는 중 상태), `ai:아이디:날짜`, `rankHide`(숨긴 사람 집합)
-- 위젯은 어떤 확인(GitHub·Redis·Claude)이 실패해도 깨지지 않는다. (v1 원칙 유지)
+- 위젯은 어떤 확인(GitHub·Redis·OpenAI)이 실패해도 깨지지 않는다. (v1 원칙 유지)
 - 구매·굽기·출석·보너스는 항상 서버에서 확인한다. (v2.2 원칙 유지)
 
 **새 URL 옵션 (초안)**
