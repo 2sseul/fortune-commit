@@ -6,12 +6,12 @@
 // 다른 사람의 설정은 바꿀 수 없다: 장착은 항상 서명된 로그인 쿠키의 아이디에만 저장한다.
 
 import { sessionLogin } from '../src/session.js';
-import { getProfile, setEquippedSkin, setEquippedTheme, addEarnedSkins } from '../src/store.js';
-import { fetchYearActivity } from '../src/github.js';
+import { getProfile, setEquippedSkin, setEquippedTheme } from '../src/store.js';
 import { todayIn } from '../src/pick.js';
-import { SKINS } from '../src/skins.js';
+import { COOKIES } from '../src/cookie-catalog.js';
 import { shopThemes } from '../src/themes.js';
-import { skinStatus, hasSkin, newlyEarned } from '../src/unlocks.js';
+import { hasSkin } from '../src/unlocks.js';
+import { loadAccount } from '../src/account.js';
 import { sendJson, readJson, isSameOrigin } from '../src/http.js';
 
 export default async function handler(req, res) {
@@ -41,36 +41,29 @@ export default async function handler(req, res) {
     return;
   }
 
-  // GET: 도감 정보
-  const year = await fetchYearActivity({ login, date: todayIn() });
-  // 올해 새로 해금한 스킨은 영원히 기록한다. (해가 바뀌어도 계속 내 것)
-  const fresh = newlyEarned({ year, profile });
-  await addEarnedSkins(login, fresh);
-  const earned = new Set([...(profile.earned ?? []), ...fresh]);
-  const skins = Object.keys(SKINS).map((id) => {
-    const status = year ? skinStatus(id, year) : { unlocked: id === 'plain' };
-    const bought = owned.has(`skin:${id}`);
-    // kept: 올해 조건은 아직이지만 예전에 해금해서 계속 가진 스킨
-    const kept = earned.has(id) && !status.unlocked;
-    return { id, ...status, unlocked: status.unlocked || bought || earned.has(id), bought, kept };
-  });
+  // GET: 도감 정보 — 쿠키 65종의 해금 상태와 진행 상황 (v3: src/account.js가 사이트 기록까지 함께 계산)
+  // 올해 새로 해금한 쿠키는 그 안에서 영원히 기록한다. (해가 바뀌어도 계속 내 것)
+  const account = await loadAccount(login, todayIn());
   const ownedThemes = [...owned].filter((item) => item.startsWith('theme:')).map((item) => item.slice(6));
-  sendJson(res, 200, { loggedIn: true, login, equipped: profile.skin, theme: profile.theme, ownedThemes, activityChecked: Boolean(year), skins });
+  sendJson(res, 200, {
+    loggedIn: true, login, equipped: profile.skin, theme: profile.theme, ownedThemes, activityChecked: Boolean(account.year),
+    skins: account.cookies, next: account.next, wallet: account.wallet, streak: account.daily.streak,
+  });
 }
 
 async function equipSkin(res, login, profile, skin) {
-  if (!Object.hasOwn(SKINS, skin ?? '')) {
+  if (!COOKIES.some((cookie) => cookie.id === skin)) {
     sendJson(res, 400, { error: '없는 스킨이에요.' });
     return;
   }
   // 해금 확인: 기본 쿠키, 산 스킨, 예전에 해금한 스킨은 언제나 가능. 나머지는 올해 활동을 확인할 수 있어야 한다.
   if (!hasSkin(skin, { year: null, profile })) {
-    const year = await fetchYearActivity({ login, date: todayIn() });
-    if (!year) {
+    const account = await loadAccount(login, todayIn());
+    if (!account.year) {
       sendJson(res, 503, { error: 'GitHub 활동을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.' });
       return;
     }
-    if (!skinStatus(skin, year).unlocked) {
+    if (!account.cookies.find((cookie) => cookie.id === skin)?.unlocked) {
       sendJson(res, 403, { error: '아직 해금하지 않은 스킨이에요.' });
       return;
     }

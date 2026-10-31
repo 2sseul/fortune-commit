@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="620" viewBox="0 0 1240 620">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FCE3C8"/>
+      <stop offset="1" stop-color="#FFF4E4"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE9B8"/>
+      <stop offset="1" stop-color="#F9D597"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFE7A3" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFE7A3" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 하늘과 구름 -->
+  <rect id="sky" width="1240" height="620" fill="url(#sky)"/>
+  <g id="clouds" fill="#FFFFFF" opacity="0.85">
+    <path d="M90 120c0-22 20-36 40-30 8-20 38-26 54-8 20-6 40 8 38 28 18 4 22 30 0 30H96c-20 0-24-16-6-20z"/>
+    <path d="M1010 90c0-18 16-30 34-25 7-17 32-22 46-7 17-5 34 7 32 24 15 3 18 25 0 25h-106c-17 0-20-13-6-17z"/>
+    <path d="M1080 200c0-12 11-20 22-16 5-11 21-14 30-4 11-3 22 4 21 15 10 2 12 17 0 17h-69c-11 0-13-9-4-12z"/>
+  </g>
+
+  <!-- 바닥 -->
+  <path id="ground" d="M0 548h1240v72H0z" fill="#E9C9A0"/>
+  <path d="M0 548h1240v10H0z" fill="#DDB585"/>
+
+  <!-- 건물 -->
+  <g id="building">
+    <path d="M250 170q0-40 40-40h660q40 0 40 40v380H250z" fill="#FFF6E8"/>
+    <path d="M250 170q0-40 40-40h660q40 0 40 40v14H250z" fill="#F3DFC3"/>
+    <!-- 지붕 장식 줄 -->
+    <rect x="236" y="120" width="768" height="26" rx="13" fill="#B4651A"/>
+    <rect x="236" y="120" width="768" height="10" rx="5" fill="#C8782A"/>
+    <!-- 간판 판 (글자는 Figma 텍스트로 얹음) -->
+    <rect id="sign-board" x="440" y="62" width="360" height="74" rx="37" fill="#5C3310"/>
+    <rect x="452" y="72" width="336" height="54" rx="27" fill="none" stroke="#F7D774" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+    <path d="M520 62v-24M720 62v-24" stroke="#8E5B36" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- 줄무늬 차양 -->
+  <g id="awning">
+    <path d="M226 196h788l-28 66H254z" fill="#FFE6CF"/>
+    <path d="M226 196h88l-8 66h-52z M402 196h88l-4 66h-80z M578 196h88v66h-88z M754 196h88l4 66h-80z M930 196h84l-28 66h-48z" fill="#E0566B"/>
+    <path d="M254 262q26 28 52 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q28 28 56 0q27 28 54 0z" fill="#FFE6CF"/>
+    <path d="M254 262q26 28 52 0q28 28 56 0z M418 262q28 28 56 0q28 28 56 0z M586 262q28 28 56 0z M698 262q28 28 56 0q28 28 56 0z M866 262q28 28 56 0q27 28 54 0z" fill="#E0566B"/>
+    <rect x="216" y="186" width="808" height="16" rx="8" fill="#B4651A"/>
+  </g>
+
+  <!-- 큰 진열 창 (빈 선반: 쿠키 컴포넌트를 얹음) -->
+  <g id="window">
+    <rect x="290" y="300" width="400" height="230" rx="22" fill="#B4651A"/>
+    <rect x="304" y="314" width="372" height="202" rx="14" fill="url(#glass)"/>
+  <!-- 마스코트 반죽이 (창 안쪽에서 고개를 내민 말랑한 반죽) -->
+    <g id="mascot" transform="translate(0 36)">
+    <path d="M560 404q0-58 58-58t58 58v8H560z" fill="#FFF8EC"/>
+    <path d="M560 404q0-58 58-58t58 58" fill="none" stroke="#E7D6BE" stroke-width="3"/>
+    <!-- 요리사 모자 -->
+    <path d="M584 352q-22-6-18-28q4-18 24-16q6-22 28-20q22 2 26 22q20-2 24 16q4 22-18 26z" fill="#FFFFFF" stroke="#EADCC8" stroke-width="2"/>
+    <rect x="584" y="344" width="68" height="16" rx="6" fill="#FFFFFF" stroke="#EADCC8" stroke-width="2"/>
+    <!-- 얼굴 -->
+    <circle id="eye-left" cx="602" cy="382" r="5" fill="#3B2A1F"/>
+    <circle id="eye-right" cx="634" cy="382" r="5" fill="#3B2A1F"/>
+    <circle cx="592" cy="394" r="7" fill="#F8C4BC"/>
+    <circle cx="644" cy="394" r="7" fill="#F8C4BC"/>
+    <path d="M610 392q8 8 16 0" stroke="#3B2A1F" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+    <rect id="shelf-top" x="318" y="404" width="344" height="10" rx="5" fill="#C9915F"/>
+    <rect id="shelf-bottom" x="318" y="492" width="344" height="10" rx="5" fill="#C9915F"/>
+    <path d="M330 322l40 0-60 70z" fill="#FFFFFF" opacity="0.35"/>
+    <path d="M392 322h16l-74 88h-16z" fill="#FFFFFF" opacity="0.25"/>
+    <rect x="280" y="522" width="420" height="16" rx="8" fill="#8E5B36"/>
+  </g>
+
+  <!-- 벽등 (흔들리는 부분: lamp-left, lamp-right) -->
+  <g id="lamp-left">
+    <ellipse cx="718" cy="352" rx="46" ry="46" fill="url(#glow)"/>
+    <rect x="712" y="318" width="12" height="8" rx="3" fill="#8E5B36"/>
+    <path d="M718 326v8" stroke="#8E5B36" stroke-width="3"/>
+    <path d="M702 352q16-22 32 0z" fill="#B4651A"/>
+    <circle cx="718" cy="355" r="5" fill="#FFE7A3"/>
+  </g>
+  <g id="lamp-right">
+    <ellipse cx="922" cy="352" rx="46" ry="46" fill="url(#glow)"/>
+    <rect x="916" y="318" width="12" height="8" rx="3" fill="#8E5B36"/>
+    <path d="M922 326v8" stroke="#8E5B36" stroke-width="3"/>
+    <path d="M906 352q16-22 32 0z" fill="#B4651A"/>
+    <circle cx="922" cy="355" r="5" fill="#FFE7A3"/>
+  </g>
+
+  <!-- 문 -->
+  <g id="door">
+    <path d="M746 540V350q0-56 56-56h12q56 0 56 56v190z" fill="#8E5B36"/>
+    <path d="M760 540V354q0-46 46-46h4q46 0 46 46v186z" fill="#B4651A"/>
+    <circle cx="808" cy="364" r="30" fill="url(#glass)" stroke="#8E5B36" stroke-width="5"/>
+    <rect x="776" y="420" width="64" height="88" rx="10" fill="#C9915F"/>
+    <circle cx="842" cy="456" r="6" fill="#F7D774"/>
+    <!-- OPEN 걸이 -->
+    <path d="M790 404l18-14 18 14" stroke="#8E5B36" stroke-width="2" fill="none"/>
+    <rect x="782" y="404" width="52" height="22" rx="6" fill="#FFF6E8"/>
+  </g>
+
+  <!-- 화분 -->
+  <g id="plant-left">
+    <path d="M196 548l10-62h68l10 62z" fill="#D9822B"/>
+    <rect x="200" y="478" width="80" height="14" rx="7" fill="#B4651A"/>
+    <path d="M240 478q-40-40-30-90q30 30 30 90z" fill="#7FAF6A"/>
+    <path d="M240 478q10-70 50-100q4 60-50 100z" fill="#9CC08A"/>
+    <path d="M240 478q-70-20-80-60q50 6 80 60z" fill="#8DB87A"/>
+  </g>
+  <g id="plant-right">
+    <path d="M948 548l8-50h56l8 50z" fill="#D9822B"/>
+    <rect x="950" y="490" width="68" height="12" rx="6" fill="#B4651A"/>
+    <circle cx="984" cy="452" r="40" fill="#9CC08A"/>
+    <circle cx="960" cy="470" r="22" fill="#8DB87A"/>
+    <circle cx="1010" cy="468" r="24" fill="#7FAF6A"/>
+    <circle cx="972" cy="438" r="6" fill="#F8D7D0"/><circle cx="1000" cy="450" r="6" fill="#F8D7D0"/><circle cx="984" cy="470" r="6" fill="#F8D7D0"/>
+  </g>
+
+  <!-- 칠판 입간판 (메뉴 글자는 Figma 텍스트) -->
+  <g id="chalkboard">
+    <path d="M1060 548l20-170h120l20 170" stroke="#8E5B36" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <rect id="chalkboard-face" x="1066" y="384" width="148" height="140" rx="12" fill="#3E4A3D"/>
+    <rect x="1074" y="392" width="132" height="124" rx="8" fill="none" stroke="#5C6B5A" stroke-width="2"/>
+  </g>
+
+  <!-- 바깥 테이블과 접시 (쿠키 컴포넌트를 얹음) -->
+  <g id="table">
+    <ellipse cx="128" cy="440" rx="96" ry="22" fill="#C9915F"/>
+    <ellipse cx="128" cy="434" rx="96" ry="22" fill="#E3B07D"/>
+    <path d="M122 456v92M134 456v92" stroke="#8E5B36" stroke-width="8"/>
+    <ellipse cx="128" cy="548" rx="40" ry="8" fill="#8E5B36"/>
+    <ellipse id="plate" cx="128" cy="428" rx="62" ry="14" fill="#FFFFFF"/>
+    <ellipse cx="128" cy="426" rx="46" ry="9" fill="#F4EEE6"/>
+  </g>
+
+</svg>

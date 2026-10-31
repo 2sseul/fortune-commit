@@ -102,3 +102,17 @@ export function pickFortune({ user, date, lang, activity = null }) {
 
   return { fortune, lucky };
 }
+
+// 운세 등급 (v3.1 미리): 아이디 + 날짜 해시로 정한다. 같은 날 같은 사람은 언제나 같은 등급.
+//   전설 1% · 대길 10% · 길 30% · 중길 34% · 소길 20% · 흉 5%
+export const GRADES = [
+  ['legend', '전설', 1], ['great', '대길', 10], ['good', '길', 30], ['fair', '중길', 34], ['small', '소길', 20], ['bad', '흉', 5],
+];
+export function fortuneGrade(user, date) {
+  let roll = hash(`grade|${normalizeUser(user)}|${date}`) % 100;
+  for (const [id, , weight] of GRADES) {
+    if (roll < weight) return id;
+    roll -= weight;
+  }
+  return 'fair';
+}

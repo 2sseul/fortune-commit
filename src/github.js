@@ -14,7 +14,11 @@
 // GitHub GraphQL API는 토큰이 있어야 쓸 수 있다. 토큰은 Vercel 환경변수 GITHUB_TOKEN에 넣는다.
 // 확인에 실패하면 null을 돌려주고, 위젯은 이 경우 잠그지 않고 기본 운세를 보여준다. (위젯이 깨지지 않게)
 
-import { secondsUntilMidnight } from './pick.js';
+import { secondsUntilMidnight, todayIn } from './pick.js';
+import { devActivity, devYear } from './dev-fixtures.js';
+
+// 로컬 개발 서버(FC_DEV=1)에서 토큰이 없으면 가짜 활동을 쓴다. (화면 확인용)
+const useDevData = (token) => !token && process.env.FC_DEV === '1';
 
 const GRAPHQL_URL = 'https://api.github.com/graphql';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -115,6 +119,7 @@ export async function fetchActivity({
   fetchImpl = fetch,
   now = new Date(),
 }) {
+  if (login && useDevData(token)) return devActivity(date);
   if (!login || !token) return null; // 아이디나 토큰이 없으면 확인할 수 없다.
 
   const key = `${login}|${date}`;
@@ -176,12 +181,19 @@ export function clearActivityMemory() {
 }
 
 // ---------------------------------------------------------------------------
-// v2: 스킨 해금에 쓰는 "올해 활동"
+// v2: 스킨 해금에 쓰는 "올해 활동" (v3에서 쿠키 65종에 맞게 늘림)
 //   total     : 올해 기여 수 (잔디 수)
 //   commits   : 올해 커밋 수, prs: 올해 PR 수, reviews: 올해 코드 리뷰 수
 //   streak    : 올해 가장 길게 이어진 연속 기여 일수
 //   months    : 월별 기여 수 { 1: 3, 10: 12, ... }
 //   days      : 날짜별 기여 수 { '2026-12-25': 2, ... }
+//   (v3) language   : 내 공개 저장소에서 가장 많이 쓴 언어
+//        merged     : 올해 머지된 내 PR 수 (최근 100개 중), approvals: 올해 승인한 리뷰 수 (최근 100개 중)
+//        stars      : 내 공개 저장소 별 합계, forks: 올해 포크한 저장소 수, newRepos: 올해 만든 저장소 수
+//        legacy     : 만든 지 1년 넘었는데 올해 push한 저장소 수, docker: Dockerfile이 있고 올해 push한 저장소 수
+//        issueComments : 이슈 댓글 수 (전체), closedIssues : 내가 연 이슈 중 닫힌 것 (전체)
+//        late / night / friday / fixes : 올해 커밋 중 새벽(0~5시)·밤(22시~)·금요일 저녁(18시~) 커밋 수, 메시지에 fix가 들어간 커밋 수
+//          (최근 push한 저장소 30개에서 저장소마다 최근 커밋 40개를 본다. 한 번 해금하면 기록되므로 표본으로 충분하다)
 // 날짜별 기여는 GitHub 잔디(contributionCalendar)의 날짜를 그대로 쓴다.
 
 const YEAR_QUERY = `
@@ -195,9 +207,67 @@ const YEAR_QUERY = `
           totalContributions
           weeks { contributionDays { date contributionCount } }
         }
+        pullRequestContributions(first: 100) { nodes { pullRequest { merged } } }
+        pullRequestReviewContributions(first: 100) { nodes { pullRequestReview { state } } }
+      }
+      issueComments { totalCount }
+      closedIssues: issues(states: CLOSED) { totalCount }
+      repositories(first: 30, ownerAffiliations: OWNER, privacy: PUBLIC, orderBy: { field: PUSHED_AT, direction: DESC }) {
+        nodes {
+          isFork createdAt pushedAt stargazerCount
+          primaryLanguage { name }
+          dockerfile: object(expression: "HEAD:Dockerfile") { id }
+          defaultBranchRef { target { ... on Commit {
+            history(first: 40, since: $from) { nodes { committedDate message author { user { login } } } }
+          } } }
+        }
       }
     }
   }`;
+
+// 그 시간대의 요일(0=일요일)과 시(0~23)
+function localTime(iso, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: timeZone || 'Asia/Seoul', weekday: 'short', hour: '2-digit', hour12: false }).formatToParts(new Date(iso));
+  const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.find((p) => p.type === 'weekday').value);
+  return { weekday, hour: Number(parts.find((p) => p.type === 'hour').value) % 24 };
+}
+
+// 저장소·커밋 정보로 v3 쿠키에 쓰는 숫자를 센다. (user가 없으면 모두 0)
+export function summarizeExtras(user, { login, from, timeZone } = {}) {
+  const repos = user?.repositories?.nodes?.filter(Boolean) ?? [];
+  const own = repos.filter((repo) => !repo.isFork);
+  const yearStart = from ? Date.parse(from) : 0;
+  const thisYear = (iso) => Boolean(iso) && Date.parse(iso) >= yearStart;
+  const collection = user?.contributionsCollection;
+  const extras = {
+    language: mostUsedLanguage(own),
+    merged: (collection?.pullRequestContributions?.nodes ?? []).filter((n) => n?.pullRequest?.merged).length,
+    approvals: (collection?.pullRequestReviewContributions?.nodes ?? []).filter((n) => n?.pullRequestReview?.state === 'APPROVED').length,
+    stars: own.reduce((sum, repo) => sum + (repo.stargazerCount ?? 0), 0),
+    forks: repos.filter((repo) => repo.isFork && thisYear(repo.createdAt)).length,
+    newRepos: own.filter((repo) => thisYear(repo.createdAt)).length,
+    legacy: own.filter((repo) => thisYear(repo.pushedAt) && Date.parse(repo.pushedAt) - Date.parse(repo.createdAt) > 365 * DAY_MS).length,
+    docker: own.filter((repo) => repo.dockerfile && thisYear(repo.pushedAt)).length,
+    issueComments: user?.issueComments?.totalCount ?? 0,
+    closedIssues: user?.closedIssues?.totalCount ?? 0,
+    late: 0,
+    night: 0,
+    friday: 0,
+    fixes: 0,
+  };
+  const me = (login ?? '').toLowerCase();
+  for (const repo of repos) {
+    for (const commit of repo.defaultBranchRef?.target?.history?.nodes ?? []) {
+      if (!commit || commit.author?.user?.login?.toLowerCase() !== me || !thisYear(commit.committedDate)) continue;
+      const { weekday, hour } = localTime(commit.committedDate, timeZone);
+      if (hour < 5) extras.late += 1;
+      if (hour >= 22) extras.night += 1;
+      if (weekday === 5 && hour >= 18) extras.friday += 1;
+      if (/fix/i.test(commit.message ?? '')) extras.fixes += 1;
+    }
+  }
+  return extras;
+}
 
 const yearMemory = new Map();
 const YEAR_MEMORY_MS = 60 * 60 * 1000; // 올해 활동은 1시간 기억 (해금은 천천히 바뀌어도 괜찮다)
@@ -234,8 +304,21 @@ export function summarizeYear(collection) {
     streak = Math.max(streak, run);
     previous = date;
   }
+  // 주말에 기여한 날, 하루 최대 기여, 하루도 빠짐없이 기여한 달 (v3)
+  const active = Object.entries(days).filter(([, count]) => count > 0);
+  const weekendDays = active.filter(([date]) => [0, 6].includes(new Date(`${date}T00:00:00Z`).getUTCDay())).length;
+  const bestDay = Math.max(0, ...active.map(([, count]) => count));
+  const fullMonths = Object.keys(months).filter((month) => {
+    const inMonth = Object.entries(days).filter(([date]) => Number(date.slice(5, 7)) === Number(month));
+    const y = Number(inMonth[0]?.[0].slice(0, 4));
+    const length = new Date(Date.UTC(y, Number(month), 0)).getUTCDate();
+    return inMonth.length === length && inMonth.every(([, count]) => count > 0);
+  }).length;
   return {
     total: collection.contributionCalendar.totalContributions,
+    weekendDays,
+    bestDay,
+    fullMonths,
     commits: collection.totalCommitContributions,
     prs: collection.totalPullRequestContributions,
     reviews: collection.totalPullRequestReviewContributions,
@@ -254,12 +337,14 @@ export async function fetchYearActivity({
   fetchImpl = fetch,
   now = new Date(),
 }) {
+  if (login && useDevData(token)) return devYear(date ?? todayIn(timeZone, now));
   if (!login || !token) return null;
 
   const key = `${login}|${date}`;
   const remembered = yearMemory.get(key);
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.year;
 
+  const yearFrom = startOfYear(timeZone, now).toISOString();
   try {
     const response = await fetchImpl(GRAPHQL_URL, {
       method: 'POST',
@@ -270,9 +355,9 @@ export async function fetchYearActivity({
       },
       body: JSON.stringify({
         query: YEAR_QUERY,
-        variables: { login, from: startOfYear(timeZone, now).toISOString(), to: now.toISOString() },
+        variables: { login, from: yearFrom, to: now.toISOString() },
       }),
-      signal: AbortSignal.timeout(3000),
+      signal: AbortSignal.timeout(6000), // v3: 저장소·커밋까지 보느라 조금 더 기다린다
     });
     if (!response.ok) return null;
 
@@ -280,7 +365,7 @@ export async function fetchYearActivity({
     const collection = body?.data?.user?.contributionsCollection;
     if (!collection?.contributionCalendar) return null;
 
-    const year = summarizeYear(collection);
+    const year = { ...summarizeYear(collection), ...summarizeExtras(body.data.user, { login, from: yearFrom, timeZone }) };
     yearMemory.set(key, { year, expiresAt: now.getTime() + YEAR_MEMORY_MS });
     return year;
   } catch {

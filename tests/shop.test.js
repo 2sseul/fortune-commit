@@ -7,13 +7,14 @@ import { SKINS } from '../src/skins.js';
 import { getTheme, themes, shopThemes } from '../src/themes.js';
 import { buyItem, addAttendance } from '../src/store.js';
 
-test('포인트 = 기여 × 10 + 출석 × 30 − 쓴 포인트', () => {
-  assert.deepEqual(wallet({ contributions: 120, attendance: 5, spent: 500 }), {
+test('포인트 = 기여 × 10 + 출석 × 30 + 보너스 − 쓴 포인트', () => {
+  assert.deepEqual(wallet({ contributions: 120, attendance: 5, spent: 500, bonus: 100 }), {
     fromContributions: 1200,
     fromAttendance: 150,
-    earned: 1350,
+    fromBonus: 100,
+    earned: 1450,
     spent: 500,
-    balance: 850,
+    balance: 950,
   });
 });
 
@@ -38,10 +39,12 @@ test('상품 아이디로 가격을 찾는다', () => {
   }
 });
 
-test('상품 목록: 스킨 5 + 테마 5, 종류별로 싼 것부터', () => {
+test('상품 목록: 스킨 5 + 테마 5 + 아이템 3, 종류별로 싼 것부터', () => {
   const items = catalog();
-  assert.equal(items.length, 10);
-  for (const kind of ['skin', 'theme']) {
+  assert.equal(items.length, 13);
+  assert.equal(findItem('item:freeze').price, 200);
+  assert.equal(findItem('item:ai_fortune').price, 1000);
+  for (const kind of ['skin', 'theme', 'item']) {
     const prices = items.filter((item) => item.kind === kind).map((item) => item.price);
     assert.deepEqual(prices, [...prices].sort((a, b) => a - b));
   }

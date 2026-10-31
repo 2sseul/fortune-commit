@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="440" viewBox="130 60 340 440">
+  <!-- 배경 덩어리 -->
+  
+  <!-- 반짝이·색종이 -->
+  
+  <!-- 바닥 그림자 -->
+  <ellipse cx="300" cy="490" rx="150" ry="16" fill="#000" opacity="0.08"/>
+
+  <!-- 반죽이 -->
+  <g id="mascot">
+    <!-- 몸 -->
+    <path d="M150 360c0-110 66-170 150-170s150 60 150 170c0 80-60 126-150 126S150 440 150 360z" fill="#FFE2B0"/>
+    <path d="M150 360c0 80 60 126 150 126s150-46 150-126c0 30-50 96-150 96s-150-66-150-96z" fill="#F3C988"/>
+    <!-- 요리사 모자 -->
+    <g id="hat">
+      <rect x="214" y="168" width="172" height="44" rx="16" fill="#FFFFFF"/>
+      <rect x="214" y="196" width="172" height="16" rx="8" fill="#EDE4D6"/>
+      <circle cx="232" cy="140" r="42" fill="#FFFFFF"/>
+      <circle cx="300" cy="112" r="54" fill="#FFFFFF"/>
+      <circle cx="368" cy="140" r="42" fill="#FFFFFF"/>
+      <path d="M200 150c6 20 22 30 40 30h120c18 0 34-10 40-30 0 26-18 40-40 40H240c-22 0-40-14-40-40z" fill="#EDE4D6"/>
+    </g>
+    <!-- 눈 (커다란 듀오링고식 눈) -->
+    <g id="eyes">
+      <ellipse cx="256" cy="292" rx="30" ry="36" fill="#FFFFFF"/>
+      <ellipse cx="344" cy="292" rx="30" ry="36" fill="#FFFFFF"/>
+      <ellipse id="pupil-left" cx="262" cy="300" rx="16" ry="20" fill="#4B3621"/>
+      <ellipse id="pupil-right" cx="338" cy="300" rx="16" ry="20" fill="#4B3621"/>
+      <circle cx="268" cy="292" r="6" fill="#FFFFFF"/>
+      <circle cx="344" cy="292" r="6" fill="#FFFFFF"/>
+    </g>
+    <!-- 볼, 입 -->
+    <ellipse cx="214" cy="340" rx="20" ry="12" fill="#FFB3C0"/>
+    <ellipse cx="386" cy="340" rx="20" ry="12" fill="#FFB3C0"/>
+    <path d="M272 344q28 34 56 0z" fill="#6B3D17"/>
+    <path d="M286 356q14 10 28 0q-6-8-14-8t-14 8z" fill="#FF5C7A"/>
+    <!-- 팔 + 접시 (접시 위에 픽셀 쿠키를 얹음) -->
+    <ellipse id="plate" cx="300" cy="420" rx="96" ry="22" fill="#FFFFFF"/>
+    <ellipse cx="300" cy="426" rx="96" ry="18" fill="#E9E2D8"/>
+    <ellipse cx="300" cy="418" rx="72" ry="13" fill="#FFFFFF"/>
+    <ellipse cx="200" cy="418" rx="26" ry="20" fill="#FFE2B0"/>
+    <ellipse cx="400" cy="418" rx="26" ry="20" fill="#FFE2B0"/>
+  </g>
+</svg>

@@ -2,8 +2,8 @@
 // README 위젯(/api)과 사이트 첫 화면의 큰 쿠키(/api/fortune)가 똑같은 운세·잠금·스킨을 쓰도록 한곳에서 정한다.
 
 import { getSkin } from './skins.js';
-import { getProfile, addEarnedSkins } from './store.js';
-import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight } from './pick.js';
+import { getProfile, addEarnedSkins, getAiFortune, markSince } from './store.js';
+import { pickFortune, todayIn, normalizeUser, secondsUntilMidnight, fortuneGrade } from './pick.js';
 import { fetchActivity, fetchYearActivity } from './github.js';
 import { skinStatus, progressText, newlyEarned } from './unlocks.js';
 
@@ -50,10 +50,17 @@ export async function resolveWidget({ user: rawUser, lang: rawLang, tz, skin: sk
 
   // 잠금: 오늘(기준 시간대 0시부터) 활동이 0이면 잠긴 쿠키. 미리보기는 주소대로.
   const locked = isPreview ? preview === 'locked' : activity?.today === 0;
-  const { fortune, lucky } = pickFortune({ user, date, lang, activity });
+  const picked = pickFortune({ user, date, lang, activity });
+  // AI 점쟁이 이용권을 쓴 날은 AI가 쓴 운세 (한국어 위젯만, v3.3)
+  const aiFortune = user && !isPreview && lang === 'ko' ? await getAiFortune(user, date) : null;
+  const fortune = aiFortune ?? picked.fortune;
+  const { lucky } = picked;
+  // 운세 등급 (v3.1 미리), 위젯을 처음 본 날 기록 (레트로 쿠키, v3)
+  const grade = fortuneGrade(user, date);
+  if (user && !isPreview) await markSince(user, date);
 
   // 캐시: 잠긴 화면은 5분, 열린 화면은 다음 자정까지(최대 1시간)
   const cacheSeconds = locked ? LOCKED_CACHE_SECONDS : Math.max(60, Math.min(3600, secondsUntilMidnight(tz)));
 
-  return { user, lang, date, command, skin, theme, locked, fortune, lucky, progressLine, cacheSeconds };
+  return { user, lang, date, command, skin, theme, locked, fortune, ai: Boolean(aiFortune), grade, lucky, progressLine, cacheSeconds };
 }

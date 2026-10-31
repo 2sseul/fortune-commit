@@ -1,10 +1,12 @@
 // 쿠키 상점: 상품 목록과 포인트 계산 (v2.2)
 //
-// 포인트 = 올해 기여 × 10 + 올해 출석 × 30 − 올해 쓴 포인트
+// 포인트 = 올해 기여 × 10 + 올해 출석 × 30 + 올해 보너스(연속 기록·퀘스트, v3) − 올해 쓴 포인트
 //   - 출석: 오늘 커밋해서 쿠키가 열린 날, 사이트에서 쿠키를 열면 하루 한 번
 //   - 포인트는 매년 1월 1일에 새로 시작하지만, 산 물건은 계속 내 것이다.
 //
 // 상품 아이디는 '종류:이름' 꼴이다. (예: 'skin:cat', 'theme:strawberry')
+
+import { ITEMS } from './cookie-catalog.js';
 
 export const POINTS_PER_CONTRIBUTION = 10;
 export const POINTS_PER_ATTENDANCE = 30;
@@ -27,10 +29,13 @@ export const THEME_PRICES = {
   darkchoco: 500,
 };
 
+// 아이템 (v3): 냉동 쿠키, 쿠키 뽑기권, AI 점쟁이 이용권 (가격은 design/cookies/catalog.json)
+export const ITEM_PRICES = Object.fromEntries(Object.entries(ITEMS).map(([name, item]) => [name, item.price]));
+
 // 상품 아이디 → { id, kind, name, price }. 없는 상품이면 null.
 export function findItem(itemId) {
   const [kind, name] = String(itemId ?? '').split(':');
-  const prices = kind === 'skin' ? SKIN_PRICES : kind === 'theme' ? THEME_PRICES : null;
+  const prices = { skin: SKIN_PRICES, theme: THEME_PRICES, item: ITEM_PRICES }[kind] ?? null;
   if (!prices || !Object.hasOwn(prices, name)) return null;
   return { id: `${kind}:${name}`, kind, name, price: prices[name] };
 }
@@ -40,15 +45,16 @@ export function catalog() {
   const items = [
     ...Object.keys(SKIN_PRICES).map((name) => findItem(`skin:${name}`)),
     ...Object.keys(THEME_PRICES).map((name) => findItem(`theme:${name}`)),
+    ...Object.keys(ITEM_PRICES).map((name) => findItem(`item:${name}`)),
   ];
   return items.sort((a, b) => a.kind.localeCompare(b.kind) || a.price - b.price);
 }
 
 // 지갑 계산
 //   contributions : 올해 기여 수, attendance: 올해 출석한 날 수, spent: 올해 쓴 포인트
-export function wallet({ contributions = 0, attendance = 0, spent = 0 }) {
+export function wallet({ contributions = 0, attendance = 0, spent = 0, bonus = 0 }) {
   const fromContributions = contributions * POINTS_PER_CONTRIBUTION;
   const fromAttendance = attendance * POINTS_PER_ATTENDANCE;
-  const earned = fromContributions + fromAttendance;
-  return { fromContributions, fromAttendance, earned, spent, balance: Math.max(0, earned - spent) };
+  const earned = fromContributions + fromAttendance + bonus;
+  return { fromContributions, fromAttendance, fromBonus: bonus, earned, spent, balance: Math.max(0, earned - spent) };
 }

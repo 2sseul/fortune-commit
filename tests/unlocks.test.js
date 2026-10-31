@@ -2,7 +2,8 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { skinStatus, progressText, UNLOCK_RULES, hasSkin, newlyEarned } from '../src/unlocks.js';
+import { skinStatus, progressText, UNLOCK_RULES, hasSkin, newlyEarned, GACHA_COOKIES, withSiteStats } from '../src/unlocks.js';
+import { COOKIES } from '../src/cookie-catalog.js';
 import { summarizeYear, fetchYearActivity, clearYearMemory, startOfYear } from '../src/github.js';
 import { SKINS } from '../src/skins.js';
 
@@ -17,8 +18,30 @@ const YEAR = {
   days: { '2026-12-25': 2 },
 };
 
-test('모든 스킨에 해금 규칙이 있다', () => {
-  assert.deepEqual(Object.keys(UNLOCK_RULES).sort(), Object.keys(SKINS).sort());
+test('쿠키 65종 모두 해금 규칙이 있거나 뽑기 쿠키다 (v3)', () => {
+  const ids = COOKIES.map((cookie) => cookie.id);
+  assert.equal(ids.length, 65);
+  for (const id of ids) assert.ok(UNLOCK_RULES[id] || GACHA_COOKIES.includes(id), id);
+  for (const id of Object.keys(SKINS)) assert.ok(UNLOCK_RULES[id], id); // 예전 스킨 11종도 그대로
+});
+
+test('뽑기 쿠키는 활동으로 열리지 않는다 (v3)', () => {
+  assert.equal(skinStatus('gacha-crown', null).unlocked, false);
+  assert.equal(hasSkin('gacha-crown', { year: YEAR, profile: { earned: [] } }), false);
+  assert.equal(hasSkin('gacha-crown', { year: YEAR, profile: { earned: ['gacha-crown'] } }), true);
+});
+
+test('언어 쿠키는 주 언어가 맞아야 한다 (v3)', () => {
+  const year = { ...YEAR, total: 120, language: 'Rust' };
+  assert.equal(skinStatus('crab', year).unlocked, true);
+  assert.equal(skinStatus('python', year).unlocked, false);
+});
+
+test('사이트 기록 숫자를 더한다: 빈 날, 위젯 단 날 (v3)', () => {
+  const year = withSiteStats({ ...YEAR, days: { '2026-01-01': 0, '2026-01-02': 3, '2026-01-03': 0 } }, { login: 'a', date: '2026-01-03', since: '2025-01-01' });
+  assert.equal(year.emptyDays, 2);
+  assert.ok(year.widgetDays >= 365);
+  assert.equal(skinStatus('retro', year).unlocked, true);
 });
 
 test('조건을 채운 스킨만 해금된다', () => {
