@@ -38,7 +38,8 @@ export async function resolveWidget({ user: rawUser, lang: rawLang, tz, skin: sk
   const needYear = requestedSkin.id !== 'plain' && !isPreview && !boughtSkin;
   const [activity, year] = await Promise.all([
     fetchActivity({ login: user, timeZone: tz, date }),
-    needYear ? fetchYearActivity({ login: user, timeZone: tz, date }) : null,
+    // README 위젯은 GitHub 이미지 프록시가 오래 기다려 주지 않아서 지난해 기록은 2.5초까지만 기다린다.
+    needYear ? fetchYearActivity({ login: user, timeZone: tz, date, budgetMs: 2500 }) : null,
   ]);
 
   // 스킨 해금: 조건을 못 채웠으면 기본 쿠키를 쓰고, 진행 상황을 한 줄 보여준다.

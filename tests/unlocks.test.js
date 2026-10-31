@@ -211,3 +211,22 @@ test('지난해들도 물어서 더한다 (실패한 해는 빼고)', async () =
   assert.equal(year.yearTotal, 2);
   assert.equal(year.years, 2);
 });
+
+test('지난해 기록이 늦으면 기다리지 않고 올해·받은 해만으로 계산한다 (README 위젯용)', async () => {
+  clearYearMemory();
+  const day = (date, n) => ({ date, contributionCount: n });
+  const body = (days, createdAt) => ({ data: { user: { ...(createdAt ? { createdAt } : {}), contributionsCollection: {
+    totalCommitContributions: 1, totalPullRequestContributions: 0, totalPullRequestReviewContributions: 0,
+    contributionCalendar: { totalContributions: days.reduce((t, d) => t + d.contributionCount, 0), weeks: [{ contributionDays: days }] },
+  } } } });
+  const fetchImpl = async (url, options) => {
+    const { query } = JSON.parse(options.body);
+    if (query.includes('createdAt')) return { ok: true, json: async () => body([day('2026-03-01', 2)], '2025-05-01T00:00:00Z') };
+    await new Promise((r) => setTimeout(r, 300)); // 느린 지난해
+    return { ok: true, json: async () => body([day('2025-06-01', 9)]) };
+  };
+  const started = Date.now();
+  const year = await fetchYearActivity({ login: 'slow-past', date: '2026-03-02', token: 't', fetchImpl, now: new Date('2026-03-02T03:00:00Z'), budgetMs: 50 });
+  assert.ok(Date.now() - started < 250);
+  assert.equal(year.total, 2);
+});

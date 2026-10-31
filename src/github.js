@@ -449,6 +449,7 @@ export async function fetchYearActivity({
   token = process.env.GITHUB_TOKEN,
   fetchImpl = fetch,
   now = new Date(),
+  budgetMs = 6000, // 지난해 기록을 기다리는 최대 시간 (README 위젯은 짧게)
 }) {
   if (login && useDevData(token)) return devYear(date ?? todayIn(timeZone, now));
   if (!login || !token) return null;
@@ -489,15 +490,30 @@ export async function fetchYearActivity({
   if (!user) user = await ask(BASIC_YEAR_QUERY, variables, 3000);
   if (!user) return null;
 
-  // 지난해들 (가입한 해까지): 동시에 묻고, 실패한 해는 빼고 더한다.
-  const past = await Promise.all(pastYearRanges(user.createdAt, yearFrom)
-    .map(([from, to]) => ask(PAST_YEAR_QUERY, { login, from, to }, 6000).then((u) => u?.contributionsCollection ?? null)));
+  // 지난해들 (가입한 해까지): 지난 기록은 바뀌지 않으므로 해마다 Redis에 7일 기억하고, 없는 해만 동시에 묻는다.
+  //   budgetMs 안에 오지 않은 해는 이번 계산에서 빼고(README 위젯은 GitHub 이미지 프록시가 오래 기다려 주지 않는다), 다음에 다시 묻는다.
+  const timedOut = Symbol('timeout');
+  let partial = false;
+  const past = await Promise.all(pastYearRanges(user.createdAt, yearFrom).map(async ([from, to]) => {
+    const pastKey = `past1:${login.toLowerCase()}:${from.slice(0, 10)}`;
+    const saved = await cacheGet(pastKey);
+    if (saved) return saved;
+    const request = ask(PAST_YEAR_QUERY, { login, from, to }, 6000).then(async (u) => {
+      const collection = u?.contributionsCollection ?? null;
+      if (collection) await cacheSet(pastKey, collection, 7 * 24 * 3600);
+      return collection;
+    });
+    const result = await Promise.race([request, new Promise((resolve) => setTimeout(() => resolve(timedOut), budgetMs))]);
+    if (result === timedOut || !result) partial = true;
+    return result === timedOut ? null : result;
+  }));
   const collections = [user.contributionsCollection, ...past.filter(Boolean)];
 
   const year = { ...summarizeLifetime(collections), ...(full ? summarizeExtras(user, { login, timeZone }) : {}), since: user.createdAt ?? null };
-  // 기본 질의로만 받았으면 짧게 기억해서 곧 다시 v3 질의를 해 본다.
-  yearMemory.set(key, { year, expiresAt: now.getTime() + (full ? YEAR_MEMORY_MS : 5 * 60 * 1000) });
-  await cacheSet(`life1:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
+  // 기본 질의로만 받았거나 지난해가 빠졌으면 짧게 기억해서 곧 다시 물어본다.
+  const complete = full && !partial;
+  yearMemory.set(key, { year, expiresAt: now.getTime() + (complete ? YEAR_MEMORY_MS : 2 * 60 * 1000) });
+  await cacheSet(`life1:${key.toLowerCase()}`, year, complete ? 30 * 60 : 2 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
   return year;
 }
 
