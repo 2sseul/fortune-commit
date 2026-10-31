@@ -171,6 +171,72 @@ ART.update({
     'haskell': cookie(P['haskell'], front_extra=f'<path d="M48 92 L64 92 L100 160 M78 122 L54 160" {W8}/>'),
 })
 
+# ---- 개발자 밈 쿠키 ----
+import re as _re
+PL = P['plain']
+
+def body(svg):
+    # <svg> 껍데기와 <defs>를 뺀 그림 부분 (쌓기·한 입 베기 같은 조합용)
+    inner = _re.sub(r'^<svg[^>]*>|</svg>\s*$', '', svg.strip())
+    return _re.sub(r'<defs>.*?</defs>', '', inner, flags=_re.S)
+
+DEFS = f'<defs><clipPath id="cf"><path d="{FRONT}"/></clipPath><clipPath id="cb"><path d="{BACK}"/></clipPath>'
+def wrap(content, extra_defs=''):
+    return f'<svg xmlns="http://www.w3.org/2000/svg" width="260" height="290" viewBox="-10 -50 260 290">{DEFS}{extra_defs}</defs>{content}</svg>'
+
+def bite(svg, circles):
+    # 원 모양으로 베어 먹은 자리를 투명하게 비운다
+    holes = ''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#000"/>' for x, y, r in circles)
+    mask = f'<mask id="bite" maskUnits="userSpaceOnUse" x="-10" y="-50" width="260" height="290"><rect x="-10" y="-50" width="260" height="290" fill="#fff"/>{holes}</mask>'
+    return wrap(f'<g mask="url(#bite)">{body(svg)}</g>', mask)
+
+# 잔디: 기여 그래프 칸
+GRASS = ''.join(f'<rect x="{x}" y="{y}" width="24" height="24" rx="6" fill="{c}"/>'
+                for k, (x, y) in enumerate((x, y) for y in range(4, 240, 30) for x in range(4, 170, 30))
+                for c in [['#9BE9A8', '#40C463', '#30A14E', '#216E39', '#9BE9A8', '#40C463'][(k * 5 + k // 4) % 6]])
+TEXTURE_BG = '<rect x="-10" y="-10" width="260" height="260" fill="#EBEDF0"/>'
+
+pixel_plain = open('pixel-plain.svg').read()
+pixel_inner = _re.sub(r'^<svg[^>]*>|</svg>\s*$', '', pixel_plain.strip())
+
+stack_one = body(cookie(P['plain']))
+ART.update({
+    'grass': cookie(dict(base="#EBEDF0", shade="#D8DCE0", back="#40C463", back_shade="#30A14E", fold="#1B5E2E", hi="#FFFFFF"),
+                    front_extra=GRASS + '<path d="M0 150 C40 196 110 206 160 170 L160 240 L0 240 Z" fill="#000" opacity="0.12"/>'),
+    'lgtm': cookie(PL, over='<circle cx="176" cy="176" r="38" fill="#4CC38A"/><circle cx="176" cy="176" r="30" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="6 6"/><path d="M160 178 L172 190 L194 164" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'),
+    'star': cookie(PL, front_extra='<path d="M70 82 L80 106 L106 108 L86 124 L92 150 L70 136 L48 150 L54 124 L34 108 L60 106 Z" fill="#FFD43B"/><path d="M70 136 L48 150 L54 124 L34 108 L60 106 Z" fill="#F0B400" opacity="0.6"/>'),
+    'fork': cookie(PL, over='<g transform="rotate(28 170 60)"><rect x="164" y="-30" width="12" height="70" rx="6" fill="#B8BEC6"/><path d="M152 40 h36 v14 a18 18 0 0 1 -36 0 z" fill="#C9CFD6"/><rect x="152" y="54" width="6" height="40" rx="3" fill="#C9CFD6"/><rect x="167" y="54" width="6" height="44" rx="3" fill="#C9CFD6"/><rect x="182" y="54" width="6" height="40" rx="3" fill="#C9CFD6"/></g>'),
+    'hotfix': cookie(PL, front_extra='<path d="M40 60 L62 96 L50 120 L74 150 L66 190" stroke="#9E5A14" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
+                     over='<g transform="rotate(-30 70 120)"><rect x="20" y="104" width="100" height="32" rx="16" fill="#F7D3B0"/><rect x="52" y="104" width="36" height="32" fill="#EDBE96"/><circle cx="62" cy="114" r="2.5" fill="#D9A27A"/><circle cx="78" cy="114" r="2.5" fill="#D9A27A"/><circle cx="62" cy="126" r="2.5" fill="#D9A27A"/><circle cx="78" cy="126" r="2.5" fill="#D9A27A"/></g>'),
+    '404': bite(cookie(PL), [(190, 70, 30), (214, 104, 28), (176, 40, 22)]),
+    'null': wrap(f'<path d="{BACK}" fill="none" stroke="#AFAFAF" stroke-width="6" stroke-dasharray="14 10" stroke-linecap="round"/><path d="{FRONT}" fill="#FFFFFF" fill-opacity="0.5" stroke="#AFAFAF" stroke-width="6" stroke-dasharray="14 10" stroke-linecap="round"/>'),
+    'duck': cookie(PL, over='<g transform="translate(92 -44)"><ellipse cx="44" cy="62" rx="44" ry="26" fill="#FFD43B"/><path d="M0 62 C0 90 88 90 88 62 C88 76 0 76 0 62 Z" fill="#F0B400"/><circle cx="68" cy="30" r="22" fill="#FFD43B"/><path d="M86 30 L106 26 L104 38 L86 38 Z" fill="#FF9600"/><path d="M14 54 C26 44 40 46 48 56" stroke="#F0B400" stroke-width="6" stroke-linecap="round" fill="none"/></g>'),
+    'infinite': cookie(PL, front_extra='<path d="M30 124 C30 100 60 100 76 124 C92 148 122 148 122 124 C122 100 92 100 76 124 C60 148 30 148 30 124 Z" stroke="#FFFFFF" stroke-width="11" fill="none" stroke-linejoin="round"/>'),
+    'semicolon': cookie(P['plain'], front_extra='<circle cx="76" cy="70" r="19" fill="#5C3016"/><circle cx="76" cy="138" r="19" fill="#5C3016"/><path d="M90 146 C92 168 80 188 60 198" stroke="#5C3016" stroke-width="17" stroke-linecap="round" fill="none"/>'),
+    'stackoverflow': wrap(
+        f'<g transform="translate(20 150) scale(0.42)">{stack_one}</g>'
+        f'<g transform="translate(118 150) scale(0.42)">{stack_one}</g>'
+        f'<g transform="translate(70 80) scale(0.42)">{stack_one}</g>'
+        f'<g transform="translate(150 0) rotate(24 50 50) scale(0.42)">{stack_one}</g>'
+        '<path d="M140 30 c-10 -6 -18 -4 -24 2 M150 52 c-12 -2 -20 2 -24 10" stroke="#AFAFAF" stroke-width="4" stroke-linecap="round" fill="none"/>'),
+    'legacy': cookie(dict(base="#D8C3A0", shade="#C2AB86", back="#CDB792", back_shade="#B59F7A", fold="#7A6447", hi="#EFE3CC"),
+                     front_extra=DOTS([(50, 100), (90, 140), (70, 170), (100, 90), (40, 150)], 3, '#A08C6E'),
+                     over='<path d="M14 84 L60 16 M14 84 L74 60 M14 84 L40 30 M26 66 C34 58 44 54 52 56 M36 50 C44 44 52 42 58 42 M20 76 C30 72 42 70 52 72" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.9"/>'),
+    'darkmode': cookie(dict(base="#FFE08A", shade="#F5C94A", hi="#FFF4CC", back="#2E3A6E", back_shade="#222C56", fold="#11183A"),
+                       over=SPARK(190, 40, 9, '#FFFFFF') + '<path d="M214 160 A20 20 0 1 1 198 132 A15 15 0 1 0 214 160 Z" fill="#FFD43B"/><circle cx="34" cy="24" r="12" fill="#FF9F1A"/>'),
+    'keycap': cookie(PL, under='<path d="M-2 60 L242 60 L250 236 L-10 236 Z" fill="#C9CFD6"/><path d="M-10 236 L250 236 L246 250 L-6 250 Z" fill="#A7AEB7"/><rect x="10" y="66" width="220" height="166" rx="16" fill="#E5E8EC"/>'),
+    'friday': cookie(dict(base="#F5B041", shade="#E0912A", back="#E39A30", back_shade="#C97D1E", fold="#9E5A14", hi="#FFD98A"),
+                     under='<path d="M60 40 C50 10 66 -16 82 -30 C80 -10 96 -6 98 10 C100 22 94 32 86 36 Z M140 30 C132 4 146 -18 160 -30 C158 -12 172 -6 172 8 C174 20 166 28 160 32 Z" fill="#FF6A3D"/><path d="M72 36 C68 20 74 6 82 0 C84 10 92 14 90 24 Z M150 28 C148 16 152 6 160 0 C162 8 168 12 166 22 Z" fill="#FFD43B"/>',
+                     over='<g transform="translate(196 120)"><rect x="0" y="16" width="34" height="76" rx="12" fill="#E8484A"/><rect x="0" y="70" width="34" height="22" rx="8" fill="#C2333A"/><rect x="8" y="0" width="18" height="20" rx="4" fill="#2D2D2D"/><path d="M26 6 L44 -4" stroke="#2D2D2D" stroke-width="6" stroke-linecap="round"/></g>'),
+    'docker': cookie(dict(base="#2496ED", shade="#1A7FCC", back="#1E88DA", back_shade="#1570B8", fold="#0B4479", hi="#8CCBFA"),
+                     under=''.join(f'<rect x="{x}" y="{y}" width="30" height="24" rx="3" fill="{c}"/>' for x, y, c in [(54, 6, '#5BB4F5'), (88, 6, '#4AA8EF'), (122, 6, '#5BB4F5'), (88, -22, '#4AA8EF'), (122, -22, '#5BB4F5')]),
+                     over='<path d="M214 150 C236 140 246 118 238 104 C232 116 222 120 214 118 C222 108 224 96 218 86 C206 100 206 124 214 150 Z" fill="#1570B8"/>'),
+    'retro': wrap(f'<g transform="translate(-4 4) scale(8.6)" shape-rendering="crispEdges">{pixel_inner}</g>'),
+    'helloworld': wrap(f'<g transform="translate(36 70) scale(0.7)">{body(cookie(dict(base="#FFD9A0", shade="#F5BE78", back="#F8C988", back_shade="#E8AD62", fold="#A86A24", hi="#FFF1D8")))}</g>'
+                       '<path d="M118 70 C96 50 80 62 92 76 C100 86 112 80 118 70 Z M118 70 C140 50 156 62 144 76 C136 86 124 80 118 70 Z" fill="#FF5C7A"/><circle cx="118" cy="72" r="8" fill="#D93E5D"/>'
+                       + SPARK(40, 60, 12, '#FFD43B') + SPARK(206, 100, 9, '#4FB8F5') + SPARK(196, 210, 8, '#FF9F1A')),
+})
+
 for name, svg in ART.items():
     open(f'{name}.svg', 'w').write(svg)
 print(len(ART), 'cookies')
