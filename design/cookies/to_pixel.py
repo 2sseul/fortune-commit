@@ -112,12 +112,41 @@ def convert(name):
     os.makedirs(OUT, exist_ok=True)
     pal_hex = {key[c]: '#%02X%02X%02X' % c for c in colors}
     json.dump({'name': name, 'palette': pal_hex, 'map': rows}, open(os.path.join(OUT, f'{name}.json'), 'w'), ensure_ascii=False, indent=1)
-    # 미리보기 SVG
-    cells = ''.join(f'<rect x="{x}" y="{y}" width="1" height="1" fill="{pal_hex[ch.upper()]}"/>' for y, r in enumerate(rows) for x, ch in enumerate(r) if ch != '.')
-    open(os.path.join(OUT, f'{name}.svg'), 'w').write(f'<svg xmlns="http://www.w3.org/2000/svg" width="{len(rows[0]) * 8}" height="{len(rows) * 8}" viewBox="0 0 {len(rows[0])} {len(rows)}" shape-rendering="crispEdges">{cells}</svg>')
+    # 미리보기 SVG: 같은 색이 가로로 이어진 칸은 경로 하나로 합친다 (Figma에 올려도 가볍게)
+    paths = {}
+    for y, r in enumerate(rows):
+        x = 0
+        while x < len(r):
+            if r[x] == '.': x += 1; continue
+            c = pal_hex[r[x].upper()]; w = 1
+            while x + w < len(r) and r[x + w] != '.' and pal_hex[r[x + w].upper()] == c: w += 1
+            paths.setdefault(c, []).append(f'M{x} {y}h{w}v1h-{w}z'); x += w
+    body = ''.join(f'<path fill="{c}" d="{"".join(d)}"/>' for c, d in paths.items())
+    open(os.path.join(OUT, f'{name}.svg'), 'w').write(f'<svg xmlns="http://www.w3.org/2000/svg" width="{len(rows[0]) * 4}" height="{len(rows) * 4}" viewBox="0 0 {len(rows[0])} {len(rows)}" shape-rendering="crispEdges">{body}</svg>')
     return len(rows[0]), len(rows), len(colors)
 
+# 픽셀로 바꾸지 않는 파일: 상점 아이템 아이콘, 레트로(원래 픽셀), 레트로가 쓰는 픽셀 원본
+SKIP = ('item-', 'pixel-plain', 'retro')
+
+def cookie_names():
+    return sorted(n[:-4] for n in os.listdir(HERE) if n.endswith('.svg') and not n.startswith(SKIP))
+
+def missing():
+    # 픽셀 지도가 없거나, 벡터 SVG가 지도보다 나중에 바뀐 쿠키
+    out = []
+    for n in cookie_names():
+        j = os.path.join(OUT, f'{n}.json')
+        if not os.path.exists(j) or os.path.getmtime(os.path.join(HERE, f'{n}.svg')) > os.path.getmtime(j):
+            out.append(n)
+    return out
+
 if __name__ == '__main__':
-    names = sys.argv[1:] or sorted(n[:-4] for n in os.listdir(HERE) if n.endswith('.svg') and n not in ('pixel-plain.svg', 'retro.svg'))
+    # python3 to_pixel.py --missing   : 새로 생겼거나 바뀐 쿠키만 (보통 이것)
+    # python3 to_pixel.py --all       : 전부 다시
+    # python3 to_pixel.py cat owl     : 고른 쿠키만
+    args = sys.argv[1:]
+    names = missing() if args == ['--missing'] else cookie_names() if args in ([], ['--all']) else args
+    if not names:
+        print('바꿀 쿠키가 없어요 (모든 쿠키의 픽셀 지도가 최신이에요)')
     for n in names:
         print(n, convert(n))

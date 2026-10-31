@@ -172,6 +172,7 @@ ART.update({
 })
 
 # ---- 개발자 밈 쿠키 ----
+import os
 import re as _re
 PL = P['plain']
 
@@ -286,6 +287,10 @@ ART.update({
                           + SPARK(26, 40, 16, '#FFD43B') + SPARK(216, 190, 12, '#FFD43B') + SPARK(220, 60, 9, '#FF9F1A')),
 })
 
+# 내용이 바뀐 쿠키만 다시 쓴다 → to_pixel.py --missing이 새로 생기거나 바뀐 쿠키만 골라 변환할 수 있다
+changed = []
 for name, svg in ART.items():
-    open(f'{name}.svg', 'w').write(svg)
-print(len(ART), 'cookies')
+    path = f'{name}.svg'
+    if not os.path.exists(path) or open(path).read() != svg:
+        open(path, 'w').write(svg); changed.append(name)
+print(len(ART), 'cookies,', f'바뀐 것 {len(changed)}개:' if changed else '바뀐 것 없음', ' '.join(changed))

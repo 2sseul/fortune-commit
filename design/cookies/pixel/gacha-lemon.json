@@ -1,0 +1,43 @@
+{
+ "name": "gacha-lemon",
+ "palette": {
+  "A": "#6D5800",
+  "B": "#9C7F00",
+  "C": "#E8C220",
+  "D": "#F5CF2E",
+  "E": "#F8D83F",
+  "F": "#FFE45C",
+  "G": "#FFF6B8"
+ },
+ "map": [
+  "............AAAAaa............",
+  ".........AAAFFFBEeaa..........",
+  "........AFFFFFBEeeeeaa........",
+  "......AAFFFFGGBEeeeeeea.......",
+  ".....AFFFFGGGFBEeeeeeeea......",
+  "....AFFFGGGFFFBEeeeeeeeea.....",
+  "...AFFFGGFFFFFBEeeeeeeeeea....",
+  "...AFFGGFFFFFFBEeeeeeeeeeea...",
+  "..AFFFGFFFFFFFBEeeeeeeeeeeea..",
+  "..AFFGGFFFFFFFFBEeeeeeeeeeea..",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  "AFFFFFFFFFFFFFFFBEeeeEEEEEeeea",
+  ".AFFFFFFFFFFFFFFFBEeEEFFFBEeea",
+  ".AFFFFFFFFFFFFFFFCBDEGGFGGBEea",
+  ".AFFFFFFFFFFFFFFFEBCFGFFGFGEA.",
+  ".AFFFFFFFFFFFFFFFFBCGGFEFGGFA.",
+  "..AFFFFFFFFFFFFFFFCCGGFEFGGFA.",
+  "..AFFFFFFFFFFFFFFFAAFGFFGFGDA.",
+  "...AFFFFFFFFFFFFFFFAEGGFGGFA..",
+  "...AEFFFFFFFFFFFFFFAADFFFEA...",
+  "....ADEEFFFFFFFFFEDA.AAAAA....",
+  ".....ADDDDEEEEEDDDDA..........",
+  "......AADDDDDDDDDDDA..........",
+  "........AADDDDDDDDDA..........",
+  "..........AAADDDDAA...........",
+  ".............AAAA............."
+ ]
+}

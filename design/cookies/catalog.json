@@ -492,7 +492,7 @@
    "unlock": "쿠키 뽑기 (일반)",
    "data": "gacha",
    "vector": "design/cookies/gacha-strawberry.svg",
-   "pixel": "design/cookies/pixel/gacha-strawberry.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-strawberry.json"
   },
   {
    "id": "gacha-lemon",
@@ -502,7 +502,7 @@
    "unlock": "쿠키 뽑기 (일반)",
    "data": "gacha",
    "vector": "design/cookies/gacha-lemon.svg",
-   "pixel": "design/cookies/pixel/gacha-lemon.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-lemon.json"
   },
   {
    "id": "gacha-blueberry",
@@ -512,7 +512,7 @@
    "unlock": "쿠키 뽑기 (일반)",
    "data": "gacha",
    "vector": "design/cookies/gacha-blueberry.svg",
-   "pixel": "design/cookies/pixel/gacha-blueberry.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-blueberry.json"
   },
   {
    "id": "gacha-mintchip",
@@ -522,7 +522,7 @@
    "unlock": "쿠키 뽑기 (일반)",
    "data": "gacha",
    "vector": "design/cookies/gacha-mintchip.svg",
-   "pixel": "design/cookies/pixel/gacha-mintchip.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-mintchip.json"
   },
   {
    "id": "gacha-vanilla",
@@ -532,7 +532,7 @@
    "unlock": "쿠키 뽑기 (일반)",
    "data": "gacha",
    "vector": "design/cookies/gacha-vanilla.svg",
-   "pixel": "design/cookies/pixel/gacha-vanilla.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-vanilla.json"
   },
   {
    "id": "gacha-sprinkle",
@@ -542,7 +542,7 @@
    "unlock": "쿠키 뽑기 (레어)",
    "data": "gacha",
    "vector": "design/cookies/gacha-sprinkle.svg",
-   "pixel": "design/cookies/pixel/gacha-sprinkle.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-sprinkle.json"
   },
   {
    "id": "gacha-macaron",
@@ -552,7 +552,7 @@
    "unlock": "쿠키 뽑기 (레어)",
    "data": "gacha",
    "vector": "design/cookies/gacha-macaron.svg",
-   "pixel": "design/cookies/pixel/gacha-macaron.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-macaron.json"
   },
   {
    "id": "gacha-donut",
@@ -562,7 +562,7 @@
    "unlock": "쿠키 뽑기 (레어)",
    "data": "gacha",
    "vector": "design/cookies/gacha-donut.svg",
-   "pixel": "design/cookies/pixel/gacha-donut.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-donut.json"
   },
   {
    "id": "burnt",
@@ -592,7 +592,7 @@
    "unlock": "쿠키 뽑기 (에픽)",
    "data": "gacha",
    "vector": "design/cookies/gacha-crystal.svg",
-   "pixel": "design/cookies/pixel/gacha-crystal.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-crystal.json"
   },
   {
    "id": "gacha-crown",
@@ -602,7 +602,7 @@
    "unlock": "쿠키 뽑기 (전설)",
    "data": "gacha",
    "vector": "design/cookies/gacha-crown.svg",
-   "pixel": "design/cookies/pixel/gacha-crown.json (변환 예정)"
+   "pixel": "design/cookies/pixel/gacha-crown.json"
   }
  ],
  "gacha": {
