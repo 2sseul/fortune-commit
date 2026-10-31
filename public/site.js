@@ -177,11 +177,11 @@ export function toast(message, ms = 2600) {
 }
 
 // 코드 복사 버튼: 누르면 복사하고 잠깐 "복사됨!"을 보여준다.
-export async function copyText(button, text) {
+export async function copyText(button, text, doneText = '복사됨!') {
   const original = button.textContent;
   try {
     await navigator.clipboard.writeText(text);
-    button.textContent = '복사됨!';
+    button.textContent = doneText;
   } catch {
     button.textContent = '직접 선택해 주세요';
   }
