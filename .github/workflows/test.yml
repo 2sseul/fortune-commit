@@ -1,0 +1,23 @@
+# 자동 테스트 (CI): main에 push하거나 PR을 열면 npm test를 돌린다.
+# 배포(CD)는 Vercel의 GitHub 연결이 맡는다. (push → Vercel이 자동 배포)
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
