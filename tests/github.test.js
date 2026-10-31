@@ -3,7 +3,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchActivity, startOfToday, clearActivityMemory, mostUsedLanguage } from '../src/github.js';
+import { fetchActivity, startOfToday, clearActivityMemory, mostUsedLanguage, languageCommits } from '../src/github.js';
 
 // GitHub를 흉내 내는 가짜 fetch
 //   events   : 공개 이벤트 목록 (오늘 활동 세기), null이면 이벤트 요청 실패
@@ -153,4 +153,11 @@ test('이벤트 확인이 실패해도 오늘 push가 있으면 열린다', asyn
   clearActivityMemory();
   const { impl } = fakeFetch({ events: null, pushedAt: ['2026-10-11T05:00:00Z'] });
   assert.equal((await fetchActivity({ ...base, fetchImpl: impl })).today, 1);
+});
+
+test('저장소별 올해 커밋을 언어별로 더한다 (노트북은 Python, HTML은 빼기)', () => {
+  const repo = (name, count) => ({ repository: { primaryLanguage: name ? { name } : null }, contributions: { totalCount: count } });
+  assert.deepEqual(languageCommits([repo('JavaScript', 40), repo('Vue', 15), repo('Jupyter Notebook', 7), repo('Python', 3), repo('HTML', 9), repo(null, 4)]),
+    { JavaScript: 55, Python: 10 });
+  assert.deepEqual(languageCommits(undefined), {});
 });

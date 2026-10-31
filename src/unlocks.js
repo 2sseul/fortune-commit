@@ -13,13 +13,15 @@ import { fortuneGrade } from './pick.js';
 const month = (m) => (y) => y.months[m] ?? 0;
 const onDay = (mmdd) => (y) => Math.min(1, Object.entries(y.days).find(([date]) => date.endsWith(mmdd))?.[1] ?? 0);
 
-// 언어 쿠키: 그 언어를 가장 많이 쓰고(내 공개 저장소 기준) 올해 기여 100개 (v3)
+// 언어 쿠키: 올해 그 언어 저장소에 커밋 50개 (v3, 여러 언어를 모두 열 수 있다)
+//   예전 규칙(주 언어 하나 + 기여 100)은 언어 쿠키를 하나만 열 수 있어서 바꿨다.
 export const LANGUAGE_COOKIES = {
   crab: 'Rust', python: 'Python', coffee: 'Java', javascript: 'JavaScript', typescript: 'TypeScript',
   go: 'Go', kotlin: 'Kotlin', swift: 'Swift', cpp: 'C++', csharp: 'C#', ruby: 'Ruby', php: 'PHP',
   dart: 'Dart', shell: 'Shell', haskell: 'Haskell',
 };
-const language = (name) => ({ goal: 100, unit: `contributions in ${name}`, measure: (y) => (y.language === name ? y.total : 0) });
+export const LANGUAGE_GOAL = 50;
+const language = (name) => ({ goal: LANGUAGE_GOAL, unit: `${name} commits`, measure: (y) => y.languageCommits?.[name] ?? 0 });
 
 export const UNLOCK_RULES = {
   plain: { goal: 0, unit: '', measure: () => 0 },

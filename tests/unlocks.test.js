@@ -31,10 +31,12 @@ test('뽑기 쿠키는 활동으로 열리지 않는다 (v3)', () => {
   assert.equal(hasSkin('gacha-crown', { year: YEAR, profile: { earned: ['gacha-crown'] } }), true);
 });
 
-test('언어 쿠키는 주 언어가 맞아야 한다 (v3)', () => {
-  const year = { ...YEAR, total: 120, language: 'Rust' };
+test('언어 쿠키는 그 언어 저장소에 올해 커밋 50개면 열리고, 여러 언어를 함께 열 수 있다 (v3)', () => {
+  const year = { ...YEAR, languageCommits: { Rust: 60, Python: 50, Go: 12 } };
   assert.equal(skinStatus('crab', year).unlocked, true);
-  assert.equal(skinStatus('python', year).unlocked, false);
+  assert.equal(skinStatus('python', year).unlocked, true);
+  assert.deepEqual(skinStatus('go', year), { unlocked: false, current: 12, goal: 50, unit: 'Go commits' });
+  assert.equal(skinStatus('kotlin', year).current, 0);
 });
 
 test('사이트 기록 숫자를 더한다: 빈 날, 위젯 단 날 (v3)', () => {

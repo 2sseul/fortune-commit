@@ -31,6 +31,8 @@ export const DECOR_COLORS = {
   J: '#7FC24A', // 연초록 (호박 꼭지 빛)
   N: '#F28C28', // 주황 (눈사람 당근 코)
   V: '#C65F0E', // 진주황 (당근 코 그림자)
+  C: '#9A9AA8', // 게임기 회색 테두리 (레트로 쿠키)
+  Z: '#C4D69A', // 게임기 연두 화면 (레트로 쿠키)
 };
 
 // 동물 쿠키가 함께 쓰는 크림색 쿠키
@@ -184,6 +186,15 @@ export function withFace(skin) {
   return { ...skin, parts: [...(skin.parts ?? []), ...CHARACTER_FACE] };
 }
 
+// 레트로 쿠키 (위젯을 1년 달아 둔 사람): 옛날 휴대용 게임기 화면 속 초록 4색 쿠키
+// (사이트 그림 design/cookies/retro.svg와 같은 색). 화면은 쿠키 뒤에 깔려 갈라질 때 움직이지 않는다.
+const screen = (rows, cols) => Array.from({ length: rows }, (_, r) => (r === 0 || r === rows - 1 ? 'C'.repeat(cols) : `C${'Z'.repeat(cols - 2)}C`));
+const RETRO = {
+  label: { ko: '레트로 쿠키', en: 'Retro cookie' },
+  palette: { O: '#0F380F', B: '#8BAC0F', H: '#E2F0B0', S: '#306230' },
+  under: [{ at: [-3, -3], shape: screen(32, 39) }],
+};
+
 // 이름으로 스킨을 찾는다. 모르는 이름이면 기본 쿠키.
 //   예전 11종(SKINS)은 손으로 그린 픽셀, 새 쿠키(v3)는 벡터에서 자동 변환한 픽셀 지도(src/pixel-maps.js)를 쓴다.
 //   레트로 쿠키는 원래 픽셀 그대로인 기본 쿠키 그림.
@@ -191,7 +202,7 @@ export function getSkin(name) {
   // 빈 값(null)이 'null 쿠키'로 잘못 찾아지지 않게 문자열만 받는다.
   if (typeof name !== 'string') return { id: 'plain', ...SKINS.plain };
   if (Object.hasOwn(SKINS, name)) return { id: name, ...SKINS[name] };
-  if (name === 'retro') return { id: 'retro', ...SKINS.plain, label: { ko: '레트로 쿠키', en: 'Retro cookie' } };
+  if (name === 'retro') return { id: 'retro', ...RETRO };
   if (Object.hasOwn(PIXEL_MAPS, name)) {
     const cookie = COOKIES.find((c) => c.id === name);
     return { id: name, label: { ko: cookie?.label ?? name, en: name }, pixelMap: PIXEL_MAPS[name] };

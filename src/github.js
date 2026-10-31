@@ -203,6 +203,7 @@ export function clearActivityMemory() {
 //        stars      : 내 공개 저장소 별 합계, forks: 올해 포크한 저장소 수, newRepos: 올해 만든 저장소 수
 //        legacy     : 만든 지 1년 넘었는데 올해 push한 저장소 수, docker: Dockerfile이 있고 올해 push한 저장소 수
 //        issueComments : 이슈 댓글 수 (전체), closedIssues : 내가 연 이슈 중 닫힌 것 (전체)
+//        languageCommits : 올해 언어별 커밋 수 { JavaScript: 120, Python: 12 } (커밋한 저장소의 대표 언어로 센다, 남의 저장소 포함)
 //        late / night / friday / fixes : 올해 커밋 중 새벽(0~5시)·밤(22시~)·금요일 저녁(18시~) 커밋 수, 메시지에 fix가 들어간 커밋 수
 //          (최근 push한 저장소 30개에서 저장소마다 최근 커밋 40개를 본다. 한 번 해금하면 기록되므로 표본으로 충분하다)
 // 날짜별 기여는 GitHub 잔디(contributionCalendar)의 날짜를 그대로 쓴다.
@@ -220,6 +221,10 @@ const YEAR_QUERY = `
         }
         pullRequestContributions(first: 100) { nodes { pullRequest { merged } } }
         pullRequestReviewContributions(first: 100) { nodes { pullRequestReview { state } } }
+        commitContributionsByRepository(maxRepositories: 100) {
+          repository { primaryLanguage { name } }
+          contributions { totalCount }
+        }
       }
       issueComments { totalCount }
       closedIssues: issues(states: CLOSED) { totalCount }
@@ -259,6 +264,16 @@ function localTime(iso, timeZone) {
   return { weekday, hour: Number(parts.find((p) => p.type === 'hour').value) % 24 };
 }
 
+// 저장소별 올해 커밋 수 → 언어별 커밋 수 (언어 이름은 normalizeLanguage로 맞춘다)
+export function languageCommits(byRepository) {
+  const counts = {};
+  for (const item of byRepository ?? []) {
+    const name = normalizeLanguage(item?.repository?.primaryLanguage?.name);
+    if (name) counts[name] = (counts[name] ?? 0) + (item.contributions?.totalCount ?? 0);
+  }
+  return counts;
+}
+
 // 저장소·커밋 정보로 v3 쿠키에 쓰는 숫자를 센다. (user가 없으면 모두 0)
 export function summarizeExtras(user, { login, from, timeZone } = {}) {
   const repos = user?.repositories?.nodes?.filter(Boolean) ?? [];
@@ -276,6 +291,7 @@ export function summarizeExtras(user, { login, from, timeZone } = {}) {
     newRepos: own.filter((repo) => thisYear(repo.createdAt)).length,
     legacy: own.filter((repo) => thisYear(repo.pushedAt) && Date.parse(repo.pushedAt) - Date.parse(repo.createdAt) > 365 * DAY_MS).length,
     docker: own.filter((repo) => repo.dockerfile && thisYear(repo.pushedAt)).length,
+    languageCommits: languageCommits(collection?.commitContributionsByRepository),
     issueComments: user?.issueComments?.totalCount ?? 0,
     closedIssues: user?.closedIssues?.totalCount ?? 0,
     late: 0,
@@ -372,7 +388,7 @@ export async function fetchYearActivity({
   const remembered = yearMemory.get(key);
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.year;
   // 다른 서버 함수가 방금 물어본 결과가 Redis에 있으면 그걸 쓴다. (GitHub 질의가 1~3초 걸려서)
-  const shared = await cacheGet(`year2:${key.toLowerCase()}`);
+  const shared = await cacheGet(`year3:${key.toLowerCase()}`);
   if (shared) {
     yearMemory.set(key, { year: shared, expiresAt: now.getTime() + 5 * 60 * 1000 });
     return shared;
@@ -407,7 +423,7 @@ export async function fetchYearActivity({
   const year = { ...summarizeYear(user.contributionsCollection), ...(full ? summarizeExtras(user, { login, from: yearFrom, timeZone }) : {}) };
   // 기본 질의로만 받았으면 짧게 기억해서 곧 다시 v3 질의를 해 본다.
   yearMemory.set(key, { year, expiresAt: now.getTime() + (full ? YEAR_MEMORY_MS : 5 * 60 * 1000) });
-  await cacheSet(`year2:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
+  await cacheSet(`year3:${key.toLowerCase()}`, year, full ? 30 * 60 : 5 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
   return year;
 }
 

@@ -133,105 +133,105 @@ export const COOKIES = [
   "id": "crab",
   "label": "Rust 쿠키",
   "category": "언어",
-  "unlock": "Rust 주 사용 + 올해 기여 100",
+  "unlock": "올해 Rust 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "python",
   "label": "Python 쿠키",
   "category": "언어",
-  "unlock": "Python 주 사용 + 올해 기여 100",
+  "unlock": "올해 Python 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "coffee",
   "label": "Java 쿠키",
   "category": "언어",
-  "unlock": "Java 주 사용 + 올해 기여 100",
+  "unlock": "올해 Java 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "javascript",
   "label": "JavaScript 쿠키",
   "category": "언어",
-  "unlock": "JavaScript 주 사용 + 올해 기여 100",
+  "unlock": "올해 JavaScript 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "typescript",
   "label": "TypeScript 쿠키",
   "category": "언어",
-  "unlock": "TypeScript 주 사용 + 올해 기여 100",
+  "unlock": "올해 TypeScript 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "go",
   "label": "Go 쿠키",
   "category": "언어",
-  "unlock": "Go 주 사용 + 올해 기여 100",
+  "unlock": "올해 Go 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "kotlin",
   "label": "Kotlin 쿠키",
   "category": "언어",
-  "unlock": "Kotlin 주 사용 + 올해 기여 100",
+  "unlock": "올해 Kotlin 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "swift",
   "label": "Swift 쿠키",
   "category": "언어",
-  "unlock": "Swift 주 사용 + 올해 기여 100",
+  "unlock": "올해 Swift 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "cpp",
   "label": "C++ 쿠키",
   "category": "언어",
-  "unlock": "C++ 주 사용 + 올해 기여 100",
+  "unlock": "올해 C++ 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "csharp",
   "label": "C# 쿠키",
   "category": "언어",
-  "unlock": "C# 주 사용 + 올해 기여 100",
+  "unlock": "올해 C# 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "ruby",
   "label": "Ruby 쿠키",
   "category": "언어",
-  "unlock": "Ruby 주 사용 + 올해 기여 100",
+  "unlock": "올해 Ruby 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "php",
   "label": "PHP 쿠키",
   "category": "언어",
-  "unlock": "PHP 주 사용 + 올해 기여 100",
+  "unlock": "올해 PHP 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "dart",
   "label": "Dart 쿠키",
   "category": "언어",
-  "unlock": "Dart 주 사용 + 올해 기여 100",
+  "unlock": "올해 Dart 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "shell",
   "label": "Shell 쿠키",
   "category": "언어",
-  "unlock": "Shell 주 사용 + 올해 기여 100",
+  "unlock": "올해 Shell 저장소에 커밋 50개",
   "data": "now"
  },
  {
   "id": "haskell",
   "label": "Haskell 쿠키",
   "category": "언어",
-  "unlock": "Haskell 주 사용 + 올해 기여 100",
+  "unlock": "올해 Haskell 저장소에 커밋 50개",
   "data": "now"
  },
  {

@@ -199,6 +199,14 @@ TEXTURE_BG = '<rect x="-10" y="-10" width="260" height="260" fill="#EBEDF0"/>'
 
 pixel_plain = open('pixel-plain.svg').read()
 pixel_inner = _re.sub(r'^<svg[^>]*>|</svg>\s*$', '', pixel_plain.strip())
+# 레트로 쿠키: 옛날 휴대용 게임기 화면처럼 초록 4색 픽셀 + 픽셀 반짝이 (위젯은 src/skins.js의 같은 색)
+RETRO_COLORS = {'#5C3310': '#0F380F', '#B86E1E': '#306230', '#E8A23C': '#8BAC0F', '#FFD98A': '#E2F0B0'}
+retro_inner = pixel_inner
+for old, new in RETRO_COLORS.items():
+    retro_inner = retro_inner.replace(old, new)
+# 게임기 화면: 회색 테두리 + 연두 화면 (쿠키 뒤에 깔린다)
+retro_screen = ('<rect x="-3" y="-3" width="33" height="32" fill="#9A9AA8"/>'
+                '<rect x="-2" y="-2" width="31" height="30" fill="#C4D69A"/>')
 
 stack_one = body(cookie(P['plain']))
 ART.update({
@@ -232,7 +240,7 @@ ART.update({
     'docker': cookie(dict(base="#2496ED", shade="#1A7FCC", back="#1E88DA", back_shade="#1570B8", fold="#0B4479", hi="#8CCBFA"),
                      under=''.join(f'<rect x="{x}" y="{y}" width="30" height="24" rx="3" fill="{c}"/>' for x, y, c in [(54, 6, '#5BB4F5'), (88, 6, '#4AA8EF'), (122, 6, '#5BB4F5'), (88, -22, '#4AA8EF'), (122, -22, '#5BB4F5')]),
                      over='<path d="M214 150 C236 140 246 118 238 104 C232 116 222 120 214 118 C222 108 224 96 218 86 C206 100 206 124 214 150 Z" fill="#1570B8"/>'),
-    'retro': wrap(f'<g transform="translate(-4 4) scale(8.6)" shape-rendering="crispEdges">{pixel_inner}</g>'),
+    'retro': wrap(f'<g transform="translate(12 18) scale(7.4)" shape-rendering="crispEdges">{retro_screen}{retro_inner}</g>'),
     'helloworld': wrap(f'<g transform="translate(36 70) scale(0.7)">{body(cookie(dict(base="#FFD9A0", shade="#F5BE78", back="#F8C988", back_shade="#E8AD62", fold="#A86A24", hi="#FFF1D8")))}</g>'
                        '<path d="M118 70 C96 50 80 62 92 76 C100 86 112 80 118 70 Z M118 70 C140 50 156 62 144 76 C136 86 124 80 118 70 Z" fill="#FF5C7A"/><circle cx="118" cy="72" r="8" fill="#D93E5D"/>'
                        + SPARK(40, 60, 12, '#FFD43B') + SPARK(206, 100, 9, '#4FB8F5') + SPARK(196, 210, 8, '#FF9F1A')),

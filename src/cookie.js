@@ -129,7 +129,14 @@ function buildPixels(state, skin, colors) {
     }));
   }
 
-  return [...pixels.values()].map(([row, col, ch]) => [row, col, pieceOf(ch), colors ? colorOf(palette, ch) : null]);
+  // 쿠키 뒤에 까는 그림 (레트로 쿠키의 게임기 화면): 쿠키가 덮고, 갈라질 때 움직이지 않는다.
+  const under = [];
+  for (const { at: [top, left], shape } of skin?.under ?? []) {
+    shape.forEach((line, i) => [...line].forEach((ch, j) => {
+      if (ch !== '.') under.push([top + i, left + j, 'under', colors ? DECOR_COLORS[ch] : null]);
+    }));
+  }
+  return [...under, ...[...pixels.values()].map(([row, col, ch]) => [row, col, pieceOf(ch), colors ? colorOf(palette, ch) : null])];
 }
 
 function buildMapPixels(state, { palette, map }, colors) {
@@ -186,6 +193,7 @@ export function renderPixelCookie({ colors, pixel, x, y, state = 'open', skin = 
   const piece = (name) => `<g class="cookie-${name}">${pixelsToRects(pixels, pixel, name)}</g>`;
   return `
   <g transform="translate(${x} ${y})" shape-rendering="crispEdges">
+    ${skin?.under ? `<g class="cookie-under">${pixelsToRects(pixels, pixel, 'under')}</g>` : ''}
     <g class="cookie cookie-${state}">
       ${piece('paper')}
       ${piece('back')}

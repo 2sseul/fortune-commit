@@ -58,7 +58,7 @@
     const expanded = new Set();
 
     // 카드에 쓰는 짧은 해금 조건 (한 줄에 들어가게)
-    const shortRule = (c) => c.unlock.replace('JavaScript', 'JS').replace('TypeScript', 'TS').replace(' + 올해 기여 100', ' + 기여 100').replace('쿠키 뽑기 ', '뽑기 ');
+    const shortRule = (c) => c.unlock.replace(/^올해 (.+) 저장소에 커밋 (\d+)개$/, '$1 커밋 $2개').replace('JavaScript', 'JS').replace('TypeScript', 'TS').replace('쿠키 뽑기 ', '뽑기 ');
 
     const error = new URLSearchParams(location.search).get('login_error') ?? new URLSearchParams(location.search).get('error');
     if (ERRORS[error]) { const box = document.getElementById('notice'); box.className = 'notice'; box.textContent = ERRORS[error]; box.hidden = false; }
@@ -128,7 +128,11 @@
         const list = catalog.cookies.filter((c) => c.category === cat);
         const got = list.filter((c) => states[c.id]?.unlocked || c.id === 'plain').length;
         const head = el('div', { class: 'group-head' }, el('h2', { text: `${CATEGORY_LABEL[cat]} 쿠키` }), me.loggedIn ? el('span', { class: 'count', text: `${got} / ${list.length}` }) : null);
-        if (cat === '언어' && me.loggedIn) head.append(el('span', { class: 'tag sky', title: '올해 push한 공개 저장소에서 가장 많이 쓴 언어 (노트북은 Python, Vue는 JavaScript로 셈)', text: me.language ? `내 주 언어: ${me.language}` : '주 언어를 찾지 못했어요' }));
+        if (cat === '언어' && me.loggedIn) {
+          // 올해 언어별 커밋 수 (많은 순 3개). 커밋한 저장소의 대표 언어로 센다.
+          const top = Object.entries(me.languageCommits ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 3);
+          head.append(el('span', { class: 'tag sky', title: '올해 커밋한 저장소의 대표 언어로 셈 (노트북은 Python, Vue는 JavaScript)', text: top.length ? `올해 커밋 ${top.map(([l, n]) => `${l} ${n}`).join(' · ')}` : '올해 커밋한 언어를 찾지 못했어요' }));
+        }
         if (cat === '뽑기') head.append(el('a', { class: 'tag purple', href: '/shop.html#gacha', text: `부스러기 ${me.wallet?.crumbs ?? 0}개 · 상점에서 뽑기 →` }));
         // 해금한 것 먼저, 잠긴 것은 진행률이 높은 순
         const sorted = [...list].sort((a, b) => Number(Boolean(states[b.id]?.unlocked)) - Number(Boolean(states[a.id]?.unlocked)));
