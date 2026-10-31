@@ -209,10 +209,10 @@ export function clearActivityMemory() {
 //   days      : 날짜별 기여 수 { '2026-12-25': 2, ... } (전체 기간)
 //   (v3) merged / approvals : 머지된 내 PR 수, 승인한 리뷰 수 (해마다 최근 100개까지 보고 더한다)
 //        languageCommits : 언어별 커밋 수 { JavaScript: 120, Python: 12 } (커밋한 저장소의 대표 언어, 남의 저장소 포함)
-//        stars / forks / newRepos / legacy / docker : 내 공개 저장소 기준 (최근 push한 30개)
+//        stars / forks / newRepos / legacy / docker : 내 공개 저장소 기준 (최근 push한 20개)
 //        issueComments / closedIssues : 이슈 댓글 수, 내가 연 이슈 중 닫힌 것 (전체)
 //        late / night / friday / fixes : 새벽(0~5시)·밤(22시~)·금요일 저녁(18시~) 커밋, 메시지에 fix가 들어간 커밋 수
-//          (최근 push한 저장소 30개에서 저장소마다 최근 커밋 40개를 본다. 한 번 해금하면 기록되므로 표본으로 충분하다)
+//          (최근 push한 저장소 20개에서 저장소마다 최근 커밋 30개를 본다. 한 번 해금하면 기록되므로 표본으로 충분하다)
 // 날짜별 기여는 GitHub 잔디(contributionCalendar)의 날짜를 그대로 쓴다.
 
 // 해마다 묻는 기여 숫자 (올해·지난해 모두)
@@ -231,7 +231,7 @@ const YEAR_FIELDS = `
           contributions { totalCount }
         }`;
 
-// 올해 + 가입한 날 + 저장소·이슈·커밋 시각 (한 번만)
+// 올해 + 가입한 날 + 이슈 (가볍고 중요한 것)
 const YEAR_QUERY = `
   query ($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
@@ -240,13 +240,20 @@ const YEAR_QUERY = `
       }
       issueComments { totalCount }
       closedIssues: issues(states: CLOSED) { totalCount }
-      repositories(first: 30, ownerAffiliations: OWNER, privacy: PUBLIC, orderBy: { field: PUSHED_AT, direction: DESC }) {
+    }
+  }`;
+
+// 저장소·커밋 시각 (무거워서 따로, 동시에 묻는다. 늦거나 실패해도 기여 숫자는 그대로 쓴다)
+const REPO_QUERY = `
+  query ($login: String!) {
+    user(login: $login) {
+      repositories(first: 20, ownerAffiliations: OWNER, privacy: PUBLIC, orderBy: { field: PUSHED_AT, direction: DESC }) {
         nodes {
           isFork createdAt pushedAt stargazerCount
           primaryLanguage { name }
           dockerfile: object(expression: "HEAD:Dockerfile") { id }
           defaultBranchRef { target { ... on Commit {
-            history(first: 40) { nodes { committedDate message author { user { login } } } }
+            history(first: 30) { nodes { committedDate message author { user { login } } } }
           } } }
         }
       }
@@ -478,16 +485,17 @@ export async function fetchYearActivity({
       if (!response.ok) return null;
       const body = await response.json();
       if (body?.errors?.length && !body?.data?.user) console.error('올해 활동 질의 오류:', body.errors.map((e) => e.message).join(' / '));
-      return body?.data?.user?.contributionsCollection?.contributionCalendar ? body.data.user : null;
+      return body?.data?.user ?? null;
     } catch {
       return null;
     }
   };
 
   // 올해 질의(저장소·커밋·가입한 날까지)를 먼저, 실패하면 v2 기본 질의로 다시 (예전 쿠키 해금은 언제나 계산되게)
-  let user = await ask(YEAR_QUERY, variables, 6000);
-  const full = Boolean(user);
-  if (!user) user = await ask(BASIC_YEAR_QUERY, variables, 3000);
+  const repoRequest = ask(REPO_QUERY, { login }, 6000); // 저장소·커밋 시각은 동시에 따로
+  const hasCalendar = (u) => (u?.contributionsCollection?.contributionCalendar ? u : null);
+  let user = hasCalendar(await ask(YEAR_QUERY, variables, 6000));
+  if (!user) user = hasCalendar(await ask(BASIC_YEAR_QUERY, variables, 3000));
   if (!user) return null;
 
   // 지난해들 (가입한 해까지): 지난 기록은 바뀌지 않으므로 해마다 Redis에 7일 기억하고, 없는 해만 동시에 묻는다.
@@ -509,8 +517,11 @@ export async function fetchYearActivity({
   }));
   const collections = [user.contributionsCollection, ...past.filter(Boolean)];
 
-  const year = { ...summarizeLifetime(collections), ...(full ? summarizeExtras(user, { login, timeZone }) : {}), since: user.createdAt ?? null };
-  // 기본 질의로만 받았거나 지난해가 빠졌으면 짧게 기억해서 곧 다시 물어본다.
+  // 저장소 쪽은 지난해 기다리는 시간 안에서만 기다린다.
+  const repoUser = await Promise.race([repoRequest, new Promise((resolve) => setTimeout(() => resolve(null), budgetMs))]);
+  const full = Boolean(repoUser?.repositories) && user.issueComments !== undefined;
+  const year = { ...summarizeLifetime(collections), ...(full ? summarizeExtras({ ...user, ...repoUser }, { login, timeZone }) : {}), since: user.createdAt ?? null };
+  // 저장소 쪽이 빠졌거나 지난해가 빠졌으면 짧게 기억해서 곧 다시 물어본다.
   const complete = full && !partial;
   yearMemory.set(key, { year, expiresAt: now.getTime() + (complete ? YEAR_MEMORY_MS : 2 * 60 * 1000) });
   await cacheSet(`life1:${key.toLowerCase()}`, year, complete ? 30 * 60 : 2 * 60); // 해금은 30분 늦게 반영돼도 괜찮다
