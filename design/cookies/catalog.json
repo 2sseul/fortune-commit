@@ -1,0 +1,506 @@
+{
+ "data_sources": {
+  "now": "지금 가져오는 올해 활동(기여 달력·커밋·PR·리뷰·주 사용 언어)으로 계산",
+  "events": "공개 이벤트(시각·커밋 메시지) 추가 확인",
+  "api": "GitHub API 추가 조회",
+  "site": "사이트 기록(Redis: 연속 기록·일기·운세)",
+  "oven": "쿠키 굽기 보상"
+ },
+ "cookies": [
+  {
+   "id": "plain",
+   "label": "기본 쿠키",
+   "category": "기존",
+   "unlock": "처음부터",
+   "data": "now",
+   "vector": "design/cookies/plain.svg",
+   "pixel": "design/cookies/pixel/plain.json"
+  },
+  {
+   "id": "choco",
+   "label": "초코 쿠키",
+   "category": "기존",
+   "unlock": "올해 기여 50개",
+   "data": "now",
+   "vector": "design/cookies/choco.svg",
+   "pixel": "design/cookies/pixel/choco.json"
+  },
+  {
+   "id": "matcha",
+   "label": "말차 쿠키",
+   "category": "기존",
+   "unlock": "올해 기여 150개",
+   "data": "now",
+   "vector": "design/cookies/matcha.svg",
+   "pixel": "design/cookies/pixel/matcha.json"
+  },
+  {
+   "id": "gold",
+   "label": "황금 쿠키",
+   "category": "기존",
+   "unlock": "올해 7일 연속 기여",
+   "data": "now",
+   "vector": "design/cookies/gold.svg",
+   "pixel": "design/cookies/pixel/gold.json"
+  },
+  {
+   "id": "cat",
+   "label": "고양이 쿠키",
+   "category": "기존",
+   "unlock": "올해 커밋 100개",
+   "data": "now",
+   "vector": "design/cookies/cat.svg",
+   "pixel": "design/cookies/pixel/cat.json"
+  },
+  {
+   "id": "dog",
+   "label": "강아지 쿠키",
+   "category": "기존",
+   "unlock": "올해 PR 10개",
+   "data": "now",
+   "vector": "design/cookies/dog.svg",
+   "pixel": "design/cookies/pixel/dog.json"
+  },
+  {
+   "id": "rabbit",
+   "label": "토끼 쿠키",
+   "category": "기존",
+   "unlock": "올해 코드 리뷰 10개",
+   "data": "now",
+   "vector": "design/cookies/rabbit.svg",
+   "pixel": "design/cookies/pixel/rabbit.json"
+  },
+  {
+   "id": "pumpkin",
+   "label": "호박 쿠키",
+   "category": "기존",
+   "unlock": "10월 기여 10개",
+   "data": "now",
+   "vector": "design/cookies/pumpkin.svg",
+   "pixel": "design/cookies/pixel/pumpkin.json"
+  },
+  {
+   "id": "snowman",
+   "label": "눈사람 쿠키",
+   "category": "기존",
+   "unlock": "12월 기여 10개",
+   "data": "now",
+   "vector": "design/cookies/snowman.svg",
+   "pixel": "design/cookies/pixel/snowman.json"
+  },
+  {
+   "id": "deer",
+   "label": "사슴 쿠키",
+   "category": "기존",
+   "unlock": "12월 기여 30개",
+   "data": "now",
+   "vector": "design/cookies/deer.svg",
+   "pixel": "design/cookies/pixel/deer.json"
+  },
+  {
+   "id": "santa",
+   "label": "산타 쿠키",
+   "category": "기존",
+   "unlock": "크리스마스에 기여",
+   "data": "now",
+   "vector": "design/cookies/santa.svg",
+   "pixel": "design/cookies/pixel/santa.json"
+  },
+  {
+   "id": "owl",
+   "label": "올빼미 쿠키",
+   "category": "활동",
+   "unlock": "자정~새벽 5시 활동 10번",
+   "data": "events",
+   "vector": "design/cookies/owl.svg",
+   "pixel": "design/cookies/pixel/owl.json"
+  },
+  {
+   "id": "weekend",
+   "label": "주말 쿠키",
+   "category": "활동",
+   "unlock": "주말에 기여한 날 20일",
+   "data": "now",
+   "vector": "design/cookies/weekend.svg",
+   "pixel": "design/cookies/pixel/weekend.json"
+  },
+  {
+   "id": "merge",
+   "label": "머지 쿠키",
+   "category": "활동",
+   "unlock": "PR 머지 10개",
+   "data": "api",
+   "vector": "design/cookies/merge.svg",
+   "pixel": "design/cookies/pixel/merge.json"
+  },
+  {
+   "id": "streak",
+   "label": "불꽃 쿠키",
+   "category": "활동",
+   "unlock": "연속 기록 30일",
+   "data": "site",
+   "vector": "design/cookies/streak.svg",
+   "pixel": "design/cookies/pixel/streak.json"
+  },
+  {
+   "id": "sakura",
+   "label": "벚꽃 쿠키",
+   "category": "시즌",
+   "unlock": "4월 기여 10개",
+   "data": "now",
+   "vector": "design/cookies/sakura.svg",
+   "pixel": "design/cookies/pixel/sakura.json"
+  },
+  {
+   "id": "watermelon",
+   "label": "수박 쿠키",
+   "category": "시즌",
+   "unlock": "8월 기여 10개",
+   "data": "now",
+   "vector": "design/cookies/watermelon.svg",
+   "pixel": "design/cookies/pixel/watermelon.json"
+  },
+  {
+   "id": "maple",
+   "label": "단풍 쿠키",
+   "category": "시즌",
+   "unlock": "11월 기여 10개",
+   "data": "now",
+   "vector": "design/cookies/maple.svg",
+   "pixel": "design/cookies/pixel/maple.json"
+  },
+  {
+   "id": "burnt",
+   "label": "탄 쿠키",
+   "category": "굽기",
+   "unlock": "오븐에서 낮은 확률",
+   "data": "oven",
+   "vector": "design/cookies/burnt.svg",
+   "pixel": "design/cookies/pixel/burnt.json"
+  },
+  {
+   "id": "rainbow",
+   "label": "무지개 쿠키",
+   "category": "굽기",
+   "unlock": "오븐에서 아주 낮은 확률",
+   "data": "oven",
+   "vector": "design/cookies/rainbow.svg",
+   "pixel": "design/cookies/pixel/rainbow.json"
+  },
+  {
+   "id": "crab",
+   "label": "Rust 쿠키",
+   "category": "언어",
+   "unlock": "Rust 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/crab.svg",
+   "pixel": "design/cookies/pixel/crab.json"
+  },
+  {
+   "id": "python",
+   "label": "Python 쿠키",
+   "category": "언어",
+   "unlock": "Python 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/python.svg",
+   "pixel": "design/cookies/pixel/python.json"
+  },
+  {
+   "id": "coffee",
+   "label": "Java 쿠키",
+   "category": "언어",
+   "unlock": "Java 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/coffee.svg",
+   "pixel": "design/cookies/pixel/coffee.json"
+  },
+  {
+   "id": "javascript",
+   "label": "JavaScript 쿠키",
+   "category": "언어",
+   "unlock": "JavaScript 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/javascript.svg",
+   "pixel": "design/cookies/pixel/javascript.json"
+  },
+  {
+   "id": "typescript",
+   "label": "TypeScript 쿠키",
+   "category": "언어",
+   "unlock": "TypeScript 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/typescript.svg",
+   "pixel": "design/cookies/pixel/typescript.json"
+  },
+  {
+   "id": "go",
+   "label": "Go 쿠키",
+   "category": "언어",
+   "unlock": "Go 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/go.svg",
+   "pixel": "design/cookies/pixel/go.json"
+  },
+  {
+   "id": "kotlin",
+   "label": "Kotlin 쿠키",
+   "category": "언어",
+   "unlock": "Kotlin 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/kotlin.svg",
+   "pixel": "design/cookies/pixel/kotlin.json"
+  },
+  {
+   "id": "swift",
+   "label": "Swift 쿠키",
+   "category": "언어",
+   "unlock": "Swift 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/swift.svg",
+   "pixel": "design/cookies/pixel/swift.json"
+  },
+  {
+   "id": "cpp",
+   "label": "C++ 쿠키",
+   "category": "언어",
+   "unlock": "C++ 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/cpp.svg",
+   "pixel": "design/cookies/pixel/cpp.json"
+  },
+  {
+   "id": "csharp",
+   "label": "C# 쿠키",
+   "category": "언어",
+   "unlock": "C# 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/csharp.svg",
+   "pixel": "design/cookies/pixel/csharp.json"
+  },
+  {
+   "id": "ruby",
+   "label": "Ruby 쿠키",
+   "category": "언어",
+   "unlock": "Ruby 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/ruby.svg",
+   "pixel": "design/cookies/pixel/ruby.json"
+  },
+  {
+   "id": "php",
+   "label": "PHP 쿠키",
+   "category": "언어",
+   "unlock": "PHP 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/php.svg",
+   "pixel": "design/cookies/pixel/php.json"
+  },
+  {
+   "id": "dart",
+   "label": "Dart 쿠키",
+   "category": "언어",
+   "unlock": "Dart 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/dart.svg",
+   "pixel": "design/cookies/pixel/dart.json"
+  },
+  {
+   "id": "shell",
+   "label": "Shell 쿠키",
+   "category": "언어",
+   "unlock": "Shell 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/shell.svg",
+   "pixel": "design/cookies/pixel/shell.json"
+  },
+  {
+   "id": "haskell",
+   "label": "Haskell 쿠키",
+   "category": "언어",
+   "unlock": "Haskell 주 사용 + 올해 기여 100",
+   "data": "now",
+   "vector": "design/cookies/haskell.svg",
+   "pixel": "design/cookies/pixel/haskell.json"
+  },
+  {
+   "id": "grass",
+   "label": "잔디 쿠키",
+   "category": "밈",
+   "unlock": "올해 기여 365개",
+   "data": "now",
+   "vector": "design/cookies/grass.svg",
+   "pixel": "design/cookies/pixel/grass.json"
+  },
+  {
+   "id": "lgtm",
+   "label": "LGTM 쿠키",
+   "category": "밈",
+   "unlock": "리뷰 승인 30개",
+   "data": "api",
+   "vector": "design/cookies/lgtm.svg",
+   "pixel": "design/cookies/pixel/lgtm.json"
+  },
+  {
+   "id": "star",
+   "label": "스타 쿠키",
+   "category": "밈",
+   "unlock": "내 저장소 별 10개",
+   "data": "api",
+   "vector": "design/cookies/star.svg",
+   "pixel": "design/cookies/pixel/star.json"
+  },
+  {
+   "id": "fork",
+   "label": "포크 쿠키",
+   "category": "밈",
+   "unlock": "저장소 포크 5번",
+   "data": "events",
+   "vector": "design/cookies/fork.svg",
+   "pixel": "design/cookies/pixel/fork.json"
+  },
+  {
+   "id": "hotfix",
+   "label": "핫픽스 쿠키",
+   "category": "밈",
+   "unlock": "커밋 메시지에 fix 10번",
+   "data": "events",
+   "vector": "design/cookies/hotfix.svg",
+   "pixel": "design/cookies/pixel/hotfix.json"
+  },
+  {
+   "id": "404",
+   "label": "404 쿠키",
+   "category": "밈",
+   "unlock": "만우절(4월 1일)에 기여",
+   "data": "now",
+   "vector": "design/cookies/404.svg",
+   "pixel": "design/cookies/pixel/404.json"
+  },
+  {
+   "id": "null",
+   "label": "null 쿠키",
+   "category": "밈",
+   "unlock": "운세 일기에 빈 날 30일",
+   "data": "site",
+   "vector": "design/cookies/null.svg",
+   "pixel": "design/cookies/pixel/null.json"
+  },
+  {
+   "id": "duck",
+   "label": "고무오리 쿠키",
+   "category": "밈",
+   "unlock": "이슈 댓글 50개",
+   "data": "api",
+   "vector": "design/cookies/duck.svg",
+   "pixel": "design/cookies/pixel/duck.json"
+  },
+  {
+   "id": "infinite",
+   "label": "무한루프 쿠키",
+   "category": "밈",
+   "unlock": "연속 기록 100일",
+   "data": "site",
+   "vector": "design/cookies/infinite.svg",
+   "pixel": "design/cookies/pixel/infinite.json"
+  },
+  {
+   "id": "semicolon",
+   "label": "세미콜론 쿠키",
+   "category": "밈",
+   "unlock": "올해 기여 1,000개",
+   "data": "now",
+   "vector": "design/cookies/semicolon.svg",
+   "pixel": "design/cookies/pixel/semicolon.json"
+  },
+  {
+   "id": "stackoverflow",
+   "label": "스택오버플로우 쿠키",
+   "category": "밈",
+   "unlock": "하루에 기여 20개",
+   "data": "now",
+   "vector": "design/cookies/stackoverflow.svg",
+   "pixel": "design/cookies/pixel/stackoverflow.json"
+  },
+  {
+   "id": "legacy",
+   "label": "레거시 쿠키",
+   "category": "밈",
+   "unlock": "만든 지 1년 넘은 저장소에 커밋",
+   "data": "api",
+   "vector": "design/cookies/legacy.svg",
+   "pixel": "design/cookies/pixel/legacy.json"
+  },
+  {
+   "id": "darkmode",
+   "label": "다크모드 쿠키",
+   "category": "밈",
+   "unlock": "밤 10시 이후 활동 30번",
+   "data": "events",
+   "vector": "design/cookies/darkmode.svg",
+   "pixel": "design/cookies/pixel/darkmode.json"
+  },
+  {
+   "id": "keycap",
+   "label": "키캡 쿠키",
+   "category": "밈",
+   "unlock": "한 달 동안 매일 기여",
+   "data": "now",
+   "vector": "design/cookies/keycap.svg",
+   "pixel": "design/cookies/pixel/keycap.json"
+  },
+  {
+   "id": "friday",
+   "label": "금요일 배포 쿠키",
+   "category": "밈",
+   "unlock": "금요일 저녁 6시 이후 push",
+   "data": "events",
+   "vector": "design/cookies/friday.svg",
+   "pixel": "design/cookies/pixel/friday.json"
+  },
+  {
+   "id": "docker",
+   "label": "도커 쿠키",
+   "category": "밈",
+   "unlock": "Dockerfile 있는 저장소에 커밋",
+   "data": "api",
+   "vector": "design/cookies/docker.svg",
+   "pixel": "design/cookies/pixel/docker.json"
+  },
+  {
+   "id": "galaxy",
+   "label": "은하수 쿠키",
+   "category": "밈",
+   "unlock": "전설 운세를 받은 날",
+   "data": "site",
+   "vector": "design/cookies/galaxy.svg",
+   "pixel": "design/cookies/pixel/galaxy.json"
+  },
+  {
+   "id": "bug",
+   "label": "버그 쿠키",
+   "category": "밈",
+   "unlock": "이슈 10개 닫기",
+   "data": "api",
+   "vector": "design/cookies/bug.svg",
+   "pixel": "design/cookies/pixel/bug.json"
+  },
+  {
+   "id": "retro",
+   "label": "레트로 쿠키",
+   "category": "특별",
+   "unlock": "위젯을 1년 달아 두기",
+   "data": "site",
+   "vector": "design/cookies/retro.svg",
+   "pixel": "src/skins.js (원래 픽셀 plain)"
+  },
+  {
+   "id": "helloworld",
+   "label": "Hello World 쿠키",
+   "category": "특별",
+   "unlock": "새 저장소 만들기",
+   "data": "now",
+   "vector": "design/cookies/helloworld.svg",
+   "pixel": "design/cookies/pixel/helloworld.json"
+  }
+ ]
+}

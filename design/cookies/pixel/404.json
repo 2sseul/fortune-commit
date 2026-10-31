@@ -1,0 +1,43 @@
+{
+ "name": "404",
+ "palette": {
+  "A": "#6E3E0E",
+  "B": "#9E5A14",
+  "C": "#C97D1E",
+  "D": "#E0912A",
+  "E": "#E39A30",
+  "F": "#F5B041",
+  "G": "#FFD98A"
+ },
+ "map": [
+  "............AAAAaa...........",
+  ".........AAAFFFBEeaa.........",
+  "........AFFFFFBEeeeea........",
+  "......AAFFFFGGBEeeeeea.......",
+  ".....AFFFFGGGFBEeeeea........",
+  "....AFFFGGGFFFBEeeeea........",
+  "...AFFFGGFFFFFBEeeeeea.......",
+  "...AFFGGFFFFFFBEeeeeea.......",
+  "..AFFFGFFFFFFFBEeeeeea.......",
+  "..AFFGGFFFFFFFFBEeeeea.......",
+  ".AFFFFFFFFFFFFFBEeeeeea......",
+  ".AFFFFFFFFFFFFFBEeeeeeaa.....",
+  ".AFFFFFFFFFFFFFBEeeeeeeea....",
+  ".AFFFFFFFFFFFFFFBEeeeeeeea...",
+  "AFFFFFFFFFFFFFFFBEeeeeeeea...",
+  ".AFFFFFFFFFFFFFFFBDeeeeeeaa..",
+  ".AFFFFFFFFFFFFFFFCBDeeeeeeea.",
+  ".AFFFFFFFFFFFFFFFEBBEeeeeeeea",
+  ".AFFFFFFFFFFFFFFFFBBEeeeeeeda",
+  "..AFFFFFFFFFFFFFFFCBEeeeedca.",
+  "..AFFFFFFFFFFFFFFFAAaaedcaa..",
+  "...AFFFFFFFFFFFFFFFA..aaa....",
+  "...AFFFFFFFFFFFFFFFA.........",
+  "....ADEFFFFFFFFFFEDA.........",
+  ".....ADDDEEEEEEDDDDA.........",
+  "......AADDDDDDDDDDDA.........",
+  "........AADDDDDDDDDA.........",
+  "..........AAADDDDAA..........",
+  ".............AAAA............"
+ ]
+}

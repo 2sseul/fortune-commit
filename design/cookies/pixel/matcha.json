@@ -1,0 +1,43 @@
+{
+ "name": "matcha",
+ "palette": {
+  "A": "#314412",
+  "B": "#46621B",
+  "C": "#6C9230",
+  "D": "#7EA63C",
+  "E": "#86AE3F",
+  "F": "#9CC452",
+  "G": "#D3EB8F"
+ },
+ "map": [
+  "............AAAAaa............",
+  ".........AAAFFFBEeaa..........",
+  "........AFFFFFBEeeeeaa........",
+  "......AAFFFFGGBEeeeeeea.......",
+  ".....AFFFFGGGFBEeeeeeeea......",
+  "....AFFFGGGFFFBEeeeeeeeea.....",
+  "...AFFFGGFFFFFBEeeeeeeeeea....",
+  "...AFFGGFFFFFFBEeeeeeeeeeea...",
+  "..AFFFGFFFFFFFBEeeeeeeeeeeea..",
+  "..AFFGGFFFFFFFFBEeeeeeeeeeea..",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  "AFFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFBDeeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFCBDeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFEBBEeeeeeeea.",
+  ".AFFFFFFFFFFFFFFFFBBEeeeeeeda.",
+  "..AFFFFFFFFFFFFFFFCBEeeeedca..",
+  "..AFFFFFFFFFFFFFFFAAaaeddaa...",
+  "...AFFFFFFFFFFFFFFFA..aaa.....",
+  "...AFFFFFFFFFFFFFFFA..........",
+  "....ADEFFFFFFFFFFEDA..........",
+  ".....ADDDEEEEEEDDDDA..........",
+  "......AADDDDDDDDDDDA..........",
+  "........AADDDDDDDDDA..........",
+  "..........AAADDDDAA...........",
+  ".............AAAA............."
+ ]
+}

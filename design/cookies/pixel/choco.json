@@ -1,0 +1,43 @@
+{
+ "name": "choco",
+ "palette": {
+  "A": "#281408",
+  "B": "#3A1D0C",
+  "C": "#5C3016",
+  "D": "#6E3B1F",
+  "E": "#74401F",
+  "F": "#8A4F2B",
+  "G": "#B57A50"
+ },
+ "map": [
+  "............AAAAaa............",
+  ".........AAAFFFBEeaa..........",
+  "........AFFFFFBEeeeeaa........",
+  "......AAFFFFGGBEeeeeeea.......",
+  ".....AFFFFGGGFBEeeeeeeea......",
+  "....AFFFGGGFFFBEeeeeeeeea.....",
+  "...AFFFGGFFFFFBEeeeeeeeeea....",
+  "...AFFGGFFFFFFBEeeeeeeeeeea...",
+  "..AFFFGFFFFFFFBEeeeeeeeeeeea..",
+  "..AFFGGFFFFFFFFBEeeeeeeeeeea..",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFECFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  "AFFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  ".AFFFFFEDFFFFFFFFBDeeeeeeeeeea",
+  ".AFFFFFECFFFFFFFFCBDeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFEBBEeeeeeeea.",
+  ".AFFFFFFFFFFFFFFFFBBEeeeeeeda.",
+  "..AFFFFFFFEFFFFFFFCBEeeeedca..",
+  "..AFFFFFFFCEFFFFFFAAaaeddaa...",
+  "...AFFFFFFFFFFFFFFFA..aaa.....",
+  "...AFFFFFFFFFFFFFFFA..........",
+  "....ADEFFFFFFFFFFEEA..........",
+  ".....ADDDEEEEEEDDDDA..........",
+  "......AADDDDDDDDDDDA..........",
+  "........AADDDDDDDDDA..........",
+  "..........AAADDDDAA...........",
+  ".............AAAA............."
+ ]
+}

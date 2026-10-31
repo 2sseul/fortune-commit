@@ -1,0 +1,42 @@
+{
+ "name": "helloworld",
+ "palette": {
+  "A": "#4FB8F5",
+  "B": "#754A19",
+  "C": "#A86A24",
+  "D": "#D93E5D",
+  "E": "#E8AD62",
+  "F": "#F5BE78",
+  "G": "#F8C988",
+  "H": "#FF5C7A",
+  "I": "#FF9F1A",
+  "J": "#FFD43B",
+  "K": "#FFD9A0",
+  "L": "#FFF1D8"
+ },
+ "map": [
+  ".B......BB...BB..........",
+  "BJB....BHHBBBHHB.........",
+  ".B.....BHHHDDHHB.........",
+  ".......BHHHDHHHB.........",
+  "......BBKKKCGGBb.........",
+  ".....BKKKLCGggggb......B.",
+  "....BKKLLKCGgggggb....BAB",
+  "...BKKLKKKCGggggggb....B.",
+  "..BKKLKKKKKCGggggggb.....",
+  "..BKKKKKKKKCGgggggggb....",
+  ".BKKKKKKKKKCGgggggggb....",
+  ".BKKKKKKKKKCGggggggggb...",
+  ".BKKKKKKKKKCGggggggggb...",
+  ".BKKKKKKKKKKCFgggggggb...",
+  ".BKKKKKKKKKKKCFggggggb...",
+  ".BKKKKKKKKKKKECGgggggb...",
+  "..BKKKKKKKKKKCEggggfb....",
+  "..BKKKKKKKKKKKBbbbbb.....",
+  "...BKKKKKKKKKKB..........",
+  "....BGGKKKKKGFB......B...",
+  ".....BFFFFFFFFB.....BIB..",
+  "......BBFFFFFFB......B...",
+  "........BBBBBB..........."
+ ]
+}

@@ -1,0 +1,43 @@
+{
+ "name": "python",
+ "palette": {
+  "A": "#2E62A3",
+  "B": "#3B78C2",
+  "C": "#634A00",
+  "D": "#8DB8EE",
+  "E": "#8E6A00",
+  "F": "#E8B820",
+  "G": "#FFD43B"
+ },
+ "map": [
+  "............CCCCcc............",
+  ".........CCCBBBEGgcc..........",
+  "........CBBBBBEFggggcc........",
+  "......CCBBBBDDEGggggggc.......",
+  ".....CBBBBDDDBEGgggggggc......",
+  "....CBBBDDDBBBEGggggggggc.....",
+  "...CBBBDDBBBBBEGgggggggggc....",
+  "...CBBDDBBBBBBEFggggggggggc...",
+  "..CBBBDBBBBBBBEFgggggggggggc..",
+  "..CBBDDBBBBBBBBEGggggggggggc..",
+  ".CBBBBBBBBBBBBBEGgggggggggggc.",
+  ".CBBBBBBBBBBBBBEGgggggggggggc.",
+  ".CBBBBBBBBBBBBBEFgggggggggggc.",
+  ".CBBBBBBBBBBBBBBEGgggggggggggc",
+  "CBBBBBBBBBBBBBBBEGgggggggggggc",
+  ".CBBBBBBBBBBBBBBBEGggggggggggc",
+  ".CBBBBBBBBBBBBBBBAEFgggggggggc",
+  ".CBBBBBBBBBBBBBBBBEEGgggggggc.",
+  ".CBBBBBBBBBBBBBBBBEEGgggggggc.",
+  "..CBBBBBBBBBBBBBBBEEGgggggfc..",
+  "..CBBBBBBBBBBBBBBBCCccggfcc...",
+  "...CBBBBBBBBBBBBBBBC..ccc.....",
+  "...CBBBBBBBBBBBBBBBC..........",
+  "....CAABBBBBBBBBBAAC..........",
+  ".....CAAAAAAAAAAAAAC..........",
+  "......CCAAAAAAAAAAAC..........",
+  "........CCAAAAAAAAAC..........",
+  "..........CCCAAAACC...........",
+  ".............CCCC............."
+ ]
+}

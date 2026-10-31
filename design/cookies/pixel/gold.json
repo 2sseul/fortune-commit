@@ -1,0 +1,43 @@
+{
+ "name": "gold",
+ "palette": {
+  "A": "#724B00",
+  "B": "#A36C00",
+  "C": "#D99500",
+  "D": "#F0A800",
+  "E": "#F2B300",
+  "F": "#FFC91F",
+  "G": "#FFF0A0"
+ },
+ "map": [
+  "............AAAAaa............",
+  "...A.....AAAFFFBEeaa..........",
+  "..AFA...AFFFFFBEeeeeaa........",
+  ".AFFFAAAFFFFGGBEeeeeeea.......",
+  "..AFAAFFFFGGGFBEeeeeeeea......",
+  "...AAFFFGGGFFFBEeeeeeeeea.....",
+  "...AFFFGGFFFFFBEeeeeeeeeea....",
+  "...AFFGGFFFFFFBEeeeeeeeeeea...",
+  "..AFFFGFFFFFFFBEeeeeeeeeeeea..",
+  "..AFFGGFFFFFFFFBEeeeeeeeeeea..",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  ".AFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  "AFFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFBDeeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFCBDeeeeeeeeea",
+  ".AFFFFFFFFFFFFFFFFBBEeeeeeeea.",
+  ".AFFFFFFFFFFFFFFFFBBEeeeeeeda.",
+  "..AFFFFFFFFFFFFFFFCBEeeeedca..",
+  "..AFFFFFFFFFFFFFFFAAaaedcaa...",
+  "...AFFFFFFFFFFFFFFFA..aaa.....",
+  "...AFFFFFFFFFFFFFFFA..........",
+  "....ADEFFFFFFFFFFEDA.......AA.",
+  ".....ADDDEEEEEEDDDDA......AFFA",
+  "......AADDDDDDDDDDDA.......AFA",
+  "........AADDDDDDDDDA........A.",
+  "..........AAADDDDAA...........",
+  ".............AAAA............."
+ ]
+}

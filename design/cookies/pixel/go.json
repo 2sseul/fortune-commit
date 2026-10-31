@@ -1,0 +1,43 @@
+{
+ "name": "go",
+ "palette": {
+  "A": "#034355",
+  "B": "#05607A",
+  "C": "#0E94B2",
+  "D": "#14A4C4",
+  "E": "#1CB1D2",
+  "F": "#29BEDF",
+  "G": "#A6EAF8"
+ },
+ "map": [
+  ".............AAAAaa............",
+  "..........AAAFFFBEeaa..........",
+  ".........AFFFFFBEeeeeaa........",
+  ".......AAFFFFGGBEeeeeeea.......",
+  "......AFFFFGGGFBEeeeeeeea......",
+  ".....AFFFGGGFFFBEeeeeeeeea.....",
+  "....AFFFGGFFFFFBEeeeeeeeeea....",
+  "....AFFGGFFFFFFBEeeeeeeeeeea...",
+  "...AFFFGFFFFFFFBEeeeeeeeeeeea..",
+  "...AFFGGFFFFFFFFBEeeeeeeeeeea..",
+  "AAAFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  "FFFFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  "AAAFFFFFFFFFFFFFBEeeeeeeeeeeea.",
+  "AAAFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  "FFFFFFFFFFFFFFFFFBEeeeeeeeeeeea",
+  "FFFFFFFFFFFFFFFFFFBEeeeeeeeeeea",
+  "AAAFFFFFFFFFFFFFFFCBDeeeeeeeeea",
+  ".AAFFFFFFFFFFFFFFFEBBEeeeeeeea.",
+  "AFFFFFFFFFFFFFFFFFFBBEeeeeeeda.",
+  "AFFFFFFFFFFFFFFFFFFCBEeeeeeda..",
+  ".AAAFFFFFFFFFFFFFFFAAaaeddaa...",
+  "....AFFFFFFFFFFFFFFFA..aaa.....",
+  "....AEFFFFFFFFFFFFFFA..........",
+  ".....ADEEFFFFFFFFFEDA..........",
+  "......ADDDDEEEEEDDDDA..........",
+  ".......AADDDDDDDDDDDA..........",
+  ".........AADDDDDDDDDA..........",
+  "...........AAADDDDAA...........",
+  "..............AAAA............."
+ ]
+}
