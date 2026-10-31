@@ -123,7 +123,7 @@ test('지난 7일 기여 수와 주 언어도 함께 가져온다', async () => 
     lastWeek: { totalCommitContributions: 10, totalPullRequestContributions: 2 },
     languages: ['Python', 'Go', 'Python', null],
   });
-  assert.deepEqual(await fetchActivity({ ...base, fetchImpl: impl }), { today: 1, lastWeek: 12, language: 'Python' });
+  assert.deepEqual(await fetchActivity({ ...base, fetchImpl: impl }), { today: 1, privateToday: 0, lastWeek: 12, language: 'Python' });
 });
 
 test('주 언어: 가장 많이 나온 언어, 같으면 최근 저장소의 언어, 없으면 null', () => {
@@ -160,4 +160,20 @@ test('저장소별 올해 커밋을 언어별로 더한다 (노트북은 Python,
   assert.deepEqual(languageCommits([repo('JavaScript', 40), repo('Vue', 15), repo('Jupyter Notebook', 7), repo('Python', 3), repo('HTML', 9), repo(null, 4)]),
     { JavaScript: 55, Python: 10 });
   assert.deepEqual(languageCommits(undefined), {});
+});
+
+test('비공개 저장소 기여(개수만)도 오늘 기여로 센다 — 공개 활동이 0이어도 열린다 (v3.1)', async () => {
+  clearActivityMemory();
+  const fetchImpl = async (url) => {
+    if (String(url).includes('/events')) return { ok: true, json: async () => [] };
+    return { ok: true, json: async () => ({ data: { user: {
+      lastWeek: { totalCommitContributions: 3, restrictedContributionsCount: 2 },
+      today: { totalCommitContributions: 0, restrictedContributionsCount: 4 },
+      repositories: { nodes: [] },
+    } } }) };
+  };
+  const activity = await fetchActivity({ login: 'secret-dev', date: '2026-11-01', token: 't', fetchImpl, now: new Date('2026-11-01T05:00:00Z') });
+  assert.equal(activity.today, 4);
+  assert.equal(activity.privateToday, 4);
+  assert.equal(activity.lastWeek, 5);
 });

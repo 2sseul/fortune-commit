@@ -38,6 +38,8 @@ const QUERY = `
     user(login: $login) {
       lastWeek: contributionsCollection(from: $weekFrom, to: $todayFrom) {${CONTRIBUTION_FIELDS}
       }
+      today: contributionsCollection(from: $todayFrom) {${CONTRIBUTION_FIELDS}
+      }
       repositories(first: 30, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC,
                    orderBy: { field: PUSHED_AT, direction: DESC }) {
         nodes { primaryLanguage { name } pushedAt }
@@ -170,9 +172,14 @@ export async function fetchActivity({
       .some((repo) => repo?.pushedAt && Date.parse(repo.pushedAt) >= todayFrom.getTime());
     let today = events;
     if (pushedToday) today = Math.max(events ?? 0, 1);
+    // 비공개 저장소 기여 (v3.1): 프로필에서 'Private contributions'를 켠 사람은 비공개 저장소 기여가
+    // restrictedContributionsCount로 '개수만' 잡힌다. 저장소 권한 없이 쿠키를 열 수 있게 오늘 기여에 더한다.
+    const todayCount = user.today ? sumContributions(user.today) : 0;
+    if (todayCount > 0) today = Math.max(today ?? 0, todayCount);
 
     const activity = {
-      today, // 둘 다 확인할 수 없으면 null → 잠그지 않는다
+      today, // 셋 다 확인할 수 없으면 null → 잠그지 않는다
+      privateToday: user.today?.restrictedContributionsCount ?? 0, // 오늘 비공개 저장소 기여 (개수만)
       lastWeek: sumContributions(user.lastWeek),
       language: mostUsedLanguage(user.repositories?.nodes),
     };
