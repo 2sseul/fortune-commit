@@ -63,7 +63,10 @@
 
 /* ---------- 기본 ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--topnav-h) + 12px); }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--topnav-h) + 12px); scrollbar-gutter: stable; }
+/* 창이 열려 있으면 뒤 페이지 스크롤 막기 (site.js setupScrollLock) */
+html.modal-open, html.modal-open body { overflow: hidden; overscroll-behavior: none; }
+dialog { overscroll-behavior: contain; }
 body {
   margin: 0;
   background: var(--bg);
@@ -78,6 +81,7 @@ a { color: inherit; }
 button { font: inherit; color: inherit; }
 h1, h2, h3, p { margin: 0; }
 :focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+[hidden] { display: none !important; } /* .btn 같은 display 지정이 hidden을 이기지 않게 */
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .wrap { width: 100%; max-width: calc(var(--wrap) + var(--gutter) * 2); margin: 0 auto; padding: 0 var(--gutter); }

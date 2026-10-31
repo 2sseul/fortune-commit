@@ -59,7 +59,21 @@ export function setupReveal(selector) {
   }
 }
 
+// 창(dialog)이나 아래 시트가 열려 있는 동안 뒤 페이지가 스크롤되지 않게 한다. (모든 페이지 공통)
+let scrollLockReady = false;
+function setupScrollLock() {
+  if (scrollLockReady) return;
+  scrollLockReady = true;
+  const sync = () => {
+    const open = document.querySelector('dialog[open], .detail.open');
+    document.documentElement.classList.toggle('modal-open', Boolean(open));
+  };
+  new MutationObserver(sync).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open', 'class'] });
+  sync();
+}
+
 function renderChrome() {
+  setupScrollLock();
   const header = document.getElementById('topnav');
   if (header && !header.dataset.ready) {
     header.dataset.ready = '1';
