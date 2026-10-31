@@ -237,6 +237,55 @@ ART.update({
                        + SPARK(40, 60, 12, '#FFD43B') + SPARK(206, 100, 9, '#4FB8F5') + SPARK(196, 210, 8, '#FF9F1A')),
 })
 
+# ---- 아이템 아이콘 + 뽑기 전용 쿠키 ----
+P.update({
+    'ice':        dict(base="#F5B041", shade="#E0912A", back="#E39A30", back_shade="#C97D1E", fold="#9E5A14", hi="#FFD98A"),
+    'mystery':    dict(base="#B9A6E8", shade="#9C86D6", back="#A891DE", back_shade="#8B73C8", fold="#5A4392", hi="#E4DAFF"),
+    'strawberry': dict(base="#FF8FA8", shade="#F26F8E", back="#F87D99", back_shade="#E5607F", fold="#A83455", hi="#FFD0DB"),
+    'lemon':      dict(base="#FFE45C", shade="#F5CF2E", back="#F8D83F", back_shade="#E8C220", fold="#9C7F00", hi="#FFF6B8"),
+    'blueberry':  dict(base="#7E8FE0", shade="#6474CC", back="#6F80D6", back_shade="#5767BE", fold="#2F3A80", hi="#C2CBF6"),
+    'mintchip':   dict(base="#8FE3C8", shade="#6ECFB0", back="#7DD9BC", back_shade="#5FC4A3", fold="#2B7F66", hi="#D6F7EC"),
+    'vanilla':    dict(base="#FFF1D6", shade="#F2DDB4", back="#F8E7C4", back_shade="#E9D2A4", fold="#A8875A", hi="#FFFFFF"),
+    'sprinkle':   dict(base="#F7C8E0", shade="#EBAACB", back="#F1B8D5", back_shade="#E29CC0", fold="#9E5A7E", hi="#FFE8F3"),
+    'macaron':    dict(base="#BFE8D5", shade="#9ED6BE", hi="#E6F8EF", back="#F9C9D9", back_shade="#EEADC2", fold="#8E5C70"),
+    'donut':      dict(base="#E8B57A", shade="#D49A5C", back="#DDA86A", back_shade="#C78E50", fold="#7E5226", hi="#F8DDB8"),
+    'crystal':    dict(base="#BFEFFF", shade="#93DDF5", back="#A8E6FB", back_shade="#7FD2EE", fold="#3B8FB0", hi="#FFFFFF"),
+    'crown':      dict(base="#FFC91F", shade="#F0A800", back="#F2B300", back_shade="#D99500", fold="#A36C00", hi="#FFF0A0"),
+})
+SPRINKLES = ''.join(f'<rect x="{x}" y="{y}" width="14" height="5" rx="2.5" transform="rotate({r} {x+7} {y+2})" fill="{c}"/>'
+                    for x, y, r, c in [(40, 80, 30, '#4FB8F5'), (70, 110, -20, '#FFD43B'), (50, 140, 60, '#4CC38A'), (90, 70, -45, '#FF5C7A'), (96, 150, 15, '#8E5BD8'), (30, 116, -70, '#FF9F1A'), (160, 80, 40, '#FFD43B'), (180, 120, -30, '#4FB8F5'), (150, 130, 70, '#4CC38A')])
+ART.update({
+    # 냉동 쿠키(아이템): 얼음 큐브 안에 갇힌 쿠키
+    'item-freeze': wrap('<g transform="translate(30 20) scale(0.75)">' + body(cookie(P['ice'])) + '</g>'
+        '<rect x="0" y="-20" width="240" height="250" rx="34" fill="#CFEFFF" opacity="0.55"/>'
+        '<rect x="0" y="-20" width="240" height="250" rx="34" fill="none" stroke="#7FD2EE" stroke-width="10"/>'
+        '<path d="M24 0 L80 0 L24 56 Z" fill="#FFFFFF" opacity="0.8"/><path d="M96 0 L120 0 L24 96 L24 72 Z" fill="#FFFFFF" opacity="0.5"/>'
+        '<path d="M0 196 C30 186 40 206 70 196 C100 186 110 206 140 196 C170 186 180 206 210 196 C224 192 236 194 240 198 L240 196 Q240 230 206 230 L34 230 Q0 230 0 196 Z" fill="#FFFFFF" opacity="0.85"/>'
+        + SPARK(214, 30, 14, '#FFFFFF') + SPARK(36, 170, 9, '#FFFFFF')),
+    # 쿠키 뽑기권(아이템): 물음표 쿠키
+    'item-mystery': cookie(P['mystery'], front_extra='<path d="M52 98 C52 72 96 70 96 96 C96 112 76 114 76 130" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" fill="none"/><circle cx="76" cy="160" r="9" fill="#FFFFFF"/>',
+                           over=SPARK(26, 28, 14, '#FFD43B') + SPARK(212, 190, 11, '#B9A6E8') + SPARK(206, 36, 8, '#FF9F1A')),
+    # 뽑기 일반
+    'gacha-strawberry': cookie(P['strawberry'], front_extra=''.join(f'<ellipse cx="{x}" cy="{y}" rx="3" ry="5" fill="#FFF1A8"/>' for x, y in [(50, 90), (80, 120), (60, 150), (96, 84), (100, 150), (36, 124)]),
+                               under='<path d="M100 20 C110 0 130 0 140 16 C150 0 172 6 168 26 C150 24 120 28 100 20 Z" fill="#4CC38A"/>'),
+    'gacha-lemon': cookie(P['lemon'], over='<g transform="translate(180 150)"><circle r="34" fill="#F5CF2E"/><circle r="28" fill="#FFF6B8"/>' + ''.join(f'<path d="M0 0 L{24*__import__("math").cos(a*0.785):.1f} {24*__import__("math").sin(a*0.785):.1f}" stroke="#F5CF2E" stroke-width="3"/>' for a in range(8)) + '</g>'),
+    'gacha-blueberry': cookie(P['blueberry'], over=''.join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#3F4FA8"/><circle cx="{x+r*0.3}" cy="{y-r*0.3}" r="{r*0.3}" fill="#8E9CE8"/>' for x, y, r in [(180, 170, 18), (206, 140, 14), (160, 196, 12)])),
+    'gacha-mintchip': cookie(P['mintchip'], front_extra=DOTS([(56, 96), (88, 128), (50, 150), (100, 80), (76, 170)], 8, '#5C3016'), back_extra=DOTS([(170, 90), (186, 126)], 7, '#5C3016')),
+    'gacha-vanilla': cookie(P['vanilla'], front_extra=DOTS([(50, 100), (64, 130), (90, 110), (80, 160), (106, 140), (40, 140)], 2.5, '#3B2412'),
+                            over='<g transform="translate(160 150) rotate(-30)"><rect x="0" y="0" width="70" height="10" rx="5" fill="#5C3016"/><path d="M60 5 C74 -6 84 6 76 14" stroke="#4CC38A" stroke-width="5" fill="none" stroke-linecap="round"/></g>'),
+    # 뽑기 레어
+    'gacha-sprinkle': cookie(P['sprinkle'], front_extra=SPRINKLES, back_extra=SPRINKLES),
+    'gacha-macaron': cookie(P['macaron'], over='<path d="M106 30 C120 60 130 110 140 160 C148 166 156 166 160 160 C150 110 136 60 120 24 Z" fill="#FFFFFF"/>'),
+    'gacha-donut': cookie(P['donut'], front_extra='<path d="M0 0 L160 0 L160 96 C140 116 126 96 110 110 C96 122 86 104 70 116 C54 128 42 108 24 118 C12 124 4 116 0 110 Z" fill="#FF8FB8"/>' + SPRINKLES,
+                          back_extra='<path d="M100 0 L240 0 L240 100 C222 112 210 98 194 108 C178 118 164 102 146 112 L100 112 Z" fill="#F77FAB"/>'),
+    # 뽑기 에픽
+    'gacha-crystal': cookie(P['crystal'], front_extra='<path d="M14 84 L70 40 L120 30 L80 110 Z" fill="#E8FAFF"/><path d="M14 84 L80 110 L40 190 L8 150 Z" fill="#A8E6FB"/><path d="M80 110 L120 30 L132 120 L100 210 Z" fill="#BFEFFF"/>',
+                            back_extra='<path d="M124 20 L210 90 L150 120 Z" fill="#D6F5FF"/>', over=SPARK(30, 30, 14, '#7FD2EE') + SPARK(214, 186, 12, '#FFFFFF') + SPARK(200, 30, 8, '#7FD2EE')),
+    # 뽑기 전설
+    'gacha-crown': cookie(P['crown'], over='<g transform="translate(64 -40)"><path d="M0 70 L10 10 L40 44 L64 0 L88 44 L118 10 L128 70 Z" fill="#FFD43B"/><path d="M0 70 L128 70 L124 86 L4 86 Z" fill="#E0A100"/><circle cx="64" cy="54" r="10" fill="#FF5C7A"/><circle cx="28" cy="58" r="7" fill="#4FB8F5"/><circle cx="100" cy="58" r="7" fill="#4CC38A"/></g>'
+                          + SPARK(26, 40, 16, '#FFD43B') + SPARK(216, 190, 12, '#FFD43B') + SPARK(220, 60, 9, '#FF9F1A')),
+})
+
 for name, svg in ART.items():
     open(f'{name}.svg', 'w').write(svg)
 print(len(ART), 'cookies')
