@@ -29,11 +29,13 @@ test('소수는 반올림한다', () => {
   assert.equal(parse('width=500.6').width, 501);
 });
 
-test('넓은 위젯은 쿠키·글자도 같이 커진다 (최대 1.4배, 남는 폭은 글줄에)', async () => {
+test('넓은 위젯: 글자 크기는 그대로, 창만 넓어지고 쿠키·글자 묶음이 가운데로 옮겨간다', async () => {
   const { renderWidget } = await import('../src/render.js');
   const { themes } = await import('../src/themes.js');
   const svg = (width) => renderWidget({ theme: themes.dark, command: 'fortune --today', fortune: '오늘 쓴 코드는 레거시가 되어도 사랑받을 거예요.', lucky: [], style: { width, radius: 10, hideBorder: false } });
-  assert.match(svg(495), /width="495" height="\d+" viewBox="0 0 495 /);
-  assert.match(svg(700), /width="700" height="\d+" viewBox="0 0 500 /); // 1.4배
-  assert.match(svg(840), /width="840" height="\d+" viewBox="0 0 600 /); // 1.4배, 글줄은 넓게
+  const height = (w) => Number(svg(w).match(/height="(\d+)"/)[1]);
+  assert.match(svg(840), /width="840" height="\d+" viewBox="0 0 840 /); // 늘리지 않는다
+  assert.equal(height(840), height(495)); // 줄바꿈도 같아서 높이가 같다
+  const cookieX = (w) => Number(svg(w).match(/<g transform="translate\(([\d.]+) /)[1]);
+  assert.equal(cookieX(840) - cookieX(495), Math.round((840 - 495) / 2)); // 가운데로 옮겨감
 });

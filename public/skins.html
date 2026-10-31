@@ -134,7 +134,8 @@
     let filter = 'all';
     let chosen = null;
 
-    const readmeCode = (id) => `[![오늘의 포춘쿠키](${origin}/api?user=YOUR_GITHUB_ID&skin=${id})](${origin}/)`;
+    // 로그인했으면 내 아이디를 채워 둔다
+    const readmeCode = (id) => `[![오늘의 포춘쿠키](${origin}/api?user=${me.loggedIn ? me.login : 'YOUR_GITHUB_ID'}&skin=${id})](${origin}/)`;
 
     function renderTabs() {
       const cats = Object.keys(CATEGORY_LABEL).filter((cat) => catalog.cookies.some((c) => c.category === cat));

@@ -424,6 +424,7 @@
             <pre id="package-code"></pre>
             <button class="btn mint small copy" type="button" id="package-copy">포장하기</button>
           </div>
+          <p class="small" id="id-note">로그인하면 코드에 내 아이디가 자동으로 들어가요. 아니면 <b>YOUR_GITHUB_ID를 모두</b> 바꾸세요 (자동 포장은 두 군데).</p>
           <p class="small">위젯을 올리는 커밋도 오늘의 기여라서 첫날은 바로 열려 있어요.</p>
           <!-- 비공개 저장소 안내 (v3.1): 저장소 권한 없이, 기여 '개수'만 잡히게 하는 GitHub 설정 -->
           <details class="card private-guide">
@@ -568,6 +569,10 @@
     const dailyPromise = fetch('/api/daily', { cache: 'no-store' }).then((r) => r.json()).catch(() => null);
     setupHeader().then(async (result) => {
       me = result;
+      if (me.loggedIn) {
+        document.getElementById('id-note').textContent = `내 아이디(${me.login})를 채워 뒀어요. 복사해서 그대로 붙이면 돼요.`;
+        showPackage(current);
+      }
       if (me.loggedIn) document.getElementById('hero-second').textContent = '내 프로필에 올리기';
       else {
         const second = document.getElementById('hero-second');
@@ -776,7 +781,8 @@
       return `${origin}/api?${params}`;
     }
     function packageCode(pkg) {
-      const user = 'YOUR_GITHUB_ID';
+      // 로그인했으면 내 아이디를 채워 둔다 (자동 포장은 다크·라이트 두 줄이라, 한 군데만 바꾸는 실수가 있었다)
+      const user = me.loggedIn ? me.login : 'YOUR_GITHUB_ID';
       const fill = width === 'full' ? ' width="100%"' : ''; // 끝까지: README 칸에 맞춰 늘린다
       if (pkg.auto) {
         return [
@@ -836,7 +842,7 @@
       gift.classList.remove('packed');
       void gift.offsetWidth;
       gift.classList.add('packed');
-      toast('포장 완료! README에 붙여 넣고 YOUR_GITHUB_ID만 바꾸세요');
+      toast(me.loggedIn ? '포장 완료! README에 그대로 붙여 넣으면 돼요' : '포장 완료! README에 붙여 넣고 YOUR_GITHUB_ID를 모두 바꾸세요');
     });
     setWidth(null);
 

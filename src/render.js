@@ -117,16 +117,12 @@ function renderLuckyLine(t, { x, y, key, value, order }) {
     + '</text>';
 }
 
-// 넓은 위젯(v3): 너비가 기본(495)보다 넓으면 쿠키와 글자도 같이 키운다. (최대 1.4배)
-//   그만큼 작은 '논리 너비'로 배치한 뒤 viewBox로 늘려서, 남는 폭은 운세 글줄이 쓰게 된다.
-//   예: 840(끝까지) → 1.4배, 논리 너비 600 / 700 → 1.4배, 논리 너비 500 / 495 → 그대로
+// 넓은 위젯(v3): 글자·쿠키 크기는 그대로 두고 터미널 창만 넓힌다.
+//   쿠키와 운세 묶음은 기본 너비(495)에서처럼 배치한 뒤, 넓어진 창의 가운데로 옮긴다.
+//   (명령어 줄과 마지막 프롬프트는 터미널처럼 왼쪽에 그대로)
 const BASE_WIDTH = 495;
-const MAX_SCALE = 1.4;
-function scaleFor(outerWidth) {
-  const scale = Math.min(MAX_SCALE, Math.max(1, outerWidth / BASE_WIDTH));
-  return { scale, width: Math.round(outerWidth / scale) };
-}
-const svgSize = (outerWidth, scale, width, height) => `width="${outerWidth}" height="${Math.round(height * scale)}" viewBox="0 0 ${width} ${height}"`;
+const shiftFor = (width) => Math.max(0, Math.round((width - BASE_WIDTH) / 2));
+const svgSize = (width, height) => `width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"`;
 
 // 위젯 전체 SVG 문자열을 만든다.
 // theme: getTheme()으로 얻은 테마 객체
@@ -143,13 +139,14 @@ export function renderWidget({
   style = { width: 495, radius: 10, hideBorder: false },
   skin = null,
 }) {
-  const { scale, width } = scaleFor(style.width);
+  const { width } = style;
+  const dx = shiftFor(width); // 넓은 창에서 쿠키·글자 묶음을 가운데로 옮기는 거리
   const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
-  const cookieX = PAD + 4;
+  const cookieX = PAD + 4 + dx;
   const textX = cookieX + cookie.width + 18; // 쿠키 오른쪽에 글자를 둔다.
 
   // 운세 문구를 쿠키 오른쪽 공간에 맞게 줄바꿈한다. ('> ' 표시만큼 폭을 빼 둔다)
-  const fortuneLines = wrapText(fortune, width - textX - PAD - textWidth('> '));
+  const fortuneLines = wrapText(fortune, Math.min(width, BASE_WIDTH) + dx - textX - PAD - textWidth('> ')); // 줄 길이는 기본 너비 기준
 
   // 세로 위치 계산: 타이틀바 → 명령어 줄 → [쿠키 | 운세 + 행운 아이템] → 마지막 프롬프트
   // 쿠키와 글자 묶음 중 더 높은 쪽에 맞춰 가운데 정렬한다.
@@ -173,7 +170,7 @@ export function renderWidget({
     .join('\n  ');
   const lastOrder = lucky.length + 1;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(style.width, scale, width, height)} role="img" aria-label="${escapeXml(`${label}: ${fortune}`)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(width, height)} role="img" aria-label="${escapeXml(`${label}: ${fortune}`)}">
   <style>${STYLE}
   </style>
   ${renderWindow(t, { ...style, width, height, title: 'fortune-commit — zsh' })}
@@ -210,9 +207,10 @@ export function renderClosedCard({
   style = { width: 495, radius: 10, hideBorder: false },
   skin = null,
 }) {
-  const { scale, width } = scaleFor(style.width);
+  const { width } = style;
+  const dx = shiftFor(width); // 넓은 창에서 쿠키·글자 묶음을 가운데로 옮기는 거리
   const cookie = cookieBox(PIXEL, skin); // 스킨의 귀·모자까지 포함한 크기
-  const cookieX = PAD + 4;
+  const cookieX = PAD + 4 + dx;
   const textX = cookieX + cookie.width + 18;
 
   const commandY = TITLEBAR + PAD + 12;
@@ -222,7 +220,7 @@ export function renderClosedCard({
   const hintY = boxTop + cookie.height / 2 + (detail ? -6 : 5);
   const height = boxTop + cookie.height + PAD;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(style.width, scale, width, height)} role="img" aria-label="${escapeXml(label)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(width, height)} role="img" aria-label="${escapeXml(label)}">
   <style>
     .mono { font-family: 'JetBrains Mono', 'D2Coding', 'SF Mono', Menlo, Consolas, 'Apple SD Gothic Neo', 'Noto Sans KR', monospace; font-size: 14px; }
     .small { font-size: 12px; }

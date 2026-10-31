@@ -110,7 +110,7 @@ README에 붙인 포춘쿠키는 매일 밤 0시에 닫히고, 그날 커밋을 
 
 ### 위젯 달기
 
-포장해 가기에서 코드를 복사하거나, 아래처럼 붙이고 `YOUR_GITHUB_ID`만 바꾸면 됩니다.
+포장해 가기에서 코드를 복사하면 됩니다. 로그인했으면 내 아이디가 자동으로 들어가고, 아니면 아래처럼 붙이고 `YOUR_GITHUB_ID`를 모두 바꾸면 됩니다.
 
 ```markdown
 [![오늘의 포춘쿠키](https://fortune-commit.vercel.app/api?user=YOUR_GITHUB_ID)](https://fortune-commit.vercel.app)
@@ -120,7 +120,7 @@ README에 붙인 포춘쿠키는 매일 밤 0시에 닫히고, 그날 커밋을 
 | --- | --- |
 | `theme` | `dark`(기본) · `light` |
 | `lang` | `ko`(기본) · `en` |
-| `width` | `495`(기본·최소) ~ `1000`, `full`이면 README 끝까지 (`<img width="100%">`와 함께). 넓어지면 쿠키·글자도 최대 1.4배까지 함께 커져요 |
+| `width` | `495`(기본·최소) ~ `1000`, `full`이면 README 끝까지 (`<img width="100%">`와 함께). 넓어지면 글자 크기는 그대로, 터미널 창만 넓어지고 쿠키·운세가 가운데로 옮겨가요 |
 | `skin` | 쿠키 이름 (해금했거나 산 쿠키만). 도감에서 장착하면 README를 고치지 않아도 바뀌고, GitHub 이미지 캐시도 바로 비워서 곧장 반영돼요 |
 | `tz` · `radius` · `hide_border` | 하루가 바뀌는 시간대, 모서리, 테두리 |
 
