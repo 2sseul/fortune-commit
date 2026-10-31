@@ -197,7 +197,7 @@ export function clearActivityMemory() {
 // 날짜별 기여는 GitHub 잔디(contributionCalendar)의 날짜를 그대로 쓴다.
 
 const YEAR_QUERY = `
-  query ($login: String!, $from: DateTime!, $to: DateTime!) {
+  query ($login: String!, $from: DateTime!, $to: DateTime!, $since: GitTimestamp!) {
     user(login: $login) {
       contributionsCollection(from: $from, to: $to) {
         totalCommitContributions
@@ -218,8 +218,24 @@ const YEAR_QUERY = `
           primaryLanguage { name }
           dockerfile: object(expression: "HEAD:Dockerfile") { id }
           defaultBranchRef { target { ... on Commit {
-            history(first: 40, since: $from) { nodes { committedDate message author { user { login } } } }
+            history(first: 40, since: $since) { nodes { committedDate message author { user { login } } } }
           } } }
+        }
+      }
+    }
+  }`;
+
+// v2의 기본 질의 (기여 달력·커밋·PR·리뷰만). v3 질의가 실패하면 이걸로 다시 물어서, 예전 쿠키 해금은 언제나 계산되게 한다.
+const BASIC_YEAR_QUERY = `
+  query ($login: String!, $from: DateTime!, $to: DateTime!) {
+    user(login: $login) {
+      contributionsCollection(from: $from, to: $to) {
+        totalCommitContributions
+        totalPullRequestContributions
+        totalPullRequestReviewContributions
+        contributionCalendar {
+          totalContributions
+          weeks { contributionDays { date contributionCount } }
         }
       }
     }
@@ -345,32 +361,35 @@ export async function fetchYearActivity({
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.year;
 
   const yearFrom = startOfYear(timeZone, now).toISOString();
-  try {
-    const response = await fetchImpl(GRAPHQL_URL, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'fortune-commit',
-      },
-      body: JSON.stringify({
-        query: YEAR_QUERY,
-        variables: { login, from: yearFrom, to: now.toISOString() },
-      }),
-      signal: AbortSignal.timeout(6000), // v3: 저장소·커밋까지 보느라 조금 더 기다린다
-    });
-    if (!response.ok) return null;
+  const variables = { login, from: yearFrom, to: now.toISOString() };
+  // GraphQL 질의 하나를 보내고 user를 돌려준다. 실패하면 null. (오류 내용은 서버 기록에 남긴다)
+  const ask = async (query, vars, ms) => {
+    try {
+      const response = await fetchImpl(GRAPHQL_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'User-Agent': 'fortune-commit' },
+        body: JSON.stringify({ query, variables: vars }),
+        signal: AbortSignal.timeout(ms),
+      });
+      if (!response.ok) return null;
+      const body = await response.json();
+      if (body?.errors?.length && !body?.data?.user) console.error('올해 활동 질의 오류:', body.errors.map((e) => e.message).join(' / '));
+      return body?.data?.user?.contributionsCollection?.contributionCalendar ? body.data.user : null;
+    } catch {
+      return null;
+    }
+  };
 
-    const body = await response.json();
-    const collection = body?.data?.user?.contributionsCollection;
-    if (!collection?.contributionCalendar) return null;
+  // v3 질의(저장소·커밋까지)를 먼저, 실패하면 v2 기본 질의로 다시 (예전 쿠키 해금은 언제나 계산되게)
+  let user = await ask(YEAR_QUERY, { ...variables, since: yearFrom }, 6000); // v3: 저장소·커밋까지 보느라 조금 더 기다린다
+  const full = Boolean(user);
+  if (!user) user = await ask(BASIC_YEAR_QUERY, variables, 3000);
+  if (!user) return null;
 
-    const year = { ...summarizeYear(collection), ...summarizeExtras(body.data.user, { login, from: yearFrom, timeZone }) };
-    yearMemory.set(key, { year, expiresAt: now.getTime() + YEAR_MEMORY_MS });
-    return year;
-  } catch {
-    return null;
-  }
+  const year = { ...summarizeYear(user.contributionsCollection), ...(full ? summarizeExtras(user, { login, from: yearFrom, timeZone }) : {}) };
+  // 기본 질의로만 받았으면 짧게 기억해서 곧 다시 v3 질의를 해 본다.
+  yearMemory.set(key, { year, expiresAt: now.getTime() + (full ? YEAR_MEMORY_MS : 5 * 60 * 1000) });
+  return year;
 }
 
 // 테스트에서 기억해 둔 올해 활동을 지울 때 쓴다.

@@ -128,3 +128,24 @@ test('올해 새로 해금한 스킨만 기록 대상이다', () => {
   assert.deepEqual(newlyEarned({ year: YEAR, profile: { earned: ['dog'] } }).sort(), ['choco', 'pumpkin', 'santa']);
   assert.deepEqual(newlyEarned({ year: null, profile: { earned: [] } }), []);
 });
+
+test('v3 질의가 실패하면 기본 질의로 다시 물어 예전 쿠키 해금은 계산된다', async () => {
+  clearYearMemory();
+  const calls = [];
+  const calendar = { totalContributions: 2, weeks: [{ contributionDays: [{ date: '2026-01-01', contributionCount: 2 }] }] };
+  const fetchImpl = async (url, options) => {
+    const { query, variables } = JSON.parse(options.body);
+    calls.push(query.includes('history') ? 'v3' : 'basic');
+    if (query.includes('history')) {
+      assert.equal(typeof variables.since, 'string'); // 커밋 기록의 since는 GitTimestamp 변수로 따로 보낸다
+      return { ok: true, json: async () => ({ errors: [{ message: 'boom' }] }) };
+    }
+    return { ok: true, json: async () => ({ data: { user: { contributionsCollection: { totalCommitContributions: 1, totalPullRequestContributions: 0, totalPullRequestReviewContributions: 0, contributionCalendar: calendar } } } }) };
+  };
+  const quiet = console.error; console.error = () => {};
+  const year = await fetchYearActivity({ login: 'a', date: '2026-01-02', token: 't', fetchImpl, now: new Date('2026-01-02T03:00:00Z') });
+  console.error = quiet;
+  assert.deepEqual(calls, ['v3', 'basic']);
+  assert.equal(year.total, 2);
+  assert.equal(year.stars, undefined); // v3 숫자는 없음 → 새 쿠키는 0으로 계산(잠김)
+});
