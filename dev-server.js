@@ -48,7 +48,7 @@ const server = http.createServer(async (req, res) => {
   // img/ 안의 그림(png, webp)도 보여준다.
   const types = { html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', png: 'image/png', webp: 'image/webp', svg: 'image/svg+xml', json: 'application/json; charset=utf-8' };
   const ext = page.split('.').pop();
-  if (/^((img|cookies|img\/illust|img\/icons)\/)?[a-z0-9-]+\.(html|css|js|png|webp|svg|json)$/.test(page)) {
+  if (/^((img|cookies|cookies\/pixel|img\/illust|img\/icons)\/)?[a-z0-9-]+\.(html|css|js|png|webp|svg|json)$/.test(page)) {
     try {
       const file = await readFile(new URL(page, PUBLIC));
       res.setHeader('Content-Type', types[ext]);

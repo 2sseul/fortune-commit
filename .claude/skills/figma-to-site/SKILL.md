@@ -9,11 +9,24 @@ v3에서는 사이트 디자인을 Figma에서 먼저 확정하고 코드로 옮
 
 ## 이 사이트의 구조 (먼저 알아 둘 것)
 
-- 빌드 도구와 프레임워크가 없다. `public/*.html`에 HTML과 페이지 전용 `<style>`이 있고, 공통 스타일은 `public/site.css`, 공통 동작(헤더 로그인, 모바일 탭 막대, 복사 버튼)은 `public/site.js`의 `setupHeader()` 등이다.
-- 디자인 토큰은 `site.css`의 `:root` 변수다: `--cream`(바탕), `--paper`(카드), `--dough`, `--line`, `--brown`(글씨), `--brown-soft`, `--caramel`(포인트), `--caramel-dark`, `--chocolate`(버튼), `--berry`, `--shelf`, `--radius`, `--shadow`, 글꼴 `--title`(Jua), `--body`(Pretendard), `--mono`.
-- 공통 컴포넌트 클래스: `.wrap`, `.site-header`, `.btn`, `.section`, `.eyebrow`, `.slip`(운세 쪽지), `.tag`, `.shelf`·`.shelf-item`(진열대), `.price-tag`, `.code-box`, `.site-footer`, `.tabbar`(모바일 탭 막대), `.pixel`(픽셀 그림).
-- 모바일 기준은 `@media (max-width: 760px)`. 휴대폰에서는 아래 탭 막대로 이동한다.
-- v3부터 사이트는 **따뜻한 일러스트** 스타일이다. (v2의 픽셀 빵집 그림 `public/bakery-scene.*`, `public/img/bakery-bg.webp`는 새 디자인으로 바뀌는 중) **쿠키 스킨만 픽셀**이고, `/api/cookie?skin=...` 이미지를 `.pixel`(`image-rendering: pixelated`)로 확대해 일러스트 위에 얹는다.
+- 빌드 도구와 프레임워크가 없다. `public/*.html`에 HTML과 페이지 전용 `<style>`이 있고, 공통 스타일은 `public/site.css`, 공통 동작은 `public/site.js`다.
+- **위쪽 막대·아래 탭 막대·푸터는 `site.js`가 만든다.** 페이지에는 `<header id="topnav"></header>`, `<footer id="footer"></footer>`만 두고 `setupHeader()`를 부른다. 메뉴를 바꾸려면 `site.js`의 `MENU` 하나만 고친다.
+- 디자인 토큰은 `site.css`의 `:root` 변수이고, **이름과 값이 Figma 변수와 같다**: `--bg`, `--paper`, `--dough`, `--line`, `--text`, `--text-2`, `--muted`, `--caramel`, `--caramel-dark`, `--berry`, `--blush`, `--butter`, `--mint`, `--sky`, `--sky-tint`, `--purple`, `--night`, 3D 아래쪽 색 `--lip-*`, 둥글기 `--r-sm/md/lg/pill`, 글꼴 `--title`(Jua) `--body`(Noto Sans KR) `--note`(Gaegu) `--number`(Nunito) `--mono`.
+- 공통 컴포넌트 클래스 (Figma 컴포넌트 ↔ 코드):
+  | Figma | 코드 |
+  |---|---|
+  | Button (Primary/Secondary/Accent) | `.btn`, `.btn.secondary`, `.btn.mint/.sky/.purple` |
+  | 카드 | `.card` (테두리 2px + 아래 4px), `.card.sky/.purple/.butter` |
+  | Tag | `.tag`, `.tag.sky/.caramel/.purple` |
+  | StatChip | `statChip()` (site.js), `.stat` |
+  | ProgressBar | `progressBar()` (site.js), `.progress` |
+  | CookieCard / ShopItemCard / CollectionCard | `.cookie-card` (무대 → 이름 → 설명 → `.slot` 44px) + `.cookie-grid` |
+  | 분류 탭 | `.pills` |
+  | TopNav / MobileTopBar, MobileTabBar | `site.js`가 만드는 `.topnav`, `.tabbar` |
+  | RightPanel | `renderSidePanel()` (site.js) + `.app` 레이아웃 |
+- **쿠키 그림은 벡터 파일** `/cookies/<이름>.svg`, 목록은 `/cookies/catalog.json` (`loadCatalog()`, `cookieSrc()`). 이 파일들은 `node scripts/sync-cookies.mjs`가 `design/`에서 옮겨 온다. README 위젯 미리보기만 픽셀(`/cookies/pixel/<이름>.svg`, 진짜 위젯은 `/api?preview=open`).
+- 일러스트(첫 화면 캐릭터, 이야기 3단계)는 Figma에서 PNG 2배로 내보내 `public/img/illust/*.webp`로 줄여 쓴다. (Figma SVG 내보내기는 바탕 프레임까지 따라와서 쓰지 않았다)
+- 휴대폰 기준은 `@media (max-width: 760px)`, 태블릿(오른쪽 패널이 아래로)은 1024px. PC와 휴대폰 문구가 다르면 `.pc-only` / `.m-only`로 둘 다 넣는다 (Figma 모바일 프레임에서 좁은 화면용으로 줄을 다시 나눈 문구).
 
 ## 여백 규칙 (v3 디자인에서 정함, 코드도 똑같이)
 
@@ -50,12 +63,13 @@ Figma MCP가 React·Tailwind 코드를 주더라도 그대로 붙이지 않는�
 
 ## 3. Figma와 비교하기
 
-`npm run dev`를 켜고 브라우저(claude-in-chrome)로 연다.
+`npm run dev`를 켜고 브라우저(claude-in-chrome)로 연다. 개발 서버는 Redis·GitHub 토큰 없이도 돌아간다 (메모리 DB, 가짜 활동, `/api/auth/login`이 바로 `dev-cookie`로 로그인). 로그인 전/후 화면을 둘 다 본다.
 
-1. PC 크기(1280px 정도)와 휴대폰 크기(390px 정도)에서 스크린샷을 찍는다.
-2. Figma 스크린샷과 나란히 놓고 다른 점을 찾는다: 간격, 글자 크기, 색, 정렬, 줄바꿈, 그림 위치.
-3. 다른 점을 고치고 다시 찍는다. 큰 차이가 없어질 때까지 반복한다.
-4. 휴대폰에서 가로로 넘치는 곳이 없는지(긴 코드 줄, 넓은 표) 꼭 본다. 예전에 포장하기 칸이 화면 밖으로 넘친 적이 있다.
+1. PC 크기(1280px 이상)에서 섹션마다 스크린샷을 찍어 Figma 스크린샷과 나란히 비교한다: 간격, 글자 크기, 색, 정렬, 줄바꿈, 그림 위치.
+2. **휴대폰은 여러 폭을 한 번에 본다.** 브라우저 창은 데스크톱 폭보다 줄어들지 않으므로, 페이지 안에 `<iframe>` 네 개(320·360·390·430px)를 띄우고 같은 위치로 스크롤해 한 장에 찍는다. 작은 휴대폰(320)부터 큰 휴대폰(430)까지 한 번에 깨진 곳을 찾을 수 있다.
+3. 각 iframe에서 `document.documentElement.scrollWidth`가 폭과 같은지, 오른쪽으로 삐져나간 요소가 없는지 JS로 확인한다. (실제로 로그인 후 위쪽 막대가 360·390px에서 1px 넘쳤다)
+4. 단어 중간이나 문장 중간에서 어색하게 줄이 바뀌는 곳은 휴대폰용 문구(`.m-only`)로 줄을 다시 나눈다.
+5. 다른 점을 고치고 다시 찍는다. 큰 차이가 없어질 때까지 반복한다.
 
 일부러 Figma와 다르게 만든 곳(Figma에 없는 상태 화면, 기술적으로 어려운 효과 등)은 이유와 함께 사용자에게 알린다.
 

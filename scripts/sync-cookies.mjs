@@ -4,6 +4,7 @@
 // design/ 은 그림을 만드는 곳이고, 배포되는 것은 public/(사이트)과 src/(서버)다.
 // 쿠키를 새로 그리거나 고친 뒤(pixel-skin 스킬) 이 스크립트를 돌리면 아래가 함께 바뀐다.
 //   public/cookies/<이름>.svg      사이트에서 쓰는 벡터 쿠키 (상점 아이템 아이콘 item-* 포함)
+//   public/cookies/pixel/<이름>.svg 진열대에서 보여주는 위젯 픽셀 미리보기
 //   public/cookies/catalog.json    사이트가 읽는 쿠키 목록 (이름·분류·해금 조건·뽑기 등급)
 //   public/img/illust/*.svg        캐릭터·마스코트 일러스트
 //   public/img/icons/*.svg         아이콘
@@ -21,6 +22,10 @@ const catalog = JSON.parse(await readFile(at('design/cookies/catalog.json'), 'ut
 await mkdir(at('public/cookies/'), { recursive: true });
 const svgs = (await readdir(at('design/cookies/'))).filter((name) => name.endsWith('.svg') && name !== 'pixel-plain.svg');
 for (const name of svgs) await copyFile(at(`design/cookies/${name}`), at(`public/cookies/${name}`));
+
+// 1-2) 위젯 픽셀 미리보기
+await mkdir(at('public/cookies/pixel/'), { recursive: true });
+for (const name of (await readdir(at('design/cookies/pixel/'))).filter((n) => n.endsWith('.svg'))) await copyFile(at(`design/cookies/pixel/${name}`), at(`public/cookies/pixel/${name}`));
 
 // 2) 일러스트와 아이콘
 for (const [from, to] of [['design/illustrations/', 'public/img/illust/'], ['design/icons/', 'public/img/icons/']]) {

@@ -98,6 +98,8 @@ export async function loadAccount(login, date) {
     daily: {
       streak: streak.current,
       bestStreak,
+      openDays: Object.values(days).filter((n) => n > 0).length + (streak.todayDone && !(days[date] > 0) ? 1 : 0), // 올해 쿠키를 연 날
+      since: since ?? date,
       todayDone: streak.todayDone,
       freezes: freezeInfo.freezes.length,
       week: weekStamps({ days, today: date, todayDone: streak.todayDone, frozen: freezeInfo.frozen }),

@@ -2,295 +2,181 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>내 도감 · fortune-commit</title>
-  <meta name="description" content="GitHub로 로그인해서 내가 모은 포춘쿠키 스킨을 보고 장착하세요">
+  <meta name="description" content="모은 쿠키 65종의 해금 상황을 보고, 고른 쿠키를 README 위젯에 바로 올리는 도감">
+  <link rel="icon" href="/cookies/plain.svg">
   <link rel="stylesheet" href="/site.css">
   <style>
-    /* 도감 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
-    .page { padding: 56px 0 96px; }
-    @media (max-width: 760px) { .page { padding: 32px 0 56px; } }
-    .notice { margin: 0 0 24px; padding: 14px 18px; background: #fde8e8; border: 1px solid #f3b9b9; border-radius: 12px; color: #8a1c1c; }
-    .welcome {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 20px;
-      align-items: center;
-      margin-bottom: 40px;
-      padding: 22px 24px;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    /* 도감 페이지에만 쓰는 스타일 (Figma 📖 Collection · PC / 📱 Collection · Mobile) */
+    .page-title h1 b { font: 900 0.62em/1 var(--number); color: var(--caramel); margin-left: 8px; }
+    .group { display: grid; }
+    .group[hidden] { display: none; }
+    .group-head .count { font: 900 16px/1 var(--number); color: var(--text-2); }
+    .more-btn { margin-top: 12px; }
+    .soon-mobile { display: none; }
+    @media (max-width: 1024px) {
+      .soon-mobile { display: block; }
+      #side .soon { display: none; }
     }
-    .welcome img.avatar { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--dough); }
-    .welcome h2 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 24px; }
-    .welcome p { margin: 2px 0 0; color: var(--brown-soft); }
-    .welcome .count { font-family: var(--title); font-size: 34px; color: var(--caramel); line-height: 1; text-align: right; }
-    .welcome .count small { display: block; font-family: var(--body); font-size: 13px; color: var(--brown-soft); }
-    .login-card { max-width: 560px; margin: 0 auto 48px; padding: 36px; text-align: center; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-    .login-card img { width: 120px; }
-    .login-card h2 { margin: 12px 0 6px; font-family: var(--title); font-weight: 400; font-size: 26px; }
-    .login-card p { margin: 0 0 20px; color: var(--brown-soft); }
-    .readme { margin-bottom: 48px; }
-    .readme h3 { margin: 0 0 6px; font-family: var(--title); font-weight: 400; font-size: 21px; }
-    .readme p { margin: 0 0 14px; color: var(--brown-soft); font-size: 15px; }
-    .boxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 20px; }
-    .box {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 18px;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-    }
-    .box.equipped { border: 2px solid var(--caramel); box-shadow: var(--shadow); }
-    .box .badge { position: absolute; top: 12px; right: 12px; padding: 2px 10px; background: var(--caramel); color: var(--paper); border-radius: 999px; font-size: 12px; font-weight: 700; }
-    .box .art { display: grid; place-items: center; height: 130px; margin-bottom: 4px; background: var(--dough); border-radius: 10px; }
-    .box .art img { width: 120px; }
-    .box.locked .art img { filter: grayscale(1) opacity(0.45); }
-    .box h3 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 19px; }
-    .box .rule { margin: 0; font-size: 13px; color: var(--brown-soft); }
-    .bar { height: 8px; margin-top: 4px; background: var(--dough); border-radius: 4px; overflow: hidden; }
-    .bar span { display: block; height: 100%; background: var(--caramel); border-radius: 4px; }
-    .progress { margin: 0; font-size: 12px; color: var(--brown-soft); }
-    .box .btn { margin-top: 8px; }
-    .box .btn[disabled] { background: transparent; color: var(--caramel-dark); border-color: var(--caramel); cursor: default; transform: none; }
-    @media (max-width: 640px) {
-      .boxes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-      .box { padding: 10px; }
-      .box .art { height: 96px; }
-      .box .art img { width: 80px; }
-      .box h3 { font-size: 16px; }
-      .box .btn.small { padding: 7px 8px; font-size: 12.5px; }
-      .login-card { padding: 24px 18px; }
-      .welcome { grid-template-columns: auto minmax(0, 1fr); }
-      .welcome .count { grid-column: 1 / -1; text-align: left; }
-    }
+    .login-card { display: grid; gap: 12px; justify-items: start; }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="wrap">
-      <a class="brand" href="/">
-        <img class="pixel" src="/api/cookie?mode=still" alt="" width="40" height="36">
-        <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
-      </a>
-      <nav class="site-nav" aria-label="메뉴">
-        <a class="wide" href="/#story">이야기</a>
-        <a class="wide" href="/skins.html">진열대</a>
-        <a class="wide" href="/shop.html">상점</a>
-        <a class="wide" href="/collection.html" aria-current="page">내 도감</a>
-        <span id="account-slot"></span>
-      </nav>
-    </div>
-  </header>
+  <header id="topnav"></header>
 
-  <main class="page">
-    <div class="wrap">
-      <span class="eyebrow">My Cookie Box</span>
-      <h1 class="page-title">내 도감</h1>
-      <p class="page-lead">활동으로 해금한 쿠키를 모아 둔 상자예요. 한 번 해금한 쿠키는 해가 바뀌어도 계속 내 거예요. 장착한 쿠키는 README를 고치지 않아도 위젯에 바로 올라가요.</p>
-
-      <div id="notice"></div>
+  <div class="wrap app">
+    <main>
+      <div class="page-title">
+        <h1>내 도감 <b id="count">0 / 65</b></h1>
+        <div id="total-progress"></div>
+      </div>
+      <div id="notice" hidden></div>
       <div id="top"></div>
-      <div class="boxes" id="boxes"></div>
-    </div>
-  </main>
+      <div class="soon-mobile" id="soon-mobile"></div>
+      <nav class="pills" id="category-tabs" aria-label="분류"></nav>
+      <div id="groups" style="display:grid;gap:40px"></div>
+    </main>
+    <aside id="side" aria-label="오늘의 기록"></aside>
+  </div>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      <span class="brand-name">fortune-commit</span>
-      <span>모든 쿠키 그림은 오리지널이에요</span>
-      <a class="spacer" href="/">메인</a>
-      <a href="/skins.html">스킨 진열대</a>
-      <a href="https://github.com/2sseul/fortune-commit">GitHub</a>
-    </div>
-  </footer>
+  <footer id="footer"></footer>
 
   <script type="module">
-    import { setupHeader, copyText } from '/site.js';
+    import { setupHeader, setHeaderStats, loadCatalog, cookieSrc, el, progressBar, postJson, toast, renderSidePanel, CATEGORY_LABEL } from '/site.js';
 
-    // 스킨 이름과 해금 조건 (src/skins.js, src/unlocks.js와 같은 내용)
-    const SKIN_INFO = {
-      plain: { name: '기본 쿠키', rule: '처음부터' },
-      choco: { name: '초코 쿠키', rule: '올해 기여 50개' },
-      matcha: { name: '말차 쿠키', rule: '올해 기여 150개' },
-      gold: { name: '황금 쿠키', rule: '올해 7일 연속 기여' },
-      cat: { name: '고양이 쿠키', rule: '올해 커밋 100개' },
-      dog: { name: '강아지 쿠키', rule: '올해 PR 10개' },
-      rabbit: { name: '토끼 쿠키', rule: '올해 코드 리뷰 10개' },
-      pumpkin: { name: '호박 쿠키', rule: '10월에 기여 10개' },
-      snowman: { name: '눈사람 쿠키', rule: '12월에 기여 10개' },
-      deer: { name: '사슴 쿠키', rule: '12월에 기여 30개' },
-      santa: { name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
-    };
-    // 상점에서 파는 스킨과 가격 (src/shop.js와 같은 내용)
-    const SALE = { choco: 500, cat: 1200, dog: 1200, rabbit: 1200, matcha: 1500 };
-    const ERRORS = {
-      state: '로그인 확인에 실패했어요. 다시 로그인해 주세요.',
-      login: 'GitHub 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.',
-    };
-    const origin = window.location.origin;
+    const ERRORS = { state: '로그인 확인에 실패했어요. 다시 로그인해 주세요.', login: 'GitHub 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.' };
+    const isPhone = () => window.matchMedia('(max-width: 760px)').matches;
+    const PHONE_LIMIT = 4; // 휴대폰에서는 묶음마다 4개만 먼저 보여준다 (Figma 📱)
+    let catalog = { cookies: [] };
+    let me = { loggedIn: false };
+    let filter = 'all';
+    const expanded = new Set();
 
-    // README 코드: 다크/라이트 자동 전환, 스킨은 도감 설정을 따르므로 skin을 넣지 않는다.
-    function readmeCode(login) {
-      const url = (theme) => `${origin}/api?${new URLSearchParams({ user: login, theme })}`;
-      return [
-        `<a href="${origin}/">`,
-        '  <picture>',
-        `    <source media="(prefers-color-scheme: dark)" srcset="${url('dark')}">`,
-        `    <img src="${url('light')}" alt="오늘의 운세">`,
-        '  </picture>',
-        '</a>',
-      ].join('\n');
-    }
+    // 카드에 쓰는 짧은 해금 조건 (한 줄에 들어가게)
+    const shortRule = (c) => c.unlock.replace('JavaScript', 'JS').replace('TypeScript', 'TS').replace(' + 올해 기여 100', ' + 기여 100').replace('쿠키 뽑기 ', '뽑기 ');
 
-    function el(tag, className, text) {
-      const node = document.createElement(tag);
-      if (className) node.className = className;
-      if (text !== undefined) node.textContent = text;
+    const error = new URLSearchParams(location.search).get('login_error') ?? new URLSearchParams(location.search).get('error');
+    if (ERRORS[error]) { const box = document.getElementById('notice'); box.className = 'notice'; box.textContent = ERRORS[error]; box.hidden = false; }
+
+    // ---------- 카드 (Figma CollectionCard: Equipped / Unlocked / Locked) ----------
+    function card(c, state) {
+      const equipped = me.loggedIn && (me.equipped ?? 'plain') === c.id;
+      const unlocked = state?.unlocked ?? c.id === 'plain';
+      let desc = shortRule(c);
+      if (state?.bought) desc = '상점에서 산 쿠키';
+      else if (state?.kept) desc = `${shortRule(c)} · 예전에 해금`;
+      if (c.category === '뽑기') desc = unlocked ? `${c.rarity} · 뽑기` : `${c.rarity} · 부스러기 ${catalog.gacha.exchange_cost[c.rarity]}개 교환`;
+
+      let slot;
+      if (!me.loggedIn) slot = el('span', { class: 'tag', style: 'justify-self:center', text: c.category === '뽑기' ? `${c.rarity} 뽑기` : '해금 조건' });
+      else if (equipped) slot = el('button', { class: 'btn small sky block', type: 'button', disabled: true, text: '장착 중' });
+      else if (unlocked) {
+        slot = el('button', { class: 'btn small secondary block', type: 'button', text: '장착하기' });
+        slot.style.color = 'var(--lip-sky)';
+        slot.addEventListener('click', () => equip(c, slot));
+      } else if (c.category === '뽑기') {
+        const crumbs = me.wallet?.crumbs ?? 0;
+        const cost = catalog.gacha.exchange_cost[c.rarity];
+        slot = progressBar(Math.min(crumbs, cost), cost, `부스러기 ${crumbs} / ${cost}`);
+      } else if (state && state.goal > 1) slot = progressBar(state.current, state.goal);
+      else slot = el('span', { class: 'tag', style: 'justify-self:center', text: '아직이에요' });
+
+      const node = el('article', { class: `card cookie-card ${equipped ? 'equipped' : ''} ${!unlocked && me.loggedIn ? 'locked' : ''}`.trim(), id: `cookie-${c.id}` },
+        equipped ? el('span', { class: 'tag sky badge', text: '장착 중' }) : null,
+        el('div', { class: 'stage' }, el('img', { src: cookieSrc(c.id), alt: '', loading: 'lazy' })),
+        el('p', { class: 'name', text: c.label }),
+        el('p', { class: 'desc', title: c.unlock, text: desc }),
+        el('div', { class: 'slot' }, slot));
       return node;
     }
 
-    // 위쪽: 로그인 전이면 로그인 안내, 로그인했으면 인사와 README 코드
-    function renderTop(me) {
-      const top = document.getElementById('top');
-      top.replaceChildren();
-      if (!me.loggedIn) {
-        const card = el('div', 'login-card');
-        const img = el('img', 'pixel');
-        img.src = '/api/cookie?mode=closed';
-        img.alt = '';
-        const login = el('a', 'btn', 'GitHub로 로그인');
-        login.href = '/api/auth/login?next=/collection.html';
-        card.append(
-          img,
-          el('h2', '', '내 쿠키 상자를 열어 볼까요?'),
-          el('p', '', 'GitHub 아이디만 확인해요. 저장소나 비공개 정보에는 접근하지 않고, 저장하는 건 아이디와 장착한 쿠키, 상점 포인트 기록뿐이에요.'),
-          login,
-        );
-        top.append(card);
-        return;
-      }
-
-      const unlocked = me.skins.filter((skin) => skin.unlocked).length;
-      const welcome = el('div', 'welcome');
-      const avatar = el('img', 'avatar');
-      avatar.src = `https://github.com/${encodeURIComponent(me.login)}.png?size=128`;
-      avatar.alt = '';
-      const hello = el('div');
-      hello.append(
-        el('h2', '', `${me.login} 님의 쿠키 상자`),
-        el('p', '', `지금 올라가 있는 쿠키: ${SKIN_INFO[me.equipped]?.name ?? '아직 고르지 않았어요 (README 설정을 따라요)'}`),
-      );
-      const count = el('div', 'count', `${unlocked}/${me.skins.length}`);
-      count.append(el('small', '', '모은 쿠키'));
-      welcome.append(avatar, hello, count);
-
-      const readme = el('div', 'readme');
-      const box = el('div', 'code-box');
-      const bar = el('div', 'code-bar');
-      const copy = el('button', 'btn small copy', '복사');
-      copy.type = 'button';
-      copy.addEventListener('click', () => copyText(copy, readmeCode(me.login)));
-      bar.append(el('span', '', 'README.md'), copy);
-      box.append(bar, el('pre', '', readmeCode(me.login)));
-      readme.append(
-        el('h3', '', '내 README에 한 번만 붙여 두세요'),
-        el('p', '', '이 코드를 붙여 두면, 이후에는 여기서 쿠키를 바꾸는 것만으로 위젯이 바뀌어요. (반영까지 몇 분 걸릴 수 있어요)'),
-        box,
-      );
-      top.append(welcome, readme);
-
-      if (!me.activityChecked) {
-        document.getElementById('notice').replaceChildren(el('p', 'notice', 'GitHub 활동을 확인하지 못해서 해금 상황이 정확하지 않을 수 있어요. 잠시 후 새로고침해 주세요.'));
-      }
-    }
-
-    // 쿠키 칸들
-    function renderBoxes(me) {
-      const boxes = document.getElementById('boxes');
-      boxes.replaceChildren();
-      const skins = me.loggedIn ? me.skins : Object.keys(SKIN_INFO).map((id) => ({ id, unlocked: id === 'plain' }));
-      for (const skin of skins) {
-        const info = SKIN_INFO[skin.id];
-        const box = el('article', 'box');
-        if (!skin.unlocked) box.classList.add('locked');
-        if (me.equipped === skin.id) {
-          box.classList.add('equipped');
-          box.append(el('span', 'badge', '장착 중'));
-        }
-        const art = el('div', 'art');
-        const img = el('img', 'pixel');
-        img.src = `/api/cookie?skin=${skin.id}&mode=still`;
-        img.alt = '';
-        img.loading = 'lazy';
-        art.append(img);
-        box.append(art, el('h3', '', info.name), el('p', 'rule', skin.bought ? `${info.rule} · 상점에서 산 쿠키 🛍️` : skin.kept ? `${info.rule} · 예전에 해금 ✓` : info.rule));
-
-        if (me.loggedIn && !skin.unlocked && skin.goal) {
-          const bar = el('div', 'bar');
-          const fill = el('span');
-          fill.style.width = `${Math.round((skin.current / skin.goal) * 100)}%`;
-          bar.append(fill);
-          box.append(bar, el('p', 'progress', `${skin.current} / ${skin.goal} ${skin.unit}`));
-          if (SALE[skin.id]) {
-            const shop = el('a', 'btn small ghost', `상점에서 ${SALE[skin.id].toLocaleString('ko-KR')}P에 데려오기`);
-            shop.href = `/shop.html#skin-${skin.id}`;
-            box.append(shop);
-          }
-        }
-        if (me.loggedIn && skin.unlocked) {
-          const isEquipped = me.equipped === skin.id;
-          const button = el('button', 'btn small', isEquipped ? '올라가 있어요' : '이 쿠키 올리기');
-          button.type = 'button';
-          button.disabled = isEquipped;
-          button.addEventListener('click', () => equip(skin.id, button));
-          box.append(button);
-        }
-        boxes.append(box);
-      }
-    }
-
-    // 쿠키 장착 요청
-    async function equip(id, button) {
+    async function equip(c, button) {
       button.disabled = true;
       button.textContent = '올리는 중…';
-      try {
-        const response = await fetch('/api/me', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ skin: id }),
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error ?? '저장하지 못했어요.');
-        await load();
-      } catch (error) {
-        button.disabled = false;
-        button.textContent = error.message;
+      const { ok, data } = await postJson('/api/me', { skin: c.id });
+      if (!ok) { toast(data.error ?? '저장하지 못했어요.'); button.disabled = false; button.textContent = '장착하기'; return; }
+      me.equipped = data.equipped;
+      toast(`${c.label}를 위젯에 올렸어요!`);
+      render();
+    }
+
+    // ---------- 그리기 ----------
+    function render() {
+      const states = Object.fromEntries((me.skins ?? []).map((s) => [s.id, s]));
+      const total = catalog.cookies.length;
+      const have = catalog.cookies.filter((c) => states[c.id]?.unlocked || c.id === 'plain').length;
+      document.getElementById('count').textContent = `${me.loggedIn ? have : 0} / ${total}`;
+      document.getElementById('total-progress').replaceChildren(progressBar(me.loggedIn ? have : 0, total, `${me.loggedIn ? have : 0} / ${total} 모음`));
+
+      // 분류 탭
+      const cats = Object.keys(CATEGORY_LABEL).filter((cat) => catalog.cookies.some((c) => c.category === cat));
+      const tabs = document.getElementById('category-tabs');
+      tabs.replaceChildren(...[['all', `전체 ${total}`], ...cats.map((cat) => [cat, `${CATEGORY_LABEL[cat]} ${catalog.cookies.filter((c) => c.category === cat).length}`])].map(([id, text]) => {
+        const b = el('button', { type: 'button', 'aria-pressed': String(filter === id), text });
+        b.addEventListener('click', () => { filter = id; render(); });
+        return b;
+      }));
+
+      // 분류별 묶음
+      const groups = document.getElementById('groups');
+      groups.replaceChildren(...cats.filter((cat) => filter === 'all' || filter === cat).map((cat) => {
+        const list = catalog.cookies.filter((c) => c.category === cat);
+        const got = list.filter((c) => states[c.id]?.unlocked || c.id === 'plain').length;
+        const head = el('div', { class: 'group-head' }, el('h2', { text: `${CATEGORY_LABEL[cat]} 쿠키` }), me.loggedIn ? el('span', { class: 'count', text: `${got} / ${list.length}` }) : null);
+        if (cat === '뽑기') head.append(el('a', { class: 'tag purple', href: '/shop.html#gacha', text: `부스러기 ${me.wallet?.crumbs ?? 0}개 · 상점에서 뽑기 →` }));
+        // 해금한 것 먼저, 잠긴 것은 진행률이 높은 순
+        const sorted = [...list].sort((a, b) => Number(Boolean(states[b.id]?.unlocked)) - Number(Boolean(states[a.id]?.unlocked)));
+        const limited = isPhone() && !expanded.has(cat) && filter === 'all' ? sorted.slice(0, PHONE_LIMIT) : sorted;
+        const section = el('section', { class: 'group', 'aria-label': `${CATEGORY_LABEL[cat]} 쿠키` }, head, el('div', { class: 'cookie-grid' }, ...limited.map((c) => card(c, states[c.id]))));
+        if (limited.length < sorted.length) {
+          const more = el('button', { class: 'btn secondary block more-btn', type: 'button', text: `${sorted.length - limited.length}개 더 보기` });
+          more.addEventListener('click', () => { expanded.add(cat); render(); });
+          section.append(more);
+        }
+        return section;
+      }));
+
+      // 곧 해금될 쿠키 (휴대폰·태블릿에서는 위쪽에, PC에서는 오른쪽 패널에)
+      const soonBox = document.getElementById('soon-mobile');
+      soonBox.replaceChildren();
+      if (me.loggedIn && me.next?.length) {
+        const label = (id) => catalog.cookies.find((c) => c.id === id)?.label ?? id;
+        soonBox.append(el('section', { class: 'card' }, el('h2', { class: 'h3', style: 'margin-bottom:12px', text: '곧 해금될 쿠키' }),
+          ...me.next.map((n) => el('div', { class: 'quest', style: 'grid-template-columns:36px minmax(0,1fr)' },
+            el('span', { class: 'icon' }, el('img', { src: cookieSrc(n.id), alt: '' })),
+            el('div', {}, el('p', { class: 'label', text: label(n.id) }), progressBar(n.current, n.goal))))));
       }
     }
 
-    async function load() {
-      let me = { loggedIn: false };
-      try {
-        me = await (await fetch('/api/me', { cache: 'no-store' })).json();
-      } catch {
-        // 서버에 닿지 못하면 로그인하지 않은 화면을 보여준다.
-      }
-      renderTop(me);
-      renderBoxes(me);
+    // 로그인 전: 안내 카드 + 모든 쿠키의 해금 조건
+    function renderLoggedOut() {
+      document.getElementById('top').replaceChildren(el('div', { class: 'card pad-lg login-card' },
+        el('h2', { class: 'h3', text: '로그인하면 내 쿠키 상자가 열려요' }),
+        el('p', { class: 'small lines' }, el('span', { text: 'GitHub 활동으로 해금한 쿠키를 모아 보고,' }), el('span', { text: '고른 쿠키를 README 위젯에 바로 올릴 수 있어요.' })),
+        el('a', { class: 'btn', href: '/api/auth/login?next=/collection.html', text: 'GitHub로 로그인' })));
     }
 
-    const error = new URLSearchParams(location.search).get('login_error');
-    if (error && ERRORS[error]) {
-      document.getElementById('notice').replaceChildren(el('p', 'notice', ERRORS[error]));
+    const [header, cat] = await Promise.all([setupHeader(), loadCatalog()]);
+    catalog = cat;
+    if (!header.loggedIn) {
+      renderLoggedOut();
+      render();
+      document.getElementById('side').hidden = true;
+    } else {
+      render(); // 먼저 목록을 보여주고, 해금 상태는 불러온 뒤 다시 그린다.
+      const [data, daily] = await Promise.all([
+        fetch('/api/me', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({ loggedIn: true })),
+        fetch('/api/daily', { cache: 'no-store' }).then((r) => r.json()).catch(() => null),
+      ]);
+      me = data;
+      if (!me.activityChecked) document.getElementById('top').replaceChildren(el('p', { class: 'notice', text: 'GitHub 활동을 확인하지 못해서 진행 상황이 0으로 보일 수 있어요. 잠시 후 새로고침해 주세요.' }));
+      setHeaderStats({ streak: me.streak, balance: me.wallet?.balance });
+      render();
+      renderSidePanel(document.getElementById('side'), { daily, equipped: me.equipped, next: me.next, cookies: catalog.cookies, showNext: true });
+      if (me.next?.length) document.querySelector('#side .card:last-child')?.classList.add('soon');
     }
-    setupHeader();
-    load();
+    if (location.hash) document.querySelector(location.hash)?.scrollIntoView({ block: 'center' });
   </script>
 </body>
 </html>

@@ -67,13 +67,14 @@ python3 preview.py figma <scratchpad>/png <이름 ...>    # 4배 크기 투명 P
 - 위젯용 픽셀(`pixel/<이름>.svg`)은 마스크가 없어서 SVG로 올려도 된다 (`Cookie/Widget/<이름>`).
 - 확인은 사용자 화면 기준이다. 올린 뒤 사용자에게 Figma를 새로고침해서 봐 달라고 한다.
 
-## 5. 목록에 등록 — `catalog.json`
+## 5. 목록에 등록 — `catalog.json` → 사이트·서버로 옮기기
 
 `design/cookies/catalog.json`의 `cookies`에 한 줄 추가한다: `id`, `label`, `category`(기존·활동·시즌·언어·밈·특별·뽑기), `unlock`(해금 조건 문장), `data`(조건 계산에 필요한 데이터: `now`·`events`·`api`·`site`·`gacha`), 뽑기 쿠키면 `rarity`.
 해금 조건은 지금 데이터로 계산되는지(`now`)부터 따진다. 새 데이터가 필요하면 사용자에게 알린다.
 
-코드에 넣는 단계(위젯 렌더러가 `pixel/*.json`을 읽게, `src/unlocks.js` 규칙, 사이트 목록)는 TODO_v2의 v3.3 항목에서 한다.
+그다음 **`node scripts/sync-cookies.mjs`** 를 돌린다. 벡터(`public/cookies/`), 픽셀 미리보기(`public/cookies/pixel/`), 목록(`public/cookies/catalog.json`, `src/cookie-catalog.js`), 위젯 픽셀 지도(`src/pixel-maps.js`)가 한 번에 바뀐다. 위젯은 `src/pixel-maps.js`의 지도로 새 쿠키를 그리고(열린 쿠키에는 쪽지를 붙인다), 사이트는 목록을 읽어 진열대·도감에 자동으로 보여준다.
+해금 조건은 `src/unlocks.js`의 `UNLOCK_RULES`에 한 줄 넣는다 (뽑기 쿠키는 필요 없다). `npm test`의 '쿠키 65종 모두 해금 규칙이 있다' 테스트가 빠뜨린 쿠키를 잡아 준다.
 
 ## 6. 마무리
 
-`todo-log` 스킬로 기록·커밋한다. 미리보기에서 고친 것(예: "점 두 개가 얼굴처럼 보여서 크게 바꿈")은 `[테스트 후 변경]`으로 남긴다. 커밋에는 `make.py`, 바뀐 `<이름>.svg`, `pixel/<이름>.json`·`.svg`, `catalog.json`을 함께 넣는다.
+`todo-log` 스킬로 기록·커밋한다. 미리보기에서 고친 것(예: "점 두 개가 얼굴처럼 보여서 크게 바꿈")은 `[테스트 후 변경]`으로 남긴다. 커밋에는 `make.py`, 바뀐 `<이름>.svg`, `pixel/<이름>.json`·`.svg`, `catalog.json`, 그리고 sync-cookies가 바꾼 `public/cookies/`·`src/cookie-catalog.js`·`src/pixel-maps.js`를 함께 넣는다.

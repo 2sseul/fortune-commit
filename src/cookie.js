@@ -88,8 +88,27 @@ function colorOf(colors, ch) {
   return colors[ch === 'q' ? 'O' : upper];
 }
 
-// 쿠키 지도에 스킨의 영역 색 바꾸기와 얹는 그림을 적용해서 [행, 열, 글자] 목록으로 만든다.
-function buildPixels(map, skin) {
+// 열린 쿠키에서 빠져나오는 운세 쪽지 (v3 새 쿠키용). 쿠키 오른쪽 끝에 붙인다.
+//   q = 쪽지 테두리(쿠키 테두리 색), p = 쪽지, l = 쪽지 글씨
+const SLIP = [
+  '.qqqq..',
+  'qpppqq.',
+  'qpllpq.',
+  'qppppq.',
+  'qppppq.',
+  'qplllpq',
+  'qpppppq',
+  '.qqpppq',
+  '...qqq.',
+];
+
+// 쿠키 지도를 [행, 열, 조각, 색] 목록으로 만든다.
+//   예전 스킨(v2, 손으로 그린 픽셀): 기본 쿠키 지도 + 스킨의 영역 색 바꾸기 + 얹는 그림
+//   새 쿠키(v3, pixelMap): 벡터에서 자동 변환한 지도 (대문자 = 앞 조각, 소문자 = 뒤 날개), 열린 쿠키는 쪽지를 붙인다
+function buildPixels(state, skin, colors) {
+  if (skin?.pixelMap) return buildMapPixels(state, skin.pixelMap, colors);
+  const map = COOKIE_MAPS[state] ?? COOKIE_MAPS.open;
+  const palette = { ...colors, ...(skin?.palette ?? {}) };
   const pixels = new Map(); // 열쇠 '행,열' → [행, 열, 글자] (같은 자리는 나중 것이 덮어쓴다)
   const put = (row, col, ch) => pixels.set(`${row},${col}`, [row, col, ch]);
 
@@ -110,28 +129,49 @@ function buildPixels(map, skin) {
     }));
   }
 
-  return [...pixels.values()];
+  return [...pixels.values()].map(([row, col, ch]) => [row, col, pieceOf(ch), colors ? colorOf(palette, ch) : null]);
+}
+
+function buildMapPixels(state, { palette, map }, colors) {
+  const pixels = [];
+  map.forEach((line, row) => [...line].forEach((ch, col) => {
+    if (ch === '.') return;
+    pixels.push([row, col, ch === ch.toUpperCase() ? 'front' : 'back', palette[ch.toUpperCase()]]);
+  }));
+  if (state === 'open') {
+    // 쪽지는 쿠키 높이의 40% 지점, 그 줄의 오른쪽 끝에서 두 칸 안쪽에 둔다. (쿠키가 쪽지를 덮어 '빠져나온' 것처럼 보인다)
+    const top = Math.round(map.length * 0.4);
+    const right = Math.max(...map.slice(top, top + SLIP.length).map((line) => line.replace(/\.+$/, '').length));
+    SLIP.forEach((line, i) => [...line].forEach((ch, j) => {
+      if (ch === '.') return;
+      const color = colors ? (ch === 'q' ? colors.O : ch === 'p' ? colors.P : colors.L) : null;
+      pixels.push([top + i, right - 2 + j, 'paper', color]);
+    }));
+  }
+  return pixels;
 }
 
 // 스킨까지 얹은 쿠키가 차지하는 범위(px)를 알려준다. 레이아웃 계산에 쓴다.
 //   top: 쿠키 지도 0행보다 위로 튀어나온 높이 (귀, 모자 등), height: 전체 높이
 export function cookieBox(pixel, skin = null) {
   let minRow = 0;
-  let maxRow = COOKIE_MAPS.open.length - 1;
+  let maxRow = skin?.pixelMap ? 0 : COOKIE_MAPS.open.length - 1;
+  let maxCol = skin?.pixelMap ? 0 : COLUMNS - 1;
   for (const state of ['open', 'closed']) {
-    for (const [row] of buildPixels(COOKIE_MAPS[state], skin)) {
+    for (const [row, col] of buildPixels(state, skin, null)) {
       minRow = Math.min(minRow, row);
       maxRow = Math.max(maxRow, row);
+      if (skin?.pixelMap) maxCol = Math.max(maxCol, col);
     }
   }
-  return { top: -minRow * pixel, width: COLUMNS * pixel, height: (maxRow - minRow + 1) * pixel };
+  return { top: -minRow * pixel, width: (maxCol + 1) * pixel, height: (maxRow - minRow + 1) * pixel };
 }
 
 // 한 조각에 속한 픽셀만 SVG 사각형들로 바꾼다.
-function pixelsToRects(pixels, colors, pixel, piece) {
+function pixelsToRects(pixels, pixel, piece) {
   return pixels
-    .filter(([, , ch]) => pieceOf(ch) === piece)
-    .map(([row, col, ch]) => `<rect x="${col * pixel}" y="${row * pixel}" width="${pixel}" height="${pixel}" fill="${colorOf(colors, ch)}"/>`)
+    .filter(([, , part]) => part === piece)
+    .map(([row, col, , color]) => `<rect x="${col * pixel}" y="${row * pixel}" width="${pixel}" height="${pixel}" fill="${color}"/>`)
     .join('');
 }
 
@@ -142,10 +182,8 @@ function pixelsToRects(pixels, colors, pixel, piece) {
 // 바깥 <g>는 위치만 잡고, 안쪽 <g>에 애니메이션을 건다.
 // (CSS 애니메이션의 transform이 위치용 transform을 덮어쓰지 않게 하려고 둘로 나눈다)
 export function renderPixelCookie({ colors, pixel, x, y, state = 'open', skin = null }) {
-  const map = COOKIE_MAPS[state] ?? COOKIE_MAPS.open;
-  const pixels = buildPixels(map, skin);
-  const palette = { ...colors, ...(skin?.palette ?? {}) };
-  const piece = (name) => `<g class="cookie-${name}">${pixelsToRects(pixels, palette, pixel, name)}</g>`;
+  const pixels = buildPixels(state, skin, colors);
+  const piece = (name) => `<g class="cookie-${name}">${pixelsToRects(pixels, pixel, name)}</g>`;
   return `
   <g transform="translate(${x} ${y})" shape-rendering="crispEdges">
     <g class="cookie cookie-${state}">

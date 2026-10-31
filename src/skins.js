@@ -11,6 +11,9 @@
 //             shape 글자: '.'은 비움, 대문자는 앞쪽 조각, 소문자는 뒤쪽 날개에 붙는다. (갈라질 때 같이 움직인다)
 // 꾸밈 글자의 색은 아래 DECOR_COLORS를 쓰고, O·B·H·S는 스킨 색을 따른다.
 
+import { PIXEL_MAPS } from './pixel-maps.js';
+import { COOKIES } from './cookie-catalog.js';
+
 export const DECOR_COLORS = {
   K: '#1F1A17', // 검정 (모자, 벨트, 호박 얼굴)
   I: '#F2A0B0', // 분홍 (귀 안쪽)
@@ -182,6 +185,16 @@ export function withFace(skin) {
 }
 
 // 이름으로 스킨을 찾는다. 모르는 이름이면 기본 쿠키.
+//   예전 11종(SKINS)은 손으로 그린 픽셀, 새 쿠키(v3)는 벡터에서 자동 변환한 픽셀 지도(src/pixel-maps.js)를 쓴다.
+//   레트로 쿠키는 원래 픽셀 그대로인 기본 쿠키 그림.
 export function getSkin(name) {
-  return SKINS[name] ? { id: name, ...SKINS[name] } : { id: 'plain', ...SKINS.plain };
+  // 빈 값(null)이 'null 쿠키'로 잘못 찾아지지 않게 문자열만 받는다.
+  if (typeof name !== 'string') return { id: 'plain', ...SKINS.plain };
+  if (Object.hasOwn(SKINS, name)) return { id: name, ...SKINS[name] };
+  if (name === 'retro') return { id: 'retro', ...SKINS.plain, label: { ko: '레트로 쿠키', en: 'Retro cookie' } };
+  if (Object.hasOwn(PIXEL_MAPS, name)) {
+    const cookie = COOKIES.find((c) => c.id === name);
+    return { id: name, label: { ko: cookie?.label ?? name, en: name }, pixelMap: PIXEL_MAPS[name] };
+  }
+  return { id: 'plain', ...SKINS.plain };
 }

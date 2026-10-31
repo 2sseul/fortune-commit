@@ -27,3 +27,19 @@ test('모든 스킨이 두 테마, 열린/안 열린 쿠키에서 색이 빠진 
     }
   }
 });
+
+test('v3 새 쿠키는 픽셀 지도로 그려지고, 열린 쿠키에는 쪽지가 붙는다', async () => {
+  const { renderPixelCookie, cookieBox } = await import('../src/cookie.js');
+  const { themes } = await import('../src/themes.js');
+  for (const id of ['owl', 'javascript', 'gacha-crown', 'null']) {
+    const skin = getSkin(id);
+    assert.equal(skin.id, id);
+    assert.ok(skin.pixelMap, id);
+    const open = renderPixelCookie({ colors: themes.dark.cookie, pixel: 4, x: 0, y: 0, state: 'open', skin });
+    assert.ok(!open.includes('undefined'), `${id} 색이 빠진 칸`);
+    assert.match(open, /cookie-paper"><rect/);
+    assert.ok(cookieBox(4, skin).width > 0);
+  }
+  assert.equal(getSkin('retro').id, 'retro');
+  assert.equal(getSkin('constructor').id, 'plain');
+});

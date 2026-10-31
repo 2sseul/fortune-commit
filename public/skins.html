@@ -2,241 +2,209 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>스킨 진열대 · fortune-commit</title>
-  <meta name="description" content="fortune-commit 포춘쿠키 스킨 11종과 해금 조건을 보고, 고른 스킨의 README 코드를 복사하세요">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>쿠키 진열대 · fortune-commit</title>
+  <meta name="description" content="포춘쿠키 65종을 구경하고 해금 조건과 README 코드를 가져가는 진열대">
+  <link rel="icon" href="/cookies/plain.svg">
   <link rel="stylesheet" href="/site.css">
   <style>
-    /* 스킨 진열대 페이지에만 쓰는 스타일 (공통 스타일은 site.css) */
-    .page { padding: 56px 0 96px; }
-    @media (max-width: 760px) { .page { padding: 32px 0 56px; } }
-    .tip { margin: -20px 0 32px; padding: 14px 18px; background: var(--paper); border: 1px dashed var(--caramel); border-radius: 12px; color: var(--brown-soft); }
-    .tip a { color: var(--caramel-dark); font-weight: 700; }
-    .order {
-      display: grid;
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-      gap: 28px;
-      margin-bottom: 48px;
-      padding: 24px;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    /* 진열대 페이지에만 쓰는 스타일 (Figma 🪟 Showcase · PC / 📱 Showcase · Mobile) */
+    .showcase { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 56px; align-items: start; padding-top: 48px; padding-bottom: 96px; }
+    .showcase > main { display: grid; gap: 24px; min-width: 0; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 12px; }
+    .tile { position: relative; display: grid; place-items: center; aspect-ratio: 1; padding: 0; background: var(--paper); border: 2px solid var(--line); border-bottom-width: 4px; border-radius: var(--r-md); cursor: pointer; transition: transform 0.1s; }
+    .tile:hover { transform: translateY(-2px); }
+    .tile img { width: 72%; height: 72%; object-fit: contain; }
+    .tile[aria-pressed="true"] { border-color: var(--sky); background: var(--sky-tint); }
+    .tile .mine { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 2px #fff; }
+    .tile.locked img { filter: grayscale(0.15); }
+
+    /* 고른 쿠키 상세 (PC: 오른쪽 카드, 휴대폰: 아래 시트) */
+    .detail { position: sticky; top: calc(var(--topnav-h) + 24px); display: grid; gap: 16px; justify-items: center; text-align: center; padding: 24px; }
+    .detail .stage { display: grid; place-items: center; width: 100%; height: 220px; border-radius: var(--r-md); background: var(--dough); }
+    .detail .stage img { height: 168px; }
+    .detail h2 { font: 400 32px/1.2 var(--title); }
+    .detail .about { font-size: 14px; color: var(--text-2); }
+    .pixel-preview { display: flex; align-items: center; gap: 16px; width: 100%; padding: 12px 16px; border-radius: var(--r-md); background: var(--terminal); text-align: left; }
+    .pixel-preview img { width: 72px; height: auto; image-rendering: pixelated; flex: none; }
+    .pixel-preview p { font: 12px/1.6 var(--mono); color: #8B949E; }
+    .pixel-preview p b { display: block; font-weight: 400; color: #C9D1D9; }
+    .detail .code-box { width: 100%; text-align: left; }
+    .detail .btn { width: 100%; }
+    .sheet-handle, .sheet-close { display: none; }
+    .scrim { display: none; }
+
+    @media (max-width: 1024px) {
+      .showcase { grid-template-columns: minmax(0, 1fr); padding-top: 24px; padding-bottom: 32px; }
+      .tiles { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; }
+      /* 아래 시트: 쿠키를 누르면 아래에서 올라온다 */
+      .detail {
+        position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 70;
+        max-height: min(84dvh, 760px); overflow-y: auto; overscroll-behavior: contain;
+        padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
+        border-radius: 24px 24px 0 0; border-bottom: 0;
+        box-shadow: 0 -6px 24px rgb(0 0 0 / 0.12);
+        transform: translateY(105%); transition: transform 0.25s ease-out; visibility: hidden;
+      }
+      .detail.open { transform: none; visibility: visible; }
+      .sheet-handle { display: block; width: 44px; height: 5px; border-radius: 3px; background: #D9D9D9; }
+      .sheet-close { display: grid; place-items: center; position: absolute; top: 10px; right: 12px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--bg-section); font-size: 18px; cursor: pointer; }
+      .scrim { position: fixed; inset: 0; z-index: 65; background: rgb(43 29 20 / 0.45); }
+      .scrim.open { display: block; }
+      .detail .stage { height: 150px; }
+      .detail .stage img { height: 124px; }
+      .detail h2 { font-size: 28px; }
     }
-    .order .chosen { display: flex; align-items: center; gap: 16px; }
-    .order .chosen img { width: 110px; }
-    .order h2 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 24px; }
-    .order .rule { margin: 2px 0 0; color: var(--brown-soft); font-size: 14px; }
-    .order label { display: block; margin-top: 18px; font-size: 14px; font-weight: 600; }
-    .order input {
-      display: block;
-      width: 100%;
-      margin-top: 6px;
-      padding: 10px 12px;
-      background: var(--cream);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      font: inherit;
-      color: var(--brown);
-    }
-    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .controls button { padding: 7px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 14px; }
-    .controls button[aria-pressed="true"] { background: var(--chocolate); border-color: var(--chocolate); color: var(--paper); }
-    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 22px; }
-    .card { min-width: 0; padding: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); scroll-margin-top: 90px; }
-    .card.selected { border: 2px solid var(--caramel); box-shadow: var(--shadow); }
-    .card h3 { margin: 0; font-family: var(--title); font-weight: 400; font-size: 20px; }
-    .card .meta { margin: 0 0 12px; font-size: 13px; color: var(--brown-soft); }
-    .card .meta code { padding: 1px 6px; background: var(--dough); border-radius: 4px; }
-    .card .preview { padding: 10px; border-radius: 10px; }
-    .card .preview.dark { background: #0d1117; }
-    .card .preview.light { background: #ffffff; border: 1px solid var(--line); }
-    .card .preview img { display: block; width: 100%; height: auto; cursor: pointer; }
-    .card .btn { width: 100%; margin-top: 12px; }
-    .card.selected .btn { background: var(--caramel); border-color: var(--caramel); }
-    @media (max-width: 760px) { .order { grid-template-columns: 1fr; } }
+    @media (max-width: 360px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; } }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="wrap">
-      <a class="brand" href="/">
-        <img class="pixel" src="/api/cookie?mode=still" alt="" width="40" height="36">
-        <span><span class="brand-name">fortune-commit</span><span class="brand-sub">fortune cookie bakery</span></span>
-      </a>
-      <nav class="site-nav" aria-label="메뉴">
-        <a class="wide" href="/#story">이야기</a>
-        <a class="wide" href="/skins.html" aria-current="page">진열대</a>
-        <a class="wide" href="/shop.html">상점</a>
-        <a class="wide" href="/collection.html">내 도감</a>
-        <span id="account-slot"></span>
-      </nav>
-    </div>
-  </header>
+  <header id="topnav"></header>
 
-  <main class="page">
-    <div class="wrap">
-      <span class="eyebrow">Cookie Display</span>
-      <h1 class="page-title">스킨 진열대</h1>
-      <p class="page-lead">GitHub 활동으로 해금하는 쿠키 11종이에요. 해금 전에는 기본 쿠키와 진행 상황(예: <code>cat 37/100 commits</code>)이 보이고, 조건을 채우면 자동으로 바뀌어요. 조건은 올해 활동으로 세고, 한 번 해금한 쿠키는 해가 바뀌어도 계속 내 거예요.</p>
-      <p class="tip">로그인해서 <a href="/collection.html">내 도감</a>에서 고르면 README를 고치지 않아도 바로 바뀌어요. 아래 주문서는 로그인 없이 쓰는 방법이에요.</p>
-
-      <!-- 주문서: 고른 스킨의 README 코드 -->
-      <section class="order" aria-live="polite">
-        <div>
-          <div class="chosen">
-            <img class="pixel" id="chosen-img" src="/api/cookie?mode=still" alt="">
-            <div>
-              <h2 id="chosen-name">기본 쿠키</h2>
-              <p class="rule" id="chosen-rule">처음부터</p>
-            </div>
-          </div>
-          <label>GitHub 아이디 <input id="user" type="text" placeholder="YOUR_GITHUB_ID" autocomplete="off" spellcheck="false"></label>
-        </div>
-        <div class="code-box">
-          <div class="code-bar"><span>README.md</span><button type="button" class="btn small copy" id="copy">복사</button></div>
-          <pre id="code"></pre>
-        </div>
-      </section>
-
-      <div class="controls" role="group" aria-label="미리보기 설정">
-        <button type="button" data-state="open" aria-pressed="true">열린 쿠키</button>
-        <button type="button" data-state="locked" aria-pressed="false">안 열린 쿠키</button>
-        <button type="button" data-theme="dark" aria-pressed="true">다크</button>
-        <button type="button" data-theme="light" aria-pressed="false">라이트</button>
+  <div class="wrap showcase">
+    <main>
+      <div class="page-title">
+        <span class="eyebrow">Cookie showcase</span>
+        <h1>쿠키 진열대</h1>
+        <p class="small lines pc-only"><span>65종의 쿠키를 구경하고 README 코드를 가져가세요.</span><span>조건을 채우면 내 위젯에 그 쿠키가 나와요.</span></p>
+        <p class="small lines m-only"><span>65종의 쿠키를 구경하고</span><span>README 코드를 가져가세요.</span></p>
       </div>
-      <div class="cards" id="cards"></div>
-    </div>
-  </main>
+      <nav class="pills" id="category-tabs" aria-label="분류"></nav>
+      <div class="tiles" id="tiles" role="list"></div>
+    </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      <span class="brand-name">fortune-commit</span>
-      <span>모든 쿠키 그림은 오리지널이에요</span>
-      <a class="spacer" href="/">메인</a>
-      <a href="/collection.html">내 도감</a>
-      <a href="https://github.com/2sseul/fortune-commit">GitHub</a>
-    </div>
-  </footer>
+    <div class="scrim" id="scrim"></div>
+    <aside class="card detail" id="detail" aria-live="polite" aria-labelledby="detail-name">
+      <span class="sheet-handle"></span>
+      <button class="sheet-close" type="button" id="detail-close" aria-label="닫기">✕</button>
+      <div class="stage"><img id="detail-img" src="/cookies/plain.svg" alt=""></div>
+      <h2 id="detail-name">기본 쿠키</h2>
+      <span class="tag" id="detail-rule">처음부터</span>
+      <p class="about lines" id="detail-about"></p>
+      <div class="pixel-preview">
+        <img id="detail-pixel" src="/cookies/pixel/plain.svg" alt="README 위젯에서 보이는 픽셀 쿠키">
+        <p><b>README 위젯에서는</b><span id="detail-pixel-text">픽셀 쿠키로 보여요</span></p>
+      </div>
+      <div class="code-box"><pre id="code"></pre></div>
+      <button class="btn" type="button" id="copy">README 코드 복사</button>
+      <div id="detail-action" style="width:100%"></div>
+    </aside>
+  </div>
+
+  <footer id="footer"></footer>
 
   <script type="module">
-    import { setupHeader, copyText } from '/site.js';
-
-    // 스킨 목록과 해금 조건 (src/skins.js, src/unlocks.js와 같은 내용)
-    const SKINS = [
-      { id: 'plain', name: '기본 쿠키', rule: '처음부터' },
-      { id: 'choco', name: '초코 쿠키', rule: '올해 기여 50개' },
-      { id: 'matcha', name: '말차 쿠키', rule: '올해 기여 150개' },
-      { id: 'gold', name: '황금 쿠키', rule: '올해 7일 연속 기여' },
-      { id: 'cat', name: '고양이 쿠키', rule: '올해 커밋 100개' },
-      { id: 'dog', name: '강아지 쿠키', rule: '올해 PR 10개' },
-      { id: 'rabbit', name: '토끼 쿠키', rule: '올해 코드 리뷰 10개' },
-      { id: 'pumpkin', name: '호박 쿠키', rule: '10월에 기여 10개' },
-      { id: 'snowman', name: '눈사람 쿠키', rule: '12월에 기여 10개' },
-      { id: 'deer', name: '사슴 쿠키', rule: '12월에 기여 30개' },
-      { id: 'santa', name: '산타 쿠키', rule: '12월 25일(크리스마스)에 기여' },
-    ];
+    import { setupHeader, setHeaderStats, loadCatalog, cookieSrc, el, copyText, postJson, toast, CATEGORY_LABEL } from '/site.js';
 
     const origin = window.location.origin;
-    const SITE = `${origin}/`;
-    const view = { state: 'open', theme: 'dark' };
-    // 주소에 #cat 처럼 스킨이 적혀 있으면 그 스킨을 고른 상태로 시작한다. (메인 진열대에서 눌러 온 경우)
-    let chosen = SKINS.some((s) => s.id === location.hash.slice(1)) ? location.hash.slice(1) : 'plain';
+    // 분류마다 한 줄 소개
+    const ABOUT = {
+      기존: ['처음부터 함께한 빵집의 단골 쿠키예요.'],
+      활동: ['GitHub 활동 습관에서 태어난 쿠키예요.'],
+      시즌: ['그 계절에만 구워지는 쿠키예요.'],
+      언어: ['가장 많이 쓰는 언어가 같은', '개발자를 좋아해요.'],
+      밈: ['개발자라면 한 번쯤 겪어 본', '순간을 담았어요.'],
+      특별: ['오래 함께한 사람에게만 찾아와요.'],
+      뽑기: ['쿠키 뽑기로만 만날 수 있어요.', '중복이 나오면 부스러기로 바뀌어요.'],
+    };
+    const narrow = () => window.matchMedia('(max-width: 1024px)').matches;
+    let catalog = { cookies: [] };
+    let me = { loggedIn: false };
+    let filter = 'all';
+    let chosen = null;
 
-    // README 코드: 다크/라이트 자동 전환 + 고른 스킨 + 누르면 메인 페이지
-    function readmeCode() {
-      const user = document.getElementById('user').value.trim() || 'YOUR_GITHUB_ID';
-      const url = (theme) => {
-        const params = new URLSearchParams({ user, theme });
-        if (chosen !== 'plain') params.set('skin', chosen); // 기본 쿠키는 skin을 생략한다.
-        return `${origin}/api?${params}`;
-      };
-      return [
-        `<a href="${SITE}">`,
-        '  <picture>',
-        `    <source media="(prefers-color-scheme: dark)" srcset="${url('dark')}">`,
-        `    <img src="${url('light')}" alt="오늘의 운세">`,
-        '  </picture>',
-        '</a>',
-      ].join('\n');
+    const readmeCode = (id) => `[![오늘의 포춘쿠키](${origin}/api?user=YOUR_GITHUB_ID&skin=${id})](${origin}/)`;
+
+    function renderTabs() {
+      const cats = Object.keys(CATEGORY_LABEL).filter((cat) => catalog.cookies.some((c) => c.category === cat));
+      document.getElementById('category-tabs').replaceChildren(...[['all', `전체 ${catalog.cookies.length}`], ...cats.map((cat) => [cat, CATEGORY_LABEL[cat] + (cat === '뽑기' ? ' 12' : '')])].map(([id, text]) => {
+        const b = el('button', { type: 'button', 'aria-pressed': String(filter === id), text });
+        b.addEventListener('click', () => { filter = id; renderTabs(); renderTiles(); });
+        return b;
+      }));
     }
 
-    function updateOrder() {
-      const skin = SKINS.find((s) => s.id === chosen);
-      document.getElementById('chosen-img').src = `/api/cookie?skin=${skin.id}&mode=still`;
-      document.getElementById('chosen-name').textContent = skin.name;
-      document.getElementById('chosen-rule').textContent = `해금 조건: ${skin.rule}`;
-      document.getElementById('code').textContent = readmeCode();
+    function renderTiles() {
+      const mine = new Set((me.skins ?? []).filter((s) => s.unlocked).map((s) => s.id));
+      document.getElementById('tiles').replaceChildren(...catalog.cookies.filter((c) => filter === 'all' || c.category === filter).map((c) => {
+        const tile = el('button', { class: 'tile', type: 'button', role: 'listitem', id: c.id, 'aria-pressed': String(chosen === c.id), 'aria-label': `${c.label}${mine.has(c.id) ? ' (내 쿠키)' : ''}` },
+          el('img', { src: cookieSrc(c.id), alt: '', loading: 'lazy' }), mine.has(c.id) ? el('span', { class: 'mine', title: '내 쿠키' }) : null);
+        tile.addEventListener('click', () => choose(c.id, true));
+        return tile;
+      }));
     }
 
-    // 미리보기 위젯 주소 (preview로 해금과 상관없이 스킨을 보여준다)
-    function previewUrl(id, extra = {}) {
-      return `${origin}/api?${new URLSearchParams({ user: 'octocat', skin: id, preview: view.state, theme: view.theme, ...extra })}`;
-    }
+    function choose(id, fromTap = false) {
+      const c = catalog.cookies.find((x) => x.id === id) ?? catalog.cookies[0];
+      chosen = c.id;
+      history.replaceState(null, '', `#${c.id}`);
+      for (const t of document.querySelectorAll('.tile')) t.setAttribute('aria-pressed', String(t.id === c.id));
+      document.getElementById('detail-img').src = cookieSrc(c.id);
+      document.getElementById('detail-name').textContent = c.label;
+      const rule = document.getElementById('detail-rule');
+      rule.textContent = c.category === '뽑기' ? `${c.rarity} · 쿠키 뽑기` : c.unlock;
+      rule.className = `tag ${c.category === '뽑기' ? 'purple' : ''}`.trim();
+      document.getElementById('detail-about').replaceChildren(...[...(ABOUT[c.category] ?? []), c.category === '뽑기' ? null : '한 번 해금하면 계속 내 거예요.'].filter(Boolean).map((t) => el('span', { text: t })));
+      // 위젯 픽셀 미리보기 (레트로 쿠키는 원래 픽셀이라 벡터 그대로)
+      const pixel = document.getElementById('detail-pixel');
+      pixel.src = c.id === 'retro' ? cookieSrc('retro') : `/cookies/pixel/${c.id}.svg`;
+      document.getElementById('detail-pixel-text').textContent = `픽셀 ${c.label}로 보여요`;
+      document.getElementById('code').textContent = readmeCode(c.id);
 
-    function renderCards() {
-      const cards = document.getElementById('cards');
-      cards.replaceChildren();
-      for (const skin of SKINS) {
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.id = skin.id;
-        if (skin.id === chosen) card.classList.add('selected');
-
-        const title = document.createElement('h3');
-        title.textContent = skin.name;
-        const meta = document.createElement('p');
-        meta.className = 'meta';
-        const code = document.createElement('code');
-        code.textContent = `skin=${skin.id}`;
-        meta.append(`${skin.rule} · `, code);
-
-        const preview = document.createElement('div');
-        preview.className = `preview ${view.theme}`;
-        const img = document.createElement('img');
-        img.src = previewUrl(skin.id);
-        img.alt = `${skin.name} 미리보기`;
-        img.loading = 'lazy';
-        img.title = '눌러서 애니메이션 다시 보기';
-        img.addEventListener('click', () => { img.src = previewUrl(skin.id, { t: Date.now() }); });
-        preview.append(img);
-
-        const pick = document.createElement('button');
-        pick.type = 'button';
-        pick.className = 'btn small';
-        pick.setAttribute('aria-pressed', String(skin.id === chosen));
-        pick.textContent = skin.id === chosen ? '주문서에 담았어요' : '주문서에 담기';
-        pick.addEventListener('click', () => {
-          chosen = skin.id;
-          renderCards();
-          updateOrder();
-          document.querySelector('.order').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // 장착 버튼: 로그인 전 → 로그인, 내 쿠키 → 바로 장착, 아직 → 도감/상점 안내
+      const action = document.getElementById('detail-action');
+      const state = (me.skins ?? []).find((s) => s.id === c.id);
+      if (!me.loggedIn) action.replaceChildren(el('a', { class: 'btn secondary', href: `/api/auth/login?next=${encodeURIComponent(`/skins.html#${c.id}`)}`, text: '로그인하고 바로 장착' }));
+      else if (me.equipped === c.id || (!me.equipped && c.id === 'plain')) action.replaceChildren(el('button', { class: 'btn sky', type: 'button', disabled: true, text: '위젯에 올라가 있어요' }));
+      else if (state?.unlocked) {
+        const b = el('button', { class: 'btn secondary', type: 'button', text: '내 위젯에 장착하기' });
+        b.addEventListener('click', async () => {
+          b.disabled = true;
+          const { ok, data } = await postJson('/api/me', { skin: c.id });
+          if (!ok) { toast(data.error ?? '저장하지 못했어요.'); b.disabled = false; return; }
+          me.equipped = data.equipped;
+          toast(`${c.label}를 위젯에 올렸어요!`);
+          choose(c.id);
         });
+        action.replaceChildren(b);
+      } else if (c.category === '뽑기') action.replaceChildren(el('a', { class: 'btn secondary', href: '/shop.html#gacha', text: '상점에서 뽑기' }));
+      else action.replaceChildren(el('a', { class: 'btn secondary', href: `/collection.html#cookie-${c.id}`, text: state ? `도감에서 진행 보기 (${state.current} / ${state.goal})` : '도감에서 진행 보기' }));
 
-        card.append(title, meta, preview, pick);
-        cards.append(card);
-      }
+      if (fromTap && narrow()) openSheet();
     }
 
-    // 미리보기 설정 버튼: 같은 줄의 버튼 중 하나만 눌린 상태가 된다.
-    for (const button of document.querySelectorAll('.controls button')) {
-      button.addEventListener('click', () => {
-        const key = button.dataset.state ? 'state' : 'theme';
-        view[key] = button.dataset[key];
-        for (const other of document.querySelectorAll(`.controls button[data-${key}]`)) {
-          other.setAttribute('aria-pressed', String(other === button));
-        }
-        renderCards();
-      });
+    // 휴대폰·태블릿: 아래 시트 열고 닫기
+    const detail = document.getElementById('detail');
+    const scrim = document.getElementById('scrim');
+    let lastTile = null;
+    function openSheet() {
+      lastTile = document.activeElement;
+      detail.classList.add('open');
+      scrim.classList.add('open');
+      document.getElementById('detail-close').focus({ preventScroll: true });
     }
+    function closeSheet() {
+      detail.classList.remove('open');
+      scrim.classList.remove('open');
+      lastTile?.focus?.({ preventScroll: true });
+    }
+    document.getElementById('detail-close').addEventListener('click', closeSheet);
+    scrim.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSheet(); });
+    document.getElementById('copy').addEventListener('click', (event) => copyText(event.currentTarget, readmeCode(chosen)));
 
-    document.getElementById('user').addEventListener('input', updateOrder);
-    document.getElementById('copy').addEventListener('click', (event) => copyText(event.currentTarget, readmeCode()));
-
-    setupHeader();
-    renderCards();
-    updateOrder();
+    const [header, cat] = await Promise.all([setupHeader(), loadCatalog()]);
+    catalog = cat;
+    renderTabs();
+    renderTiles();
+    choose(location.hash.slice(1) || 'santa');
     if (location.hash) document.getElementById(chosen)?.scrollIntoView({ block: 'center' });
+    if (header.loggedIn) {
+      me = await fetch('/api/me', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({ loggedIn: true }));
+      setHeaderStats({ streak: me.streak, balance: me.wallet?.balance });
+      renderTiles();
+      choose(chosen);
+    }
   </script>
 </body>
 </html>
