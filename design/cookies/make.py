@@ -139,6 +139,38 @@ ART.update({
     'galaxy': cookie(P['galaxy'], front_extra=DOTS([(50, 110), (86, 150), (96, 90), (64, 170)], 2.5, '#FFFFFF') + '<ellipse cx="80" cy="120" rx="70" ry="22" transform="rotate(-30 80 120)" fill="#8E6BE8" opacity="0.45"/>',
                      back_extra=DOTS([(170, 80), (186, 124), (160, 140)], 2.5, '#FFFFFF'), over=SPARK(30, 26, 14, '#FFD43B') + SPARK(212, 188, 10, '#FFFFFF')),
 })
+# ---- 언어 쿠키 추가 (색 + 상징 도형 하나, 얼굴·글자 없음) ----
+P.update({
+    'js':      dict(base="#F7DF1E", shade="#E3C800", back="#EBCF0A", back_shade="#D1B600", fold="#8A7600", hi="#FFF59A"),
+    'ts':      dict(base="#3178C6", shade="#2763A8", back="#2B6CB5", back_shade="#215995", fold="#123966", hi="#86B6EC"),
+    'go':      dict(base="#29BEDF", shade="#14A4C4", back="#1CB1D2", back_shade="#0E94B2", fold="#05607A", hi="#A6EAF8"),
+    'kotlin':  dict(base="#7F52FF", shade="#6A3EE6", back="#F88909", back_shade="#DB7300", fold="#5A2DB8", hi="#C4ADFF"),
+    'swift':   dict(base="#F05138", shade="#D63E28", back="#E4472F", back_shade="#C93622", fold="#7E1E10", hi="#FFA190"),
+    'cpp':     dict(base="#00599C", shade="#004A82", back="#00508D", back_shade="#004072", fold="#00284A", hi="#5C9ED6"),
+    'csharp':  dict(base="#7B3FB5", shade="#66309C", back="#6E36A6", back_shade="#5A2A8A", fold="#33155A", hi="#C29AF0"),
+    'ruby':    dict(base="#D2362F", shade="#B42822", back="#C22F28", back_shade="#A1221D", fold="#5E0F0B", hi="#FF8E86"),
+    'php':     dict(base="#8A8FD0", shade="#7378BC", back="#7D82C4", back_shade="#676CAE", fold="#3E4280", hi="#C8CBF2"),
+    'dart':    dict(base="#13B9FD", shade="#0AA0E0", back="#0F9FE0", back_shade="#0886C2", fold="#03507A", hi="#9DE3FF"),
+    'shell':   dict(base="#34383D", shade="#25282C", back="#2B2F33", back_shade="#1E2125", fold="#0E1012", hi="#6C737A"),
+    'haskell': dict(base="#5E5086", shade="#4C406F", back="#53467A", back_shade="#423762", fold="#251D3A", hi="#A898D8"),
+})
+W8 = 'stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"'
+ART.update({
+    'javascript': cookie(P['js'], front_extra='<path d="M58 88 C46 88 48 102 48 112 C48 120 42 124 36 124 C42 124 48 128 48 136 C48 146 46 160 58 160" stroke="#2D2D2D" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M92 88 C104 88 102 102 102 112 C102 120 108 124 114 124 C108 124 102 128 102 136 C102 146 104 160 92 160" stroke="#2D2D2D" stroke-width="9" stroke-linecap="round" fill="none"/>'),
+    'typescript': cookie(P['ts'], front_extra=f'<path d="M64 96 L40 124 L64 152" {W8}/><path d="M90 96 L114 124 L90 152" {W8}/>'),
+    'go': cookie(P['go'], under='<path d="M-6 90 H40 M-10 120 H30 M-2 150 H40" stroke="#29BEDF" stroke-width="10" stroke-linecap="round" opacity="0.55"/>'),
+    'kotlin': cookie(P['kotlin'], front_extra='<path d="M0 240 L0 130 L110 240 Z" fill="#E44857"/>'),
+    'swift': cookie(P['swift'], front_extra='<path d="M30 100 C56 128 92 146 116 140 C104 160 74 168 46 156 C70 158 90 150 98 142 C72 140 46 124 30 100 Z M44 92 C64 112 86 126 106 130 C88 116 68 104 44 92 Z" fill="#FFFFFF"/>'),
+    'cpp': cookie(P['cpp'], front_extra=f'<path d="M48 124 H76 M62 110 V138" {W8}/><path d="M86 124 H114 M100 110 V138" {W8}/>'),
+    'csharp': cookie(P['csharp'], front_extra=f'<path d="M66 92 L58 156 M90 92 L82 156 M46 112 H106 M42 136 H102" {W8}/>'),
+    'ruby': cookie(P['ruby'], front_extra='<path d="M14 84 L70 40 L120 30 L80 110 Z" fill="#E85A50"/><path d="M14 84 L80 110 L40 190 L8 150 Z" fill="#B42822"/><path d="M80 110 L120 30 L132 120 L100 210 Z" fill="#C22F28"/>',
+                   back_extra='<path d="M124 20 L210 90 L150 120 Z" fill="#D63A32"/>'),
+    'php': cookie(P['php'], over='<path d="M196 64 C236 60 252 104 240 142 C232 166 210 174 196 162 C204 130 204 96 196 64 Z" fill="#9A9EDD"/><path d="M204 84 C228 86 236 112 230 136 C226 150 214 154 206 148 C210 126 210 104 204 84 Z" fill="#F2B6C6"/>'),
+    'dart': cookie(P['dart'], over='<path d="M118 96 L232 18" stroke="#2D2D2D" stroke-width="7" stroke-linecap="round"/><path d="M226 10 L246 4 L240 24 L226 30 Z" fill="#FF5C7A"/><path d="M212 26 L232 4 L240 12 L222 34 Z" fill="#FF8FA3"/><circle cx="118" cy="96" r="7" fill="#03507A"/>'),
+    'shell': cookie(P['shell'], front_extra='<path d="M40 104 L66 124 L40 144" stroke="#4CE08A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M76 148 H108" stroke="#4CE08A" stroke-width="10" stroke-linecap="round"/>'),
+    'haskell': cookie(P['haskell'], front_extra=f'<path d="M48 92 L64 92 L100 160 M78 122 L54 160" {W8}/>'),
+})
+
 for name, svg in ART.items():
     open(f'{name}.svg', 'w').write(svg)
 print(len(ART), 'cookies')
