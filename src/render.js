@@ -177,8 +177,9 @@ export function renderWidget({
 
   // 세로 위치 계산: 타이틀바 → 명령어 줄 → [쿠키 | 운세 + 행운 아이템] → 마지막 프롬프트
   // 쿠키와 글자 묶음 중 더 높은 쪽에 맞춰 가운데 정렬한다.
-  const commandY = TITLEBAR + PAD + 12;
-  const contentTop = commandY + 14;
+  // (v3) 위아래 여백을 조금 줄여 창 높이를 낮춤: 명령어 줄·쿠키 사이, 마지막 프롬프트 위아래
+  const commandY = TITLEBAR + PAD + 8;
+  const contentTop = commandY + 10;
   const textBlockHeight = (fortuneLines.length + lucky.length) * LINE + 8;
   const contentHeight = Math.max(cookie.height, textBlockHeight);
   // 쿠키 지도의 0행이 놓일 위치 (위로 튀어나온 귀·모자만큼 아래로 내린다)
@@ -186,9 +187,16 @@ export function renderWidget({
   const firstLineY = contentTop + (contentHeight - textBlockHeight) / 2 + 15; // 15 = 글자 윗부분 높이
   const luckyStartY = firstLineY + fortuneLines.length * LINE + 8;
   // 미니 쿠키가 있으면 마지막 프롬프트 줄을 그만큼 내려서, 미니 쿠키가 행운 아이템 줄과 겹치지 않게 한다.
-  const miniRoom = mini ? Math.max(0, miniHeight(skin) - LINE) : 0;
-  const lastPromptY = contentTop + contentHeight + LINE + 4 + miniRoom;
-  const height = lastPromptY + PAD;
+  // 미니 쿠키는 글자 오른쪽 빈 곳을 쓴다. 글자가 너무 길어 자리가 없을 때만 아래로 공간을 늘린다.
+  const textRight = textX + Math.max(
+    ...fortuneLines.map((line) => textWidth(`> ${line}`)),
+    ...lucky.map(({ key, value }) => textWidth(`${key} = "${value}"`)),
+  );
+  const miniX0 = Math.max(textRight + 32, width - 280);
+  const miniFits = width - PAD - miniX0 >= cookieBox(MINI_PIXEL, skin).width + 60; // 왔다 갔다 할 거리 60px 이상
+  const miniRoom = mini && !miniFits ? Math.max(0, miniHeight(skin) - LINE) : 0;
+  const lastPromptY = contentTop + contentHeight + LINE + miniRoom;
+  const height = lastPromptY + PAD - 4;
 
   // 첫 줄에만 '> '를 붙이고, 다음 줄은 글자 위치를 맞추려고 공백 두 칸으로 들여쓴다.
   const fortuneText = fortuneLines
@@ -208,7 +216,7 @@ export function renderWidget({
   <text x="${PAD}" y="${commandY}" class="mono">
     <tspan fill="${t.prompt}" class="bold">$</tspan><tspan fill="${t.text}"> ${escapeXml(command)}</tspan>
   </text>
-  ${mini ? renderMini({ t, skin, state: 'open', x0: Math.max(textX, width - 300), x1: width - PAD, floorY: lastPromptY + 4 }) : ''}
+  ${mini ? renderMini({ t, skin, state: 'open', x0: miniFits ? miniX0 : Math.max(textX, width - 280), x1: width - PAD, floorY: lastPromptY + 2 }) : ''}
 
   <!-- 같은 자리에 안 열린 쿠키와 열린 쿠키를 겹쳐 두고, 애니메이션으로 바꿔 보여준다 -->
   ${renderPixelCookie({ colors: t.cookie, pixel: PIXEL, x: cookieX, y: cookieY, state: 'closed', skin })}
@@ -243,15 +251,15 @@ export function renderClosedCard({
   const cookieX = PAD + 4;
   const textX = cookieX + cookie.width + 18;
 
-  const commandY = TITLEBAR + PAD + 12;
-  const boxTop = commandY + 14; // 쿠키(귀·모자 포함)의 맨 윗줄
+  const commandY = TITLEBAR + PAD + 8;
+  const boxTop = commandY + 10; // 쿠키(귀·모자 포함)의 맨 윗줄
   const cookieY = boxTop + cookie.top; // 쿠키 지도의 0행이 놓일 위치
   // 쿠키 가운데 높이에 안내 문구(+ 아래 한 줄)를 둔다.
   const hintY = boxTop + cookie.height / 2 + (detail ? -6 : 5);
-  const height = boxTop + cookie.height + PAD;
+  const height = boxTop + cookie.height + PAD - 4;
 
   // 미니 쿠키 자리: 안내 문구 아래 오른쪽 빈 곳 (창 아래 여백 위에 바닥)
-  const miniSvg = mini ? renderMini({ t, skin, state: 'closed', x0: Math.max(textX + 260, width - 300), x1: width - PAD, floorY: height - PAD + 4 }) : '';
+  const miniSvg = mini ? renderMini({ t, skin, state: 'closed', x0: Math.max(textX + 260, width - 300), x1: width - PAD, floorY: height - PAD + 6 }) : '';
 
   return `<svg xmlns="http://www.w3.org/2000/svg" ${svgSize(width, height)} role="img" aria-label="${escapeXml(label)}">
   <style>
