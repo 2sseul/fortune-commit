@@ -102,31 +102,16 @@ try {
   // ---------- PC ----------
   await open('/');
   await shot('pc-hero', '.hero', { full: true });
-  await shot('pc-story', '#story', { full: true });
   await shot('pc-daily', '#daily', { full: true });
   await shot('pc-takeout', '#takeout', { full: true });
   await shot('pc-friends', '#friends', { full: true });
-  // 쿠키 열기 창
-  await evaluate("localStorage.clear(); document.getElementById('open-cookie').click()");
-  await sleep(600);
-  await evaluate("document.getElementById('fortune-cookie').click()");
-  await sleep(1800);
-  await shot('pc-fortune', '#fortune-dialog', { pad: 24 });
+  // 쿠키 열기 창·이야기·뽑기 연출은 움직이는 화면이라 readme-gifs.mjs가 GIF로 찍는다
 
   await open('/shop.html');
   // 상점·도감은 오른쪽 패널·분류 탭이 화면에 붙어 있어서(sticky) 보이는 화면 그대로 찍는다
   await evaluate('scrollTo(0, 0)');
   await sleep(400);
   await screen('pc-shop');
-  // 뽑기 연출: 10회 → OPEN → 결과
-  await evaluate("document.getElementById('draw-10').click()");
-  await sleep(1200);
-  await shot('pc-gacha-oven', '#sheet', { pad: 24, wait: 200 });
-  await evaluate("document.querySelector('.open-btn').click()");
-  await sleep(1500);
-  await shot('pc-gacha-smoke', '#sheet', { pad: 24, wait: 0 });
-  await sleep(3000);
-  await shot('pc-gacha-result', '#sheet', { pad: 24, wait: 200 });
 
   await open('/collection.html', 3000);
   await evaluate('scrollTo(0, 0)');
