@@ -187,15 +187,16 @@ h1, h2, h3, p { margin: 0; }
 .pills.round [aria-selected="true"] { background: var(--caramel); border-color: var(--caramel); color: #fff; }
 
 /* ---------- 쿠키 카드 (Figma CookieCard / ShopItemCard / CollectionCard)
-   무대(120px, 쿠키 88px) → 이름 → 한 줄 설명 → 44px 칸. 상태가 달라도 구조가 같아 높이가 같다. ---------- */
+   무대(120px, 쿠키 88px) → 이름 → 설명 → 44px 칸. 설명은 자르지 않고 다 보여 주고(여러 줄 가능),
+   같은 줄 카드끼리는 높이를 맞춘 뒤 44px 칸을 맨 아래로 붙여 버튼 위치가 나란하다. ---------- */
 .cookie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 16px; }
 @media (max-width: 760px) { .cookie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
-.cookie-card { position: relative; display: grid; gap: 12px; align-content: start; text-align: center; }
+.cookie-card { position: relative; display: flex; flex-direction: column; gap: 12px; text-align: center; }
 .cookie-card .stage { position: relative; display: grid; place-items: center; height: 120px; border-radius: var(--r-md); background: var(--dough); }
 .cookie-card .stage img { height: 88px; width: auto; max-width: 90%; }
 .cookie-card .name { font: 700 16px/1.35 var(--body); color: var(--text); }
-.cookie-card .desc { font-size: 13px; line-height: 1.45; color: var(--text-2); min-height: 1.45em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cookie-card .slot { display: grid; align-items: center; min-height: 44px; }
+.cookie-card .desc { font-size: 13px; line-height: 1.45; color: var(--text-2); min-height: 1.45em; word-break: keep-all; overflow-wrap: anywhere; } /* 단어 중간에서 끊기지 않게 */
+.cookie-card .slot { display: grid; align-items: center; min-height: 44px; margin-top: auto; } /* 설명이 짧은 카드도 맨 아래 */
 .cookie-card .slot .btn { min-height: 40px; }
 .cookie-card.locked .stage { background: #EDEDED; }
 .cookie-card.locked .stage img { filter: grayscale(1) opacity(0.45); }
