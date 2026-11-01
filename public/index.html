@@ -213,7 +213,12 @@
     .news .thumb img { height: 104px; }
     .news .body { display: grid; gap: 8px; align-content: start; padding: 16px 20px 20px; }
     .news .body .tag { justify-self: start; }
-    @media (max-width: 960px) { .news { grid-template-columns: minmax(0, 1fr); gap: 16px; } .news .thumb { height: 140px; } }
+    /* 좁은 화면: 소식이 6개라 세로로 길어지지 않게 옆으로 넘겨 보는 줄로 */
+    @media (max-width: 960px) {
+      .news { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(78%, 320px); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; margin-inline: -16px; padding-inline: 16px; scroll-padding-inline: 16px; }
+      .news a { scroll-snap-align: start; }
+      .news .thumb { height: 140px; }
+    }
 
     /* ---------- 쿠키 친구들 ---------- */
     .friends { grid-template-columns: repeat(6, minmax(0, 1fr)); }
@@ -545,7 +550,10 @@
     };
     // 새 소식
     const NEWS = [
-      { date: '2026.11.01', skin: 'gacha-crown', bg: 'var(--purple-tint)', title: '쿠키 65종과 쿠키 뽑기', lines: ['언어·밈·시즌 쿠키가 진열대에 올라왔어요.', '뽑기로만 만나는 쿠키 12종도 있어요.'], href: '/skins.html' },
+      { date: '2026.11.01', skin: 'python', bg: 'var(--sky-tint)', title: '넓은 위젯과 미니 쿠키', lines: ['위젯을 넓히면 장착한 쿠키가 통통 따라다녀요.', '장착을 바꾸면 README에도 바로 반영돼요.'], href: '#takeout' },
+      { date: '2026.11.01', skin: 'galaxy', bg: 'var(--purple-tint)', title: 'AI 점쟁이 등장', lines: ['포인트로 나만을 위한 오늘의 운세를 받아요.', '위젯과 운세 일기에도 그 운세가 나와요.'], href: '/shop.html' },
+      { date: '2026.11.01', skin: 'javascript', bg: '#FFF4C2', title: '해금 기준이 넓어졌어요', lines: ['가입한 날부터 모든 활동을 세어요.', '많이 쓴 언어마다 쿠키가 열려요.'], href: '/collection.html' },
+      { date: '2026.11.01', skin: 'gacha-crown', bg: 'var(--blush)', title: '쿠키 65종과 쿠키 뽑기', lines: ['언어·밈·시즌 쿠키가 진열대에 올라왔어요.', '뽑기로만 만나는 쿠키 12종도 있어요.'], href: '/skins.html' },
       { date: '2026.11.01', skin: 'streak', bg: '#FFE6CC', title: '연속 기록과 운세 일기', lines: ['쿠키를 연 날이 이어지면 보너스 포인트!', '냉동 쿠키가 빼먹은 하루를 지켜 줘요.'], href: '/diary.html' },
       { date: '2026.10.12', skin: 'gold', bg: 'var(--butter)', title: '쿠키 상점 오픈', lines: ['커밋하면 포인트가 쌓여요.', '포인트로 스킨과 테마를 사 보세요.'], href: '/shop.html' },
     ];
