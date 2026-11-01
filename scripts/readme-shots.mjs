@@ -103,7 +103,7 @@ try {
   await open('/');
   await shot('pc-hero', '.hero', { full: true });
   await shot('pc-daily', '#daily', { full: true });
-  await shot('pc-takeout', '#takeout', { full: true });
+  await shot('pc-takeout', '#takeout', { full: true, wait: 4000 }); // 위젯 글자가 다 나타날 때까지
   await shot('pc-friends', '#friends', { full: true });
   // 쿠키 열기 창·이야기·뽑기 연출은 움직이는 화면이라 readme-gifs.mjs가 GIF로 찍는다
 

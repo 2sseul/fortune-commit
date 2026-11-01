@@ -414,8 +414,8 @@
         <div class="takeout-text">
           <span class="eyebrow">Take out</span>
           <h2 class="h1 lines"><span>내 프로필에</span><span>쿠키 포장해 가기</span></h2>
-          <p class="body-lg lines pc-only"><span>포장을 고르고 코드를 복사해 README에 붙이세요.</span><span>YOUR_GITHUB_ID만 내 아이디로 바꾸면 끝이에요.</span></p>
-          <p class="body-lg lines m-only"><span>포장을 고르고 코드를 복사해</span><span>README에 붙이세요.</span><span>YOUR_GITHUB_ID만 바꾸면 끝이에요.</span></p>
+          <p class="body-lg lines pc-only"><span>포장을 고르고 코드를 복사해 README에 붙이세요.</span><span id="id-line-pc">YOUR_GITHUB_ID만 내 아이디로 바꾸면 끝이에요.</span></p>
+          <p class="body-lg lines m-only"><span>포장을 고르고 코드를 복사해</span><span>README에 붙이세요.</span><span id="id-line-m">YOUR_GITHUB_ID만 바꾸면 끝이에요.</span></p>
           <div class="pills round" id="tabs" role="tablist" aria-label="포장 고르기"></div>
           <!-- 위젯 너비 (v3): 기본 495 / 넓게 700 / README 끝까지 / 직접 입력(495~1000) -->
           <div class="width-row">
@@ -579,6 +579,8 @@
       me = result;
       if (me.loggedIn) {
         document.getElementById('id-note').textContent = `내 아이디(${me.login})를 채워 뒀어요. 복사해서 그대로 붙이면 돼요.`;
+        document.getElementById('id-line-pc').textContent = '내 아이디는 이미 들어가 있어요.';
+        document.getElementById('id-line-m').textContent = '내 아이디는 이미 들어가 있어요.';
         showPackage(current);
       }
       if (me.loggedIn) document.getElementById('hero-second').textContent = '내 프로필에 올리기';
