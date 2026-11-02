@@ -34,11 +34,11 @@ const CONTRIBUTION_FIELDS = `
         restrictedContributionsCount`;
 
 const QUERY = `
-  query ($login: String!, $todayFrom: DateTime!, $weekFrom: DateTime!) {
+  query ($login: String!, $todayFrom: DateTime!, $weekFrom: DateTime!, $utcDayFrom: DateTime!, $countToday: Boolean!) {
     user(login: $login) {
       lastWeek: contributionsCollection(from: $weekFrom, to: $todayFrom) {${CONTRIBUTION_FIELDS}
       }
-      today: contributionsCollection(from: $todayFrom) {${CONTRIBUTION_FIELDS}
+      today: contributionsCollection(from: $utcDayFrom) @include(if: $countToday) {${CONTRIBUTION_FIELDS}
       }
       repositories(first: 30, ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC,
                    orderBy: { field: PUSHED_AT, direction: DESC }) {
@@ -140,6 +140,11 @@ export async function fetchActivity({
   if (remembered && remembered.expiresAt > now.getTime()) return remembered.activity;
 
   const todayFrom = startOfToday(timeZone, now);
+  // GitHub 기여 수(contributionsCollection)는 시각이 아니라 'UTC 날짜' 단위로 센다. from에 한국 0시(UTC 전날 15시)를
+  // 넣으면 UTC 전날 하루치(= 한국 어제 9시~자정)가 통째로 '오늘'로 잡혀, 어제 커밋만 했는데도 쿠키가 열렸다. (11-02 수정)
+  // 그래서 기여 수로는 UTC 오늘 0시부터만 세고, 그 시각이 기준 시간대 0시보다 앞서면(한국 0~9시) 기여 수로 세지 않는다.
+  const utcDayFrom = new Date(Math.floor(now.getTime() / DAY_MS) * DAY_MS);
+  const countToday = utcDayFrom.getTime() >= todayFrom.getTime();
   try {
     // 오늘 활동(이벤트)과 지난 7일·주 언어(GraphQL)를 동시에 물어본다.
     const todayRequest = countTodayEvents({ login, token, since: todayFrom, fetchImpl });
@@ -156,6 +161,8 @@ export async function fetchActivity({
           login,
           todayFrom: todayFrom.toISOString(),
           weekFrom: new Date(todayFrom.getTime() - 7 * DAY_MS).toISOString(),
+          utcDayFrom: utcDayFrom.toISOString(),
+          countToday,
         },
       }),
       signal: AbortSignal.timeout(3000), // 3초 안에 답이 없으면 포기하고 기본 운세를 보여준다.
@@ -174,6 +181,7 @@ export async function fetchActivity({
     if (pushedToday) today = Math.max(events ?? 0, 1);
     // 비공개 저장소 기여 (v3.1): 프로필에서 'Private contributions'를 켠 사람은 비공개 저장소 기여가
     // restrictedContributionsCount로 '개수만' 잡힌다. 저장소 권한 없이 쿠키를 열 수 있게 오늘 기여에 더한다.
+    // (UTC 날짜 단위라 한국 0~9시에는 세지 않고, 그 시간의 비공개 기여는 공개 활동이 없으면 9시 이후에도 안 잡힌다)
     const todayCount = user.today ? sumContributions(user.today) : 0;
     if (todayCount > 0) today = Math.max(today ?? 0, todayCount);
 

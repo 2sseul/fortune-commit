@@ -177,3 +177,24 @@ test('비공개 저장소 기여(개수만)도 오늘 기여로 센다 — 공�
   assert.equal(activity.privateToday, 4);
   assert.equal(activity.lastWeek, 5);
 });
+
+test('어제(한국 시간) 기여가 UTC 날짜 단위로 잡혀도 오늘로 치지 않는다 — 한국 0~9시에는 기여 수를 묻지 않는다 (11-02)', async () => {
+  clearActivityMemory();
+  let variables;
+  const fetchImpl = async (url, options) => {
+    if (String(url).includes('/events')) return { ok: true, json: async () => [] };
+    variables = JSON.parse(options.body).variables;
+    return { ok: true, json: async () => ({ data: { user: {
+      lastWeek: { totalCommitContributions: 3 },
+      ...(variables.countToday ? { today: { totalCommitContributions: 5 } } : {}),
+      repositories: { nodes: [{ pushedAt: '2026-11-01T03:33:00Z' }] }, // 한국 어제 12:33
+    } } }) };
+  };
+  const early = await fetchActivity({ login: 'a', timeZone: 'Asia/Seoul', date: '2026-11-02', token: 't', fetchImpl, now: new Date('2026-11-01T20:00:00Z') }); // 한국 05시
+  assert.equal(variables.countToday, false);
+  assert.equal(early.today, 0);
+  clearActivityMemory();
+  await fetchActivity({ login: 'a', timeZone: 'Asia/Seoul', date: '2026-11-02', token: 't', fetchImpl, now: new Date('2026-11-02T09:43:00Z') }); // 한국 18:43
+  assert.equal(variables.countToday, true);
+  assert.equal(variables.utcDayFrom, '2026-11-02T00:00:00.000Z');
+});
